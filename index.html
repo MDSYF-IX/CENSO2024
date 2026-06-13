@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Censo 2024 · Consulta territorial</title>
+<style>
+  :root{
+    --paper:#f6f4ef;
+    --ink:#1f2a24;
+    --line:#cfc8ba;
+    --moss:#3c5c46;
+    --moss-deep:#2a4232;
+    --copper:#b5651d;
+    --copper-soft:#e9d9c8;
+    --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
+    --serif: "Source Serif Pro", Georgia, serif;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:var(--sans);
+    background:var(--paper);
+    color:var(--ink);
+    line-height:1.5;
+  }
+  header{
+    padding:28px 24px 18px;
+    border-bottom:2px solid var(--ink);
+  }
+  header .eyebrow{
+    font-family:var(--mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--moss);
+  }
+  header h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:32px;
+    margin:6px 0 4px;
+  }
+  header p{margin:0;color:#54625a;font-size:14px;max-width:640px;}
+
+  main{padding:24px;max-width:1100px;margin:0 auto;}
+
+  .levels{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    margin-bottom:8px;
+  }
+  .level{
+    flex:1 1 200px;
+    min-width:170px;
+  }
+  .level label{
+    display:block;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--moss-deep);
+    margin-bottom:6px;
+  }
+  .level select{
+    width:100%;
+    padding:10px 12px;
+    font-size:14px;
+    font-family:var(--sans);
+    background:#fff;
+    border:1.5px solid var(--line);
+    border-radius:3px;
+    color:var(--ink);
+    appearance:none;
+    cursor:pointer;
+  }
+  .level select:disabled{
+    background:#ece9e2;
+    color:#9a9488;
+    cursor:not-allowed;
+    border-color:#ddd6c8;
+  }
+  .level select:focus-visible{
+    outline:2px solid var(--copper);
+    outline-offset:1px;
+  }
+
+  .breadcrumb{
+    font-family:var(--mono);
+    font-size:12px;
+    color:#8a8276;
+    margin:18px 0 22px;
+    min-height:18px;
+  }
+  .breadcrumb b{color:var(--moss-deep);font-weight:600;}
+
+  .result{
+    border:2px solid var(--ink);
+    border-radius:4px;
+    overflow:hidden;
+    background:#fff;
+  }
+  .result-head{
+    background:var(--moss-deep);
+    color:#f1ede4;
+    padding:16px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .result-head h2{
+    font-family:var(--serif);
+    margin:0;
+    font-size:20px;
+    font-weight:600;
+  }
+  .result-head .pop{
+    font-family:var(--mono);
+    font-size:13px;
+    color:var(--copper-soft);
+  }
+  .result-head .pop b{
+    font-size:22px;
+    color:#fff;
+    margin-right:4px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+  }
+  .cell{
+    padding:16px 18px;
+    border-right:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+  }
+  .cell:nth-last-child(-n+5){border-bottom:none;}
+  .cell .label{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#8a8276;
+    margin-bottom:6px;
+  }
+  .cell .value{
+    font-family:var(--serif);
+    font-size:24px;
+    font-weight:600;
+    color:var(--moss-deep);
+  }
+  .cell.copper .value{color:var(--copper);}
+
+  .empty, .loading{
+    padding:40px 20px;
+    text-align:center;
+    color:#9a9488;
+    font-family:var(--mono);
+    font-size:13px;
+  }
+
+  footer{
+    text-align:center;
+    padding:30px 20px 40px;
+    font-family:var(--mono);
+    font-size:11px;
+    color:#9a9488;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+  }
+
+  @media (max-width:640px){
+    header h1{font-size:24px;}
+    .cell:nth-last-child(-n+5){border-bottom:1px solid var(--line);}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">SEREMI MDSF Araucanía · Base de datos</div>
+  <h1>Censo de Población y Vivienda 2024</h1>
+  <p>Consulta los datos del censo por región, provincia, comuna, distrito, localidad y zona/entidad. Selecciona un nivel para ver el total de personas, hogares y viviendas.</p>
+</header>
+
+<main>
+
+  <div class="levels">
+    <div class="level">
+      <label for="sel-region">Región</label>
+      <select id="sel-region"><option value="">Seleccione…</option></select>
+    </div>
+    <div class="level">
+      <label for="sel-provincia">Provincia</label>
+      <select id="sel-provincia" disabled><option value="">Seleccione…</option></select>
+    </div>
+    <div class="level">
+      <label for="sel-comuna">Comuna</label>
+      <select id="sel-comuna" disabled><option value="">Seleccione…</option></select>
+    </div>
+    <div class="level">
+      <label for="sel-distrito">Distrito</label>
+      <select id="sel-distrito" disabled><option value="">Seleccione…</option></select>
+    </div>
+    <div class="level">
+      <label for="sel-area">Área</label>
+      <select id="sel-area" disabled>
+        <option value="">Seleccione…</option>
+        <option value="URBANO">Urbano</option>
+        <option value="RURAL">Rural</option>
+      </select>
+    </div>
+    <div class="level">
+      <label for="sel-localidad">Localidad</label>
+      <select id="sel-localidad" disabled><option value="">Seleccione…</option></select>
+    </div>
+    <div class="level" id="wrap-sub">
+      <label for="sel-sub">Zona / Entidad</label>
+      <select id="sel-sub" disabled><option value="">Seleccione…</option></select>
+    </div>
+  </div>
+
+  <div class="breadcrumb" id="breadcrumb"></div>
+
+  <div class="result" id="result">
+    <div class="empty">Selecciona al menos una región para comenzar la consulta.</div>
+  </div>
+
+</main>
+
+<footer>Fuente: Censo de Población y Vivienda 2024, INE · Datos a nivel de manzana / entidad censal</footer>
+
+<script>
+const SUPABASE_URL = "https://dsrvxgpdxzjcpqtopfrk.supabase.co/rest/v1";
+const SUPABASE_KEY = "sb_publishable_jsz5WVNHq33JNXqQqKY9UQ_b53dB0kk";
+
+const METRICS = [
+  {key:"n_per", label:"Población total"},
+  {key:"n_hombres", label:"Hombres"},
+  {key:"n_mujeres", label:"Mujeres"},
+  {key:"n_edad_0_5", label:"0 a 5 años"},
+  {key:"n_edad_6_13", label:"6 a 13 años"},
+  {key:"n_edad_14_17", label:"14 a 17 años"},
+  {key:"n_edad_18_24", label:"18 a 24 años"},
+  {key:"n_edad_25_44", label:"25 a 44 años"},
+  {key:"n_edad_45_59", label:"45 a 59 años"},
+  {key:"n_edad_60_mas", label:"60 años y más"},
+  {key:"n_pueblos_orig", label:"Pueblos originarios"},
+  {key:"n_hog", label:"Hogares"},
+  {key:"n_vp", label:"Viviendas part."},
+];
+
+async function sb(view, params){
+  const url = `${SUPABASE_URL}/${view}?${params}`;
+  const res = await fetch(url, {
+    headers:{
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`
+    }
+  });
+  if(!res.ok) throw new Error(`Error consultando ${view}: ${res.status}`);
+  return res.json();
+}
+
+const els = {
+  region: document.getElementById("sel-region"),
+  provincia: document.getElementById("sel-provincia"),
+  comuna: document.getElementById("sel-comuna"),
+  distrito: document.getElementById("sel-distrito"),
+  area: document.getElementById("sel-area"),
+  localidad: document.getElementById("sel-localidad"),
+  sub: document.getElementById("sel-sub"),
+  subLabel: document.querySelector("#wrap-sub label"),
+  breadcrumb: document.getElementById("breadcrumb"),
+  result: document.getElementById("result"),
+};
+
+function resetSelect(sel, placeholder="Seleccione…"){
+  sel.innerHTML = `<option value="">${placeholder}</option>`;
+  sel.disabled = true;
+}
+
+function fillSelect(sel, items, valueFn, labelFn, placeholder="Seleccione…"){
+  sel.innerHTML = `<option value="">${placeholder}</option>`;
+  for(const it of items){
+    const opt = document.createElement("option");
+    opt.value = valueFn(it);
+    opt.textContent = labelFn(it);
+    sel.appendChild(opt);
+  }
+  sel.disabled = items.length === 0;
+}
+
+function setLoading(){
+  els.result.innerHTML = `<div class="loading">Consultando base de datos…</div>`;
+}
+
+function setEmpty(msg){
+  els.result.innerHTML = `<div class="empty">${msg}</div>`;
+}
+
+function renderResult(title, row){
+  if(!row){
+    setEmpty("No hay datos disponibles para esta selección.");
+    return;
+  }
+  const cells = METRICS.map(m => {
+    const val = row[m.key];
+    const isCopper = m.key === "n_per";
+    return `<div class="cell${isCopper ? " copper" : ""}">
+      <div class="label">${m.label}</div>
+      <div class="value">${val === null || val === undefined ? "—" : Number(val).toLocaleString("es-CL")}</div>
+    </div>`;
+  }).join("");
+
+  els.result.innerHTML = `
+    <div class="result-head">
+      <h2>${title}</h2>
+      <div class="pop"><b>${row.n_per !== null ? Number(row.n_per).toLocaleString("es-CL") : "—"}</b>habitantes</div>
+    </div>
+    <div class="grid">${cells}</div>
+  `;
+}
+
+// ---------- Cascade ----------
+
+async function loadRegiones(){
+  const data = await sb("vw_region", "select=cod_region,region,n_per&order=region");
+  fillSelect(els.region, data, d=>d.cod_region, d=>d.region);
+}
+
+async function onRegionChange(){
+  const cod_region = els.region.value;
+  resetSelect(els.provincia);
+  resetSelect(els.comuna);
+  resetSelect(els.distrito);
+  els.area.disabled = true; els.area.value="";
+  resetSelect(els.localidad);
+  resetSelect(els.sub);
+
+  if(!cod_region){ updateBreadcrumb(); showRegion(null); return; }
+
+  const data = await sb("vw_region", `select=*&cod_region=eq.${cod_region}`);
+  showRegion(data[0]);
+
+  const provs = await sb("vw_provincia", `select=provincia&cod_region=eq.${cod_region}&order=provincia`);
+  fillSelect(els.provincia, provs, d=>d.provincia, d=>d.provincia);
+  updateBreadcrumb();
+}
+
+async function showRegion(row){
+  if(!row){ setEmpty("Selecciona al menos una región para comenzar la consulta."); return; }
+  setLoading();
+  renderResult(`Región de ${row.region}`, row);
+}
+
+async function onProvinciaChange(){
+  const cod_region = els.region.value;
+  const provincia = els.provincia.value;
+  resetSelect(els.comuna);
+  resetSelect(els.distrito);
+  els.area.disabled = true; els.area.value="";
+  resetSelect(els.localidad);
+  resetSelect(els.sub);
+
+  if(!provincia){ const data = await sb("vw_region", `select=*&cod_region=eq.${cod_region}`); showRegion(data[0]); updateBreadcrumb(); return; }
+
+  setLoading();
+  const data = await sb("vw_provincia", `select=*&cod_region=eq.${cod_region}&provincia=eq.${encodeURIComponent(provincia)}`);
+  renderResult(`Provincia de ${provincia}`, data[0]);
+
+  const comunas = await sb("vw_comuna", `select=cut_comuna,comuna&provincia=eq.${encodeURIComponent(provincia)}&order=comuna`);
+  fillSelect(els.comuna, comunas, d=>d.cut_comuna, d=>d.comuna);
+  updateBreadcrumb();
+}
+
+async function onComunaChange(){
+  const cut_comuna = els.comuna.value;
+  resetSelect(els.distrito);
+  els.area.disabled = true; els.area.value="";
+  resetSelect(els.localidad);
+  resetSelect(els.sub);
+
+  if(!cut_comuna){
+    await onProvinciaChange();
+    return;
+  }
+
+  setLoading();
+  const data = await sb("vw_comuna", `select=*&cut_comuna=eq.${cut_comuna}`);
+  renderResult(`Comuna de ${data[0].comuna}`, data[0]);
+
+  const distritos = await sb("vw_distrito", `select=id_distrito,cod_distrito,distrito&cut_comuna=eq.${cut_comuna}&order=cod_distrito`);
+  fillSelect(els.distrito, distritos, d=>d.id_distrito, d=>`Distrito ${d.cod_distrito} · ${d.distrito}`);
+  updateBreadcrumb();
+}
+
+async function onDistritoChange(){
+  const id_distrito = els.distrito.value;
+  els.area.value = "";
+  resetSelect(els.localidad);
+  resetSelect(els.sub);
+
+  if(!id_distrito){
+    els.area.disabled = true;
+    await onComunaChange();
+    return;
+  }
+
+  setLoading();
+  const data = await sb("vw_distrito", `select=*&id_distrito=eq.${id_distrito}`);
+  renderResult(`Distrito ${data[0].cod_distrito} · ${data[0].distrito}`, data[0]);
+  els.area.disabled = false;
+  updateBreadcrumb();
+}
+
+async function onAreaChange(){
+  const id_distrito = els.distrito.value;
+  const area = els.area.value;
+  resetSelect(els.localidad);
+  resetSelect(els.sub);
+  els.subLabel.textContent = "Zona / Entidad";
+
+  if(!area){
+    await onDistritoChange();
+    return;
+  }
+
+  setLoading();
+  const data = await sb("vw_area", `select=*&id_distrito=eq.${id_distrito}&area=eq.${area}`);
+  const distData = await sb("vw_distrito", `select=distrito,cod_distrito&id_distrito=eq.${id_distrito}`);
+  const dname = distData[0] ? `Distrito ${distData[0].cod_distrito} · ${distData[0].distrito}` : "Distrito";
+  renderResult(`${dname} — ${area === "URBANO" ? "Área urbana" : "Área rural"}`, data[0]);
+
+  const localidades = await sb("vw_localidad", `select=id_localidad,localidad&id_distrito=eq.${id_distrito}&area=eq.${area}&order=localidad`);
+  fillSelect(els.localidad, localidades, d=>d.id_localidad, d=>d.localidad);
+  updateBreadcrumb();
+}
+
+async function onLocalidadChange(){
+  const id_localidad = els.localidad.value;
+  const area = els.area.value;
+  resetSelect(els.sub);
+  els.subLabel.textContent = area === "URBANO" ? "Zona censal" : "Entidad";
+
+  if(!id_localidad){
+    await onAreaChange();
+    return;
+  }
+
+  setLoading();
+  const data = await sb("vw_localidad", `select=*&id_localidad=eq.${id_localidad}`);
+  renderResult(`Localidad ${data[0].localidad}`, data[0]);
+
+  if(area === "URBANO"){
+    const zonas = await sb("vw_zona", `select=id_zona,cod_zona&id_localidad=eq.${id_localidad}&order=cod_zona`);
+    fillSelect(els.sub, zonas, d=>d.id_zona, d=>`Zona censal ${d.cod_zona}`);
+  } else {
+    const entidades = await sb("vw_entidad", `select=id_entidad,entidad&id_localidad=eq.${id_localidad}&order=entidad`);
+    fillSelect(els.sub, entidades, d=>d.id_entidad, d=>d.entidad);
+  }
+  updateBreadcrumb();
+}
+
+async function onSubChange(){
+  const id_sub = els.sub.value;
+  const area = els.area.value;
+  const id_localidad = els.localidad.value;
+
+  if(!id_sub){
+    await onLocalidadChange();
+    return;
+  }
+
+  setLoading();
+  if(area === "URBANO"){
+    const data = await sb("vw_zona", `select=*&id_zona=eq.${id_sub}`);
+    renderResult(`Zona censal ${data[0].cod_zona}`, data[0]);
+  } else {
+    const data = await sb("vw_entidad", `select=*&id_entidad=eq.${id_sub}`);
+    renderResult(`Entidad ${data[0].entidad}`, data[0]);
+  }
+  updateBreadcrumb();
+}
+
+function updateBreadcrumb(){
+  const parts = [];
+  const add = (sel, prefix="") => {
+    const opt = sel.options[sel.selectedIndex];
+    if(sel.value) parts.push(`<b>${prefix}${opt.textContent}</b>`);
+  };
+  add(els.region);
+  add(els.provincia);
+  add(els.comuna);
+  add(els.distrito);
+  if(els.area.value) add(els.area);
+  add(els.localidad);
+  add(els.sub);
+  els.breadcrumb.innerHTML = parts.length ? parts.join(" › ") : "";
+}
+
+// Wire events
+els.region.addEventListener("change", onRegionChange);
+els.provincia.addEventListener("change", onProvinciaChange);
+els.comuna.addEventListener("change", onComunaChange);
+els.distrito.addEventListener("change", onDistritoChange);
+els.area.addEventListener("change", onAreaChange);
+els.localidad.addEventListener("change", onLocalidadChange);
+els.sub.addEventListener("change", onSubChange);
+
+// Init
+loadRegiones().catch(err => {
+  setEmpty("No se pudo conectar a la base de datos. Verifica la conexión a internet o la configuración de Supabase.");
+  console.error(err);
+});
+</script>
+
+</body>
+</html>
