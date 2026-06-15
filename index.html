@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Censo 2024 · Consulta territorial</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
   :root{
     --pink:#e6007e;
@@ -99,6 +100,16 @@
   }
   .view-toggle label{display:flex;align-items:center;gap:6px;cursor:pointer;}
   .view-toggle input{accent-color:var(--blue);width:15px;height:15px;cursor:pointer;}
+
+  .map-card{
+    height:300px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    overflow:hidden;
+    margin:0 0 16px;
+    background:#dde4ec;
+  }
+  .map-card .leaflet-popup-content{font-size:13px;font-weight:600;color:var(--navy);}
 
   .breadcrumb{
     font-size:13px;
@@ -229,6 +240,8 @@
     <label><input type="checkbox" id="chk-rural" checked> Rural</label>
   </div>
 
+  <div id="map-container" class="map-card"></div>
+
   <div class="breadcrumb" id="breadcrumb"></div>
 
   <div id="result">
@@ -239,6 +252,7 @@
 
 <footer>Fuente: Censo de Población y Vivienda 2024, INE · Datos a nivel de manzana / entidad censal</footer>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 const SUPABASE_URL = "https://dsrvxgpdxzjcpqtopfrk.supabase.co/rest/v1";
 const SUPABASE_KEY = "sb_publishable_jsz5WVNHq33JNXqQqKY9UQ_b53dB0kk";
@@ -278,6 +292,86 @@ const els = {
 };
 
 let currentPanels = [];
+
+// ---------- Map ----------
+let map, boundaryLayer = null;
+
+const ARCGIS_BASE = "https://services5.arcgis.com/hUyD8u3TeZLKPe4T/ArcGIS/rest/services/Censo2024_v2/FeatureServer";
+// Layers: 3=Regional 4=Provincial 11=Comunal 10=Distrital 2=Zonal/Entidades (incluye Localidad)
+const ARCGIS_LAYERS = { region: 3, provincia: 4, comuna: 11, distrito: 10, zonal: 2 };
+
+function initMap(){
+  map = L.map('map-container', {zoomControl:true, attributionControl:true})
+    .setView([-35.6, -71.5], 4); // vista general de Chile
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 18
+  }).addTo(map);
+}
+
+async function fetchBoundary(layerId, where){
+  const url = `${ARCGIS_BASE}/${layerId}/query?where=${encodeURIComponent(where)}&outFields=OBJECTID&returnGeometry=true&geometryPrecision=5&f=geojson`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error("Error consultando límites geográficos");
+  return res.json();
+}
+
+function setBoundary(geojson){
+  if(boundaryLayer){ map.removeLayer(boundaryLayer); boundaryLayer = null; }
+  if(!geojson || !geojson.features || geojson.features.length === 0){
+    map.setView([-35.6, -71.5], 4);
+    return;
+  }
+  boundaryLayer = L.geoJSON(geojson, {
+    style: { color: "#e6007e", weight: 2, fillColor: "#29abe2", fillOpacity: 0.15 }
+  }).addTo(map);
+  map.fitBounds(boundaryLayer.getBounds(), { maxZoom: 15, padding: [20, 20] });
+}
+
+// Construye la consulta de límites según el nivel más profundo seleccionado
+function buildBoundaryQuery(){
+  const cod_region = els.region.value;
+  const provincia = els.provincia.value;
+  const cut_comuna = els.comuna.value;
+  const id_distrito = els.distrito.value;
+  const localVal = els.localidad.value; // "id_localidad|AREA"
+  const id_sub = els.sub.value;
+
+  if(id_sub){
+    const area = localVal.split("|")[1];
+    const field = area === "URBANO" ? "ID_ZONA" : "ID_ENTIDAD";
+    return { layer: ARCGIS_LAYERS.zonal, where: `${field}=${id_sub}` };
+  }
+  if(localVal){
+    const [id_localidad, area] = localVal.split("|");
+    return { layer: ARCGIS_LAYERS.zonal, where: `ID_LOCALIDAD=${id_localidad} AND AREA_C='${area}'` };
+  }
+  if(id_distrito){
+    return { layer: ARCGIS_LAYERS.distrito, where: `ID_DISTRITO=${id_distrito}` };
+  }
+  if(cut_comuna){
+    return { layer: ARCGIS_LAYERS.comuna, where: `CUT=${cut_comuna}` };
+  }
+  if(provincia){
+    const safe = provincia.replace(/'/g, "''");
+    return { layer: ARCGIS_LAYERS.provincia, where: `COD_REGION=${cod_region} AND PROVINCIA='${safe}'` };
+  }
+  if(cod_region){
+    return { layer: ARCGIS_LAYERS.region, where: `COD_REGION=${cod_region}` };
+  }
+  return null;
+}
+
+async function updateMap(){
+  const q = buildBoundaryQuery();
+  if(!q){ setBoundary(null); return; }
+  try{
+    const geojson = await fetchBoundary(q.layer, q.where);
+    setBoundary(geojson);
+  } catch(e){
+    console.warn("No se pudo cargar el límite geográfico:", q, e);
+  }
+}
 
 function fmt(n){ return (n===null||n===undefined) ? "—" : Number(n).toLocaleString("es-CL"); }
 
@@ -435,7 +529,12 @@ async function onRegionChange(){
   const cod_region = els.region.value;
   clearBelow("provincia");
 
-  if(!cod_region){ setEmpty("Selecciona al menos una región para comenzar la consulta."); updateBreadcrumb(); return; }
+  if(!cod_region){
+    setEmpty("Selecciona al menos una región para comenzar la consulta.");
+    updateBreadcrumb();
+    await updateMap();
+    return;
+  }
 
   const data = await sb("vw_region", `select=*&cod_region=eq.${cod_region}`);
   await showAreaPanels("vw_region", "vw_region_area", `cod_region=eq.${cod_region}`, `Región de ${data[0].region}`);
@@ -443,6 +542,7 @@ async function onRegionChange(){
   const provs = await sb("vw_provincia", `select=provincia&cod_region=eq.${cod_region}&order=provincia`);
   fillSelect(els.provincia, provs, d=>d.provincia, d=>d.provincia);
   updateBreadcrumb();
+  await updateMap();
 }
 
 async function onProvinciaChange(){
@@ -457,6 +557,7 @@ async function onProvinciaChange(){
   const comunas = await sb("vw_comuna", `select=cut_comuna,comuna&provincia=eq.${encodeURIComponent(provincia)}&order=comuna`);
   fillSelect(els.comuna, comunas, d=>d.cut_comuna, d=>d.comuna);
   updateBreadcrumb();
+  await updateMap();
 }
 
 async function onComunaChange(){
@@ -471,6 +572,7 @@ async function onComunaChange(){
   const distritos = await sb("vw_distrito", `select=id_distrito,cod_distrito,distrito&cut_comuna=eq.${cut_comuna}&order=cod_distrito`);
   fillSelect(els.distrito, distritos, d=>d.id_distrito, d=>`Distrito ${d.cod_distrito} · ${d.distrito}`);
   updateBreadcrumb();
+  await updateMap();
 }
 
 async function onDistritoChange(){
@@ -485,6 +587,7 @@ async function onDistritoChange(){
   const localidades = await sb("vw_localidad", `select=id_localidad,localidad,area&id_distrito=eq.${id_distrito}&order=localidad`);
   fillSelect(els.localidad, localidades, d=>`${d.id_localidad}|${d.area}`, d=>`${d.localidad} (${d.area === "URBANO" ? "Urbano" : "Rural"})`);
   updateBreadcrumb();
+  await updateMap();
 }
 
 async function onLocalidadChange(){
@@ -510,6 +613,7 @@ async function onLocalidadChange(){
     fillSelect(els.sub, entidades, d=>d.id_entidad, d=>d.entidad);
   }
   updateBreadcrumb();
+  await updateMap();
 }
 
 async function onSubChange(){
@@ -528,6 +632,7 @@ async function onSubChange(){
     renderPanels([{key:"rural", title: `Entidad ${data[0].entidad} — Rural`, row: data[0], cls:"rural"}]);
   }
   updateBreadcrumb();
+  await updateMap();
 }
 
 function updateBreadcrumb(){
@@ -547,6 +652,8 @@ els.comuna.addEventListener("change", onComunaChange);
 els.distrito.addEventListener("change", onDistritoChange);
 els.localidad.addEventListener("change", onLocalidadChange);
 els.sub.addEventListener("change", onSubChange);
+
+initMap();
 
 loadRegiones().catch(err => {
   setEmpty("No se pudo conectar a la base de datos. Verifica la conexión a internet o la configuración de Supabase.");
