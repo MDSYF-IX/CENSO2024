@@ -592,6 +592,7 @@ async function onDistritoChange(){
 
 async function onLocalidadChange(){
   const val = els.localidad.value;
+  const id_distrito = els.distrito.value;
   resetSelect(els.sub);
   els.subLabel.textContent = "Zona / Entidad";
 
@@ -599,17 +600,17 @@ async function onLocalidadChange(){
   const [id_localidad, area] = val.split("|");
 
   setLoading();
-  const data = await sb("vw_localidad", `select=*&id_localidad=eq.${id_localidad}&area=eq.${area}`);
+  const data = await sb("vw_localidad", `select=*&id_distrito=eq.${id_distrito}&id_localidad=eq.${id_localidad}&area=eq.${area}`);
   const row = data[0];
   renderPanels([{key: area==="URBANO"?"urbano":"rural", title: `Localidad ${row.localidad} — ${area === "URBANO" ? "Urbano" : "Rural"}`, row, cls: area==="URBANO"?"urbano":"rural"}]);
 
   if(area === "URBANO"){
     els.subLabel.textContent = "Zona censal";
-    const zonas = await sb("vw_zona", `select=id_zona,cod_zona&id_localidad=eq.${id_localidad}&order=cod_zona`);
+    const zonas = await sb("vw_zona", `select=id_zona,cod_zona&id_distrito=eq.${id_distrito}&id_localidad=eq.${id_localidad}&order=cod_zona`);
     fillSelect(els.sub, zonas, d=>d.id_zona, d=>`Zona censal ${d.cod_zona}`);
   } else {
     els.subLabel.textContent = "Entidad";
-    const entidades = await sb("vw_entidad", `select=id_entidad,entidad&id_localidad=eq.${id_localidad}&order=entidad`);
+    const entidades = await sb("vw_entidad", `select=id_entidad,entidad&id_distrito=eq.${id_distrito}&id_localidad=eq.${id_localidad}&order=entidad`);
     fillSelect(els.sub, entidades, d=>d.id_entidad, d=>d.entidad);
   }
   updateBreadcrumb();
