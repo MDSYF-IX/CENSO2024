@@ -6,177 +6,182 @@
 <title>Censo 2024 · Consulta territorial</title>
 <style>
   :root{
-    --paper:#f6f4ef;
-    --ink:#1f2a24;
-    --line:#cfc8ba;
-    --moss:#3c5c46;
-    --moss-deep:#2a4232;
-    --copper:#b5651d;
-    --copper-soft:#e9d9c8;
-    --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, monospace;
-    --serif: "Source Serif Pro", Georgia, serif;
-    --sans: "IBM Plex Sans", system-ui, sans-serif;
+    --pink:#e6007e;
+    --navy:#1b3f73;
+    --navy-deep:#142e54;
+    --blue:#29abe2;
+    --gold:#f5a623;
+    --bg:#eef1f5;
+    --card:#ffffff;
+    --line:#dfe4ec;
+    --ink:#243042;
+    --muted:#7c879a;
+    --sans: "Segoe UI", system-ui, Roboto, sans-serif;
   }
   *{box-sizing:border-box;}
   body{
     margin:0;
     font-family:var(--sans);
-    background:var(--paper);
+    background:var(--bg);
     color:var(--ink);
-    line-height:1.5;
+    line-height:1.45;
   }
   header{
-    padding:28px 24px 18px;
-    border-bottom:2px solid var(--ink);
+    background:var(--navy-deep);
+    color:#fff;
+    padding:22px 24px;
   }
   header .eyebrow{
-    font-family:var(--mono);
     font-size:12px;
     letter-spacing:.12em;
     text-transform:uppercase;
-    color:var(--moss);
+    color:#9fc4f0;
+    font-weight:600;
   }
   header h1{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:32px;
+    font-size:26px;
     margin:6px 0 4px;
+    font-weight:700;
   }
-  header p{margin:0;color:#54625a;font-size:14px;max-width:640px;}
+  header p{margin:0;color:#cdd9ec;font-size:13px;max-width:680px;}
 
-  main{padding:24px;max-width:1100px;margin:0 auto;}
+  main{padding:20px;max-width:1280px;margin:0 auto;}
 
   .levels{
     display:flex;
     flex-wrap:wrap;
-    gap:14px;
-    margin-bottom:8px;
+    gap:12px;
+    margin-bottom:18px;
   }
-  .level{
-    flex:1 1 200px;
-    min-width:170px;
-  }
+  .level{flex:1 1 170px;min-width:150px;}
   .level label{
     display:block;
-    font-family:var(--mono);
     font-size:11px;
-    letter-spacing:.08em;
+    font-weight:700;
+    letter-spacing:.06em;
     text-transform:uppercase;
-    color:var(--moss-deep);
+    color:var(--navy);
     margin-bottom:6px;
   }
   .level select{
     width:100%;
-    padding:10px 12px;
+    padding:9px 10px;
     font-size:14px;
     font-family:var(--sans);
     background:#fff;
     border:1.5px solid var(--line);
-    border-radius:3px;
+    border-radius:6px;
     color:var(--ink);
-    appearance:none;
     cursor:pointer;
   }
-  .level select:disabled{
-    background:#ece9e2;
-    color:#9a9488;
-    cursor:not-allowed;
-    border-color:#ddd6c8;
-  }
-  .level select:focus-visible{
-    outline:2px solid var(--copper);
-    outline-offset:1px;
-  }
+  .level select:disabled{background:#e7eaef;color:#a7afbc;cursor:not-allowed;}
+  .level select:focus-visible{outline:2px solid var(--blue);outline-offset:1px;}
 
-  .breadcrumb{
-    font-family:var(--mono);
-    font-size:12px;
-    color:#8a8276;
-    margin:18px 0 22px;
-    min-height:18px;
-  }
-  .breadcrumb b{color:var(--moss-deep);font-weight:600;}
-
-  .result{
-    border:2px solid var(--ink);
-    border-radius:4px;
-    overflow:hidden;
-    background:#fff;
-  }
-  .result-head{
-    background:var(--moss-deep);
-    color:#f1ede4;
-    padding:16px 20px;
+  .view-toggle{
     display:flex;
-    justify-content:space-between;
-    align-items:baseline;
-    gap:16px;
+    gap:18px;
+    align-items:center;
+    margin:0 0 14px;
+    padding:10px 14px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:6px;
+    font-size:13px;
     flex-wrap:wrap;
   }
-  .result-head h2{
-    font-family:var(--serif);
-    margin:0;
-    font-size:20px;
-    font-weight:600;
-  }
-  .result-head .pop{
-    font-family:var(--mono);
-    font-size:13px;
-    color:var(--copper-soft);
-  }
-  .result-head .pop b{
-    font-size:22px;
-    color:#fff;
-    margin-right:4px;
-  }
-
-  .grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-  }
-  .cell{
-    padding:16px 18px;
-    border-right:1px solid var(--line);
-    border-bottom:1px solid var(--line);
-  }
-  .cell:nth-last-child(-n+5){border-bottom:none;}
-  .cell .label{
-    font-family:var(--mono);
+  .view-toggle .vt-label{
+    font-weight:700;
+    color:var(--navy);
+    text-transform:uppercase;
     font-size:11px;
     letter-spacing:.06em;
-    text-transform:uppercase;
-    color:#8a8276;
-    margin-bottom:6px;
+    margin-right:4px;
   }
-  .cell .value{
-    font-family:var(--serif);
-    font-size:24px;
-    font-weight:600;
-    color:var(--moss-deep);
+  .view-toggle label{display:flex;align-items:center;gap:6px;cursor:pointer;}
+  .view-toggle input{accent-color:var(--blue);width:15px;height:15px;cursor:pointer;}
+
+  .breadcrumb{
+    font-size:13px;
+    color:var(--muted);
+    margin:0 0 16px;
+    min-height:18px;
   }
-  .cell.copper .value{color:var(--copper);}
+  .breadcrumb b{color:var(--navy);font-weight:700;}
+
+  .panels{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  .panels.single{grid-template-columns:1fr;max-width:760px;}
+  @media (max-width:880px){
+    .panels{grid-template-columns:1fr;}
+  }
+
+  .panel-title{
+    font-size:15px;
+    font-weight:700;
+    color:var(--navy);
+    margin:0 0 10px;
+    padding-bottom:6px;
+    border-bottom:3px solid var(--blue);
+  }
+  .panel-title.rural{border-bottom-color:var(--gold);}
+  .panel-title.total{border-bottom-color:var(--pink);}
+
+  .dash-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+  }
+
+  .card{
+    background:var(--card);
+    border-radius:8px;
+    border:1px solid var(--line);
+    padding:14px 16px;
+  }
+  .card.pink{background:var(--pink);color:#fff;border:none;}
+  .card.navy{background:var(--navy);color:#fff;border:none;}
+  .card .ctitle{font-size:13px;font-weight:600;margin-bottom:8px;}
+  .card.pink .ctitle, .card.navy .ctitle{color:#fff;opacity:.9;}
+  .card .cvalue{font-size:28px;font-weight:800;line-height:1;}
+  .card.pink .cvalue, .card.navy .cvalue{color:#fff;}
+  .card .cvalue small{font-size:13px;font-weight:600;opacity:.8;margin-left:4px;}
+
+  .card.span2{grid-column:1 / -1;}
+
+  .sex-block{display:flex;align-items:center;gap:14px;}
+  .donut{flex:0 0 auto;}
+  .sex-legend{font-size:12px;}
+  .sex-legend div{margin-bottom:4px;}
+  .sex-legend .swatch{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;}
+  .sex-legend b{font-size:14px;}
+
+  .bars{font-size:12px;}
+  .bar-row{display:grid;grid-template-columns:62px 1fr 50px;align-items:center;gap:8px;margin-bottom:5px;}
+  .bar-row .label{color:var(--muted);}
+  .bar-track{background:#eef1f5;border-radius:4px;height:10px;overflow:hidden;}
+  .bar-fill{height:100%;background:var(--blue);border-radius:4px;}
+  .bar-row .num{text-align:right;font-weight:600;color:var(--ink);}
 
   .empty, .loading{
-    padding:40px 20px;
+    padding:50px 20px;
     text-align:center;
-    color:#9a9488;
-    font-family:var(--mono);
-    font-size:13px;
+    color:var(--muted);
+    font-size:14px;
+    background:#fff;
+    border:1px dashed var(--line);
+    border-radius:8px;
   }
 
   footer{
     text-align:center;
-    padding:30px 20px 40px;
-    font-family:var(--mono);
+    padding:26px 20px 36px;
     font-size:11px;
-    color:#9a9488;
-    letter-spacing:.06em;
+    color:var(--muted);
+    letter-spacing:.04em;
     text-transform:uppercase;
-  }
-
-  @media (max-width:640px){
-    header h1{font-size:24px;}
-    .cell:nth-last-child(-n+5){border-bottom:1px solid var(--line);}
   }
 </style>
 </head>
@@ -185,7 +190,7 @@
 <header>
   <div class="eyebrow">SEREMI MDSF Araucanía · Base de datos</div>
   <h1>Censo de Población y Vivienda 2024</h1>
-  <p>Consulta los datos del censo por región, provincia, comuna, distrito, localidad y zona/entidad. Selecciona un nivel para ver el total de personas, hogares y viviendas.</p>
+  <p>Consulta los datos del censo por región, provincia, comuna, distrito, localidad y zona/entidad. Selecciona un nivel para ver los resultados urbano y rural.</p>
 </header>
 
 <main>
@@ -208,14 +213,6 @@
       <select id="sel-distrito" disabled><option value="">Seleccione…</option></select>
     </div>
     <div class="level">
-      <label for="sel-area">Área</label>
-      <select id="sel-area" disabled>
-        <option value="">Seleccione…</option>
-        <option value="URBANO">Urbano</option>
-        <option value="RURAL">Rural</option>
-      </select>
-    </div>
-    <div class="level">
       <label for="sel-localidad">Localidad</label>
       <select id="sel-localidad" disabled><option value="">Seleccione…</option></select>
     </div>
@@ -225,9 +222,16 @@
     </div>
   </div>
 
+  <div class="view-toggle" id="view-toggle">
+    <span class="vt-label">Mostrar</span>
+    <label><input type="checkbox" id="chk-total" checked> Total</label>
+    <label><input type="checkbox" id="chk-urbano" checked> Urbano</label>
+    <label><input type="checkbox" id="chk-rural" checked> Rural</label>
+  </div>
+
   <div class="breadcrumb" id="breadcrumb"></div>
 
-  <div class="result" id="result">
+  <div id="result">
     <div class="empty">Selecciona al menos una región para comenzar la consulta.</div>
   </div>
 
@@ -239,29 +243,20 @@
 const SUPABASE_URL = "https://dsrvxgpdxzjcpqtopfrk.supabase.co/rest/v1";
 const SUPABASE_KEY = "sb_publishable_jsz5WVNHq33JNXqQqKY9UQ_b53dB0kk";
 
-const METRICS = [
-  {key:"n_per", label:"Población total"},
-  {key:"n_hombres", label:"Hombres"},
-  {key:"n_mujeres", label:"Mujeres"},
-  {key:"n_edad_0_5", label:"0 a 5 años"},
-  {key:"n_edad_6_13", label:"6 a 13 años"},
-  {key:"n_edad_14_17", label:"14 a 17 años"},
-  {key:"n_edad_18_24", label:"18 a 24 años"},
-  {key:"n_edad_25_44", label:"25 a 44 años"},
-  {key:"n_edad_45_59", label:"45 a 59 años"},
-  {key:"n_edad_60_mas", label:"60 años y más"},
-  {key:"n_pueblos_orig", label:"Pueblos originarios"},
-  {key:"n_hog", label:"Hogares"},
-  {key:"n_vp", label:"Viviendas part."},
+const AGE_GROUPS = [
+  {key:"n_edad_0_5", label:"0-5"},
+  {key:"n_edad_6_13", label:"6-13"},
+  {key:"n_edad_14_17", label:"14-17"},
+  {key:"n_edad_18_24", label:"18-24"},
+  {key:"n_edad_25_44", label:"25-44"},
+  {key:"n_edad_45_59", label:"45-59"},
+  {key:"n_edad_60_mas", label:"60+"},
 ];
 
 async function sb(view, params){
   const url = `${SUPABASE_URL}/${view}?${params}`;
   const res = await fetch(url, {
-    headers:{
-      "apikey": SUPABASE_KEY,
-      "Authorization": `Bearer ${SUPABASE_KEY}`
-    }
+    headers:{ "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
   });
   if(!res.ok) throw new Error(`Error consultando ${view}: ${res.status}`);
   return res.json();
@@ -272,19 +267,24 @@ const els = {
   provincia: document.getElementById("sel-provincia"),
   comuna: document.getElementById("sel-comuna"),
   distrito: document.getElementById("sel-distrito"),
-  area: document.getElementById("sel-area"),
   localidad: document.getElementById("sel-localidad"),
   sub: document.getElementById("sel-sub"),
   subLabel: document.querySelector("#wrap-sub label"),
   breadcrumb: document.getElementById("breadcrumb"),
   result: document.getElementById("result"),
+  chkTotal: document.getElementById("chk-total"),
+  chkUrbano: document.getElementById("chk-urbano"),
+  chkRural: document.getElementById("chk-rural"),
 };
+
+let currentPanels = [];
+
+function fmt(n){ return (n===null||n===undefined) ? "—" : Number(n).toLocaleString("es-CL"); }
 
 function resetSelect(sel, placeholder="Seleccione…"){
   sel.innerHTML = `<option value="">${placeholder}</option>`;
   sel.disabled = true;
 }
-
 function fillSelect(sel, items, valueFn, labelFn, placeholder="Seleccione…"){
   sel.innerHTML = `<option value="">${placeholder}</option>`;
   for(const it of items){
@@ -295,84 +295,164 @@ function fillSelect(sel, items, valueFn, labelFn, placeholder="Seleccione…"){
   }
   sel.disabled = items.length === 0;
 }
-
 function setLoading(){
   els.result.innerHTML = `<div class="loading">Consultando base de datos…</div>`;
 }
-
 function setEmpty(msg){
   els.result.innerHTML = `<div class="empty">${msg}</div>`;
 }
 
-function renderResult(title, row){
-  if(!row){
-    setEmpty("No hay datos disponibles para esta selección.");
-    return;
-  }
-  const cells = METRICS.map(m => {
-    const val = row[m.key];
-    const isCopper = m.key === "n_per";
-    return `<div class="cell${isCopper ? " copper" : ""}">
-      <div class="label">${m.label}</div>
-      <div class="value">${val === null || val === undefined ? "—" : Number(val).toLocaleString("es-CL")}</div>
+// ---------- Dashboard rendering ----------
+
+function donutSVG(hombres, mujeres){
+  const total = (hombres||0) + (mujeres||0);
+  const r = 28, c = 2*Math.PI*r;
+  const pctH = total ? hombres/total : 0;
+  const lenH = c*pctH, lenM = c-lenH;
+  return `
+  <svg width="76" height="76" viewBox="0 0 76 76" class="donut">
+    <circle cx="38" cy="38" r="${r}" fill="none" stroke="#e9eef5" stroke-width="14"/>
+    <circle cx="38" cy="38" r="${r}" fill="none" stroke="var(--blue)" stroke-width="14"
+      stroke-dasharray="${lenM} ${c-lenM}" stroke-dashoffset="${c*0.25}" transform="rotate(0 38 38)"/>
+    <circle cx="38" cy="38" r="${r}" fill="none" stroke="var(--navy)" stroke-width="14"
+      stroke-dasharray="${lenH} ${c-lenH}" stroke-dashoffset="${c*0.25 - lenM}" transform="rotate(0 38 38)"/>
+  </svg>`;
+}
+
+function dashboardHTML(row){
+  const total = row.n_per || 0;
+  const hPct = total ? ((row.n_hombres/total)*100).toFixed(1) : "0.0";
+  const mPct = total ? ((row.n_mujeres/total)*100).toFixed(1) : "0.0";
+  const maxAge = Math.max(...AGE_GROUPS.map(a => row[a.key] || 0), 1);
+
+  const bars = AGE_GROUPS.map(a => {
+    const v = row[a.key] || 0;
+    const pct = (v/maxAge*100).toFixed(1);
+    return `<div class="bar-row">
+      <div class="label">${a.label}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="num">${fmt(v)}</div>
     </div>`;
   }).join("");
 
-  els.result.innerHTML = `
-    <div class="result-head">
-      <h2>${title}</h2>
-      <div class="pop"><b>${row.n_per !== null ? Number(row.n_per).toLocaleString("es-CL") : "—"}</b>habitantes</div>
+  return `
+    <div class="dash-grid">
+      <div class="card pink">
+        <div class="ctitle">Población total</div>
+        <div class="cvalue">${fmt(total)}</div>
+      </div>
+      <div class="card navy">
+        <div class="ctitle">Hogares</div>
+        <div class="cvalue">${fmt(row.n_hog)}</div>
+      </div>
+
+      <div class="card span2">
+        <div class="ctitle">Población por sexo</div>
+        <div class="sex-block">
+          ${donutSVG(row.n_hombres, row.n_mujeres)}
+          <div class="sex-legend">
+            <div><span class="swatch" style="background:var(--navy)"></span>Hombres: <b>${fmt(row.n_hombres)}</b> (${hPct}%)</div>
+            <div><span class="swatch" style="background:var(--blue)"></span>Mujeres: <b>${fmt(row.n_mujeres)}</b> (${mPct}%)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card navy">
+        <div class="ctitle">Viviendas particulares</div>
+        <div class="cvalue">${fmt(row.n_vp)}</div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Pueblos originarios</div>
+        <div class="cvalue">${fmt(row.n_pueblos_orig)}</div>
+      </div>
+
+      <div class="card span2">
+        <div class="ctitle">Población por tramos de edad</div>
+        <div class="bars">${bars}</div>
+      </div>
     </div>
-    <div class="grid">${cells}</div>
   `;
 }
+
+function hasData(row){
+  return row && row.n_per !== null && row.n_per !== undefined && row.n_per > 0;
+}
+
+// panels: array of {key:'total'|'urbano'|'rural', title, row, cls}
+function renderFromState(){
+  const checks = {total: els.chkTotal.checked, urbano: els.chkUrbano.checked, rural: els.chkRural.checked};
+  const visible = currentPanels.filter(p => checks[p.key] && hasData(p.row));
+  if(visible.length === 0){
+    setEmpty("No hay datos para mostrar con la selección actual.");
+    return;
+  }
+  const cls = visible.length === 1 ? "panels single" : "panels";
+  els.result.innerHTML = `<div class="${cls}">
+    ${visible.map(p => `
+      <div>
+        <div class="panel-title ${p.cls||''}">${p.title}</div>
+        ${dashboardHTML(p.row)}
+      </div>
+    `).join("")}
+  </div>`;
+}
+
+function renderPanels(panels){
+  currentPanels = panels;
+  renderFromState();
+}
+
+[els.chkTotal, els.chkUrbano, els.chkRural].forEach(c => c.addEventListener("change", renderFromState));
 
 // ---------- Cascade ----------
 
 async function loadRegiones(){
-  const data = await sb("vw_region", "select=cod_region,region,n_per&order=region");
+  const data = await sb("vw_region", "select=cod_region,region&order=region");
   fillSelect(els.region, data, d=>d.cod_region, d=>d.region);
+}
+
+function clearBelow(level){
+  const order = ["provincia","comuna","distrito","localidad","sub"];
+  const idx = order.indexOf(level);
+  for(let i=idx;i<order.length;i++) resetSelect(els[order[i]]);
+}
+
+async function showAreaPanels(totalView, areaView, filterParams, titlePrefix){
+  setLoading();
+  const [tot, urb, rur] = await Promise.all([
+    sb(totalView, `select=*&${filterParams}`),
+    sb(areaView, `select=*&${filterParams}&area=eq.URBANO`),
+    sb(areaView, `select=*&${filterParams}&area=eq.RURAL`)
+  ]);
+  renderPanels([
+    {key:"total", title: `${titlePrefix} — Total`, row: tot[0], cls:"total"},
+    {key:"urbano", title: `${titlePrefix} — Urbano`, row: urb[0], cls:"urbano"},
+    {key:"rural", title: `${titlePrefix} — Rural`, row: rur[0], cls:"rural"},
+  ]);
 }
 
 async function onRegionChange(){
   const cod_region = els.region.value;
-  resetSelect(els.provincia);
-  resetSelect(els.comuna);
-  resetSelect(els.distrito);
-  els.area.disabled = true; els.area.value="";
-  resetSelect(els.localidad);
-  resetSelect(els.sub);
+  clearBelow("provincia");
 
-  if(!cod_region){ updateBreadcrumb(); showRegion(null); return; }
+  if(!cod_region){ setEmpty("Selecciona al menos una región para comenzar la consulta."); updateBreadcrumb(); return; }
 
   const data = await sb("vw_region", `select=*&cod_region=eq.${cod_region}`);
-  showRegion(data[0]);
+  await showAreaPanels("vw_region", "vw_region_area", `cod_region=eq.${cod_region}`, `Región de ${data[0].region}`);
 
   const provs = await sb("vw_provincia", `select=provincia&cod_region=eq.${cod_region}&order=provincia`);
   fillSelect(els.provincia, provs, d=>d.provincia, d=>d.provincia);
   updateBreadcrumb();
 }
 
-async function showRegion(row){
-  if(!row){ setEmpty("Selecciona al menos una región para comenzar la consulta."); return; }
-  setLoading();
-  renderResult(`Región de ${row.region}`, row);
-}
-
 async function onProvinciaChange(){
   const cod_region = els.region.value;
   const provincia = els.provincia.value;
-  resetSelect(els.comuna);
-  resetSelect(els.distrito);
-  els.area.disabled = true; els.area.value="";
-  resetSelect(els.localidad);
-  resetSelect(els.sub);
+  clearBelow("comuna");
 
-  if(!provincia){ const data = await sb("vw_region", `select=*&cod_region=eq.${cod_region}`); showRegion(data[0]); updateBreadcrumb(); return; }
+  if(!provincia){ await onRegionChange(); return; }
 
-  setLoading();
-  const data = await sb("vw_provincia", `select=*&cod_region=eq.${cod_region}&provincia=eq.${encodeURIComponent(provincia)}`);
-  renderResult(`Provincia de ${provincia}`, data[0]);
+  await showAreaPanels("vw_provincia", "vw_provincia_area", `cod_region=eq.${cod_region}&provincia=eq.${encodeURIComponent(provincia)}`, `Provincia de ${provincia}`);
 
   const comunas = await sb("vw_comuna", `select=cut_comuna,comuna&provincia=eq.${encodeURIComponent(provincia)}&order=comuna`);
   fillSelect(els.comuna, comunas, d=>d.cut_comuna, d=>d.comuna);
@@ -381,19 +461,12 @@ async function onProvinciaChange(){
 
 async function onComunaChange(){
   const cut_comuna = els.comuna.value;
-  resetSelect(els.distrito);
-  els.area.disabled = true; els.area.value="";
-  resetSelect(els.localidad);
-  resetSelect(els.sub);
+  clearBelow("distrito");
 
-  if(!cut_comuna){
-    await onProvinciaChange();
-    return;
-  }
+  if(!cut_comuna){ await onProvinciaChange(); return; }
 
-  setLoading();
   const data = await sb("vw_comuna", `select=*&cut_comuna=eq.${cut_comuna}`);
-  renderResult(`Comuna de ${data[0].comuna}`, data[0]);
+  await showAreaPanels("vw_comuna", "vw_comuna_area", `cut_comuna=eq.${cut_comuna}`, `Comuna de ${data[0].comuna}`);
 
   const distritos = await sb("vw_distrito", `select=id_distrito,cod_distrito,distrito&cut_comuna=eq.${cut_comuna}&order=cod_distrito`);
   fillSelect(els.distrito, distritos, d=>d.id_distrito, d=>`Distrito ${d.cod_distrito} · ${d.distrito}`);
@@ -402,65 +475,37 @@ async function onComunaChange(){
 
 async function onDistritoChange(){
   const id_distrito = els.distrito.value;
-  els.area.value = "";
-  resetSelect(els.localidad);
-  resetSelect(els.sub);
+  clearBelow("localidad");
 
-  if(!id_distrito){
-    els.area.disabled = true;
-    await onComunaChange();
-    return;
-  }
+  if(!id_distrito){ await onComunaChange(); return; }
 
-  setLoading();
   const data = await sb("vw_distrito", `select=*&id_distrito=eq.${id_distrito}`);
-  renderResult(`Distrito ${data[0].cod_distrito} · ${data[0].distrito}`, data[0]);
-  els.area.disabled = false;
-  updateBreadcrumb();
-}
+  await showAreaPanels("vw_distrito", "vw_area", `id_distrito=eq.${id_distrito}`, `Distrito ${data[0].cod_distrito} · ${data[0].distrito}`);
 
-async function onAreaChange(){
-  const id_distrito = els.distrito.value;
-  const area = els.area.value;
-  resetSelect(els.localidad);
-  resetSelect(els.sub);
-  els.subLabel.textContent = "Zona / Entidad";
-
-  if(!area){
-    await onDistritoChange();
-    return;
-  }
-
-  setLoading();
-  const data = await sb("vw_area", `select=*&id_distrito=eq.${id_distrito}&area=eq.${area}`);
-  const distData = await sb("vw_distrito", `select=distrito,cod_distrito&id_distrito=eq.${id_distrito}`);
-  const dname = distData[0] ? `Distrito ${distData[0].cod_distrito} · ${distData[0].distrito}` : "Distrito";
-  renderResult(`${dname} — ${area === "URBANO" ? "Área urbana" : "Área rural"}`, data[0]);
-
-  const localidades = await sb("vw_localidad", `select=id_localidad,localidad&id_distrito=eq.${id_distrito}&area=eq.${area}&order=localidad`);
-  fillSelect(els.localidad, localidades, d=>d.id_localidad, d=>d.localidad);
+  const localidades = await sb("vw_localidad", `select=id_localidad,localidad,area&id_distrito=eq.${id_distrito}&order=localidad`);
+  fillSelect(els.localidad, localidades, d=>`${d.id_localidad}|${d.area}`, d=>`${d.localidad} (${d.area === "URBANO" ? "Urbano" : "Rural"})`);
   updateBreadcrumb();
 }
 
 async function onLocalidadChange(){
-  const id_localidad = els.localidad.value;
-  const area = els.area.value;
+  const val = els.localidad.value;
   resetSelect(els.sub);
-  els.subLabel.textContent = area === "URBANO" ? "Zona censal" : "Entidad";
+  els.subLabel.textContent = "Zona / Entidad";
 
-  if(!id_localidad){
-    await onAreaChange();
-    return;
-  }
+  if(!val){ await onDistritoChange(); return; }
+  const [id_localidad, area] = val.split("|");
 
   setLoading();
-  const data = await sb("vw_localidad", `select=*&id_localidad=eq.${id_localidad}`);
-  renderResult(`Localidad ${data[0].localidad}`, data[0]);
+  const data = await sb("vw_localidad", `select=*&id_localidad=eq.${id_localidad}&area=eq.${area}`);
+  const row = data[0];
+  renderPanels([{key: area==="URBANO"?"urbano":"rural", title: `Localidad ${row.localidad} — ${area === "URBANO" ? "Urbano" : "Rural"}`, row, cls: area==="URBANO"?"urbano":"rural"}]);
 
   if(area === "URBANO"){
+    els.subLabel.textContent = "Zona censal";
     const zonas = await sb("vw_zona", `select=id_zona,cod_zona&id_localidad=eq.${id_localidad}&order=cod_zona`);
     fillSelect(els.sub, zonas, d=>d.id_zona, d=>`Zona censal ${d.cod_zona}`);
   } else {
+    els.subLabel.textContent = "Entidad";
     const entidades = await sb("vw_entidad", `select=id_entidad,entidad&id_localidad=eq.${id_localidad}&order=entidad`);
     fillSelect(els.sub, entidades, d=>d.id_entidad, d=>d.entidad);
   }
@@ -469,51 +514,40 @@ async function onLocalidadChange(){
 
 async function onSubChange(){
   const id_sub = els.sub.value;
-  const area = els.area.value;
-  const id_localidad = els.localidad.value;
+  const localVal = els.localidad.value;
+  const area = localVal.split("|")[1];
 
-  if(!id_sub){
-    await onLocalidadChange();
-    return;
-  }
+  if(!id_sub){ await onLocalidadChange(); return; }
 
   setLoading();
   if(area === "URBANO"){
     const data = await sb("vw_zona", `select=*&id_zona=eq.${id_sub}`);
-    renderResult(`Zona censal ${data[0].cod_zona}`, data[0]);
+    renderPanels([{key:"urbano", title: `Zona censal ${data[0].cod_zona} — Urbano`, row: data[0], cls:"urbano"}]);
   } else {
     const data = await sb("vw_entidad", `select=*&id_entidad=eq.${id_sub}`);
-    renderResult(`Entidad ${data[0].entidad}`, data[0]);
+    renderPanels([{key:"rural", title: `Entidad ${data[0].entidad} — Rural`, row: data[0], cls:"rural"}]);
   }
   updateBreadcrumb();
 }
 
 function updateBreadcrumb(){
   const parts = [];
-  const add = (sel, prefix="") => {
+  const add = (sel) => {
     const opt = sel.options[sel.selectedIndex];
-    if(sel.value) parts.push(`<b>${prefix}${opt.textContent}</b>`);
+    if(sel.value) parts.push(`<b>${opt.textContent}</b>`);
   };
-  add(els.region);
-  add(els.provincia);
-  add(els.comuna);
-  add(els.distrito);
-  if(els.area.value) add(els.area);
-  add(els.localidad);
-  add(els.sub);
+  add(els.region); add(els.provincia); add(els.comuna);
+  add(els.distrito); add(els.localidad); add(els.sub);
   els.breadcrumb.innerHTML = parts.length ? parts.join(" › ") : "";
 }
 
-// Wire events
 els.region.addEventListener("change", onRegionChange);
 els.provincia.addEventListener("change", onProvinciaChange);
 els.comuna.addEventListener("change", onComunaChange);
 els.distrito.addEventListener("change", onDistritoChange);
-els.area.addEventListener("change", onAreaChange);
 els.localidad.addEventListener("change", onLocalidadChange);
 els.sub.addEventListener("change", onSubChange);
 
-// Init
 loadRegiones().catch(err => {
   setEmpty("No se pudo conectar a la base de datos. Verifica la conexión a internet o la configuración de Supabase.");
   console.error(err);
