@@ -784,6 +784,7 @@ function renderSelectedList(){
 }
 
 async function onSelectionChanged(){
+  currentNavLevel = null; // al agregar/quitar áreas, mostrar suma combinada
   renderSelectedList();
 
   // Guardar TODOS los valores antes de cualquier re-poblado
@@ -956,10 +957,19 @@ function boundaryQueryForEntry(e){
 
 // ---------- Refresh unificado ----------
 
+// Estado de navegación actual — qué nivel está mostrando el panel
+let currentNavLevel = null; // null = nada, o "region","provincia","comuna","distrito","zona","localidad","entidad"
+
 async function refresh(){
   updateAddButtons();
-  if(selectedAreas.length > 0){
+  if(selectedAreas.length > 0 && currentNavLevel === null){
+    // Solo mostrar suma combinada cuando no hay navegación activa
     await renderCombined();
+    await updateCombinedMap();
+  } else if(selectedAreas.length > 0 && currentNavLevel !== null){
+    // Hay áreas seleccionadas pero el usuario está navegando un nivel
+    // Mostrar panel del nivel actual + mapa combinado
+    renderFromState();
     await updateCombinedMap();
   } else {
     renderFromState();
@@ -1139,12 +1149,14 @@ async function onRegionChange(){
   clearBelow("provincia");
 
   if(!cod_region){
+    currentNavLevel = null;
     setEmpty("Selecciona al menos una región para comenzar la consulta.");
     updateBreadcrumb();
     await refresh();
     return;
   }
 
+  currentNavLevel = "region";
   const data = await sb("vw_region", `select=*&cod_region=eq.${cod_region}`);
   await showAreaPanels("vw_region", "vw_region_area", `cod_region=eq.${cod_region}`, `Región de ${data[0].region}`);
 
@@ -1161,15 +1173,14 @@ async function onProvinciaChange(){
 
   if(!provincia){ await onRegionChange(); return; }
 
+  currentNavLevel = "provincia";
   await showAreaPanels("vw_provincia", "vw_provincia_area", `cod_region=eq.${cod_region}&provincia=eq.${encodeURIComponent(provincia)}`, `Provincia de ${provincia}`);
 
-  // Comunas — con prefijo de provincia si hay varias provincias seleccionadas
   await fillSelectMultiParent(
     els.comuna, "provincia", "provincia",
-    async prov => prov, // el nombre de la provincia ya es el label
+    async prov => prov,
     async prov => sb("vw_comuna", `select=cut_comuna,comuna&provincia=eq.${encodeURIComponent(prov)}&order=comuna`),
-    d => d.cut_comuna,
-    d => d.comuna
+    d => d.cut_comuna, d => d.comuna
   );
   updateBreadcrumb();
   await refresh();
@@ -1181,10 +1192,10 @@ async function onComunaChange(){
 
   if(!cut_comuna){ await onProvinciaChange(); return; }
 
+  currentNavLevel = "comuna";
   const data = await sb("vw_comuna", `select=*&cut_comuna=eq.${cut_comuna}`);
   await showAreaPanels("vw_comuna", "vw_comuna_area", `cut_comuna=eq.${cut_comuna}`, `Comuna de ${data[0].comuna}`);
 
-  // Distritos — con prefijo de comuna si hay varias comunas seleccionadas
   await fillSelectMultiParent(
     els.distrito, "comuna", "cut_comuna",
     id => resolveComunaLabel(id),
@@ -1202,6 +1213,7 @@ async function onDistritoChange(){
 
   if(!id_distrito){ await onComunaChange(); return; }
 
+  currentNavLevel = "distrito";
   const data = await sb("vw_distrito", `select=*&id_distrito=eq.${id_distrito}`);
   await showAreaPanels("vw_distrito", "vw_area", `id_distrito=eq.${id_distrito}`, `Distrito ${data[0].cod_distrito}${data[0].distrito ? ' · ' + data[0].distrito : ''}`);
 
@@ -1229,13 +1241,10 @@ async function onDistritoChange(){
 
 async function onZonaChange(){
   const id_zona = els.zona.value;
-
   if(!id_zona){ await onDistritoChange(); return; }
-
-  // ramas mutuamente excluyentes: limpiar selección rural
   els.localidad.value = "";
   resetSelect(els.entidad);
-
+  currentNavLevel = "zona";
   setLoading();
   const data = await sb("vw_zona", `select=*&id_zona=eq.${id_zona}`);
   renderPanels([{key:"urbano", title: `Zona censal ${data[0].cod_zona} — Urbano`, row: data[0], cls:"urbano"}]);
@@ -1246,12 +1255,9 @@ async function onZonaChange(){
 async function onLocalidadChange(){
   const id_localidad = els.localidad.value;
   const id_distrito = els.distrito.value;
-
   if(!id_localidad){ resetSelect(els.entidad); await onDistritoChange(); return; }
-
-  // ramas mutuamente excluyentes: limpiar selección de zona urbana
   els.zona.value = "";
-
+  currentNavLevel = "localidad";
   setLoading();
   const data = await sb("vw_localidad", `select=*&id_distrito=eq.${id_distrito}&id_localidad=eq.${id_localidad}&area=eq.RURAL`);
   const row = data[0];
@@ -1290,9 +1296,8 @@ async function onLocalidadChange(){
 
 async function onEntidadChange(){
   const id_entidad = els.entidad.value;
-
   if(!id_entidad){ await onLocalidadChange(); return; }
-
+  currentNavLevel = "entidad";
   setLoading();
   const data = await sb("vw_entidad", `select=*&id_entidad=eq.${id_entidad}`);
   renderPanels([{key:"rural", title: `Entidad ${data[0].entidad} — Rural`, row: data[0], cls:"rural"}]);
