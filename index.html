@@ -183,8 +183,25 @@
     overflow:hidden;
     margin:0 0 16px;
     background:#dde4ec;
+    position:relative;
   }
   .map-card .leaflet-popup-content{font-size:13px;font-weight:600;color:var(--navy);}
+
+  .map-zoom-hint{
+    background:rgba(20,46,84,.9);
+    color:#fff;
+    font-size:12px;
+    font-weight:600;
+    padding:6px 12px;
+    border-radius:6px;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .2s;
+    margin-top:6px;
+  }
+  .show-zoom-hint .map-zoom-hint{
+    opacity:1;
+  }
 
   .breadcrumb{
     font-size:13px;
@@ -369,14 +386,151 @@
     border:1px dashed var(--line);
     border-radius:8px;
   }
+
+  .manual-section{
+    margin-top:28px;
+    padding-top:20px;
+    border-top:2px dashed var(--line);
+  }
+  .manual-section h2{
+    font-size:18px;
+    font-weight:700;
+    color:var(--navy);
+    margin:0 0 4px;
+  }
+  .manual-section .proj-sub{
+    font-size:13px;
+    color:var(--muted);
+    margin:0 0 16px;
+  }
+  .manual-group-title{
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.05em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 10px;
+    padding-bottom:4px;
+    border-bottom:1px solid var(--line);
+  }
+  .manual-inputs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    align-items:flex-end;
+    margin-bottom:16px;
+  }
+  .manual-field{flex:0 0 170px;}
+  .manual-field label{
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--navy);
+    margin-bottom:6px;
+  }
+  .manual-field input{
+    width:100%;
+    padding:9px 10px;
+    font-size:14px;
+    border:1.5px solid var(--line);
+    border-radius:6px;
+    color:var(--ink);
+  }
+  .manual-error{
+    font-size:12px;
+    color:#c0392b;
+    margin:-8px 0 14px;
+  }
+
+  .field-label-row{
+    display:flex;
+    align-items:center;
+    gap:5px;
+    margin-bottom:6px;
+  }
+  .info-icon{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:14px;
+    height:14px;
+    border-radius:50%;
+    background:var(--blue);
+    color:#fff;
+    font-size:10px;
+    font-weight:700;
+    font-style:italic;
+    font-family:Georgia, serif;
+    cursor:help;
+    position:relative;
+    flex-shrink:0;
+  }
+  .info-icon .tooltip{
+    visibility:hidden;
+    opacity:0;
+    position:absolute;
+    bottom:130%;
+    left:50%;
+    transform:translateX(-50%);
+    background:var(--navy-deep);
+    color:#fff;
+    text-align:left;
+    padding:8px 10px;
+    border-radius:6px;
+    font-size:11px;
+    font-weight:400;
+    text-transform:none;
+    letter-spacing:normal;
+    width:200px;
+    line-height:1.4;
+    transition:opacity .15s;
+    z-index:10;
+  }
+  .info-icon.info-icon-wide .tooltip{
+    width:320px;
+    left:0;
+    transform:none;
+  }
+  .info-icon.info-icon-wide .tooltip::after{
+    left:14px;
+    transform:none;
+  }
+  .info-icon .tooltip code{
+    background:rgba(255,255,255,.15);
+    padding:1px 4px;
+    border-radius:3px;
+    font-family:var(--mono, monospace);
+  }
+  .h2-with-info{
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .info-icon .tooltip::after{
+    content:"";
+    position:absolute;
+    top:100%;
+    left:50%;
+    transform:translateX(-50%);
+    border:5px solid transparent;
+    border-top-color:var(--navy-deep);
+  }
+  .info-icon:hover .tooltip{
+    visibility:visible;
+    opacity:1;
+  }
 </style>
 </head>
 <body>
 
 <header>
-  <div class="eyebrow">SEREMI MDSF Araucanía · Base de datos</div>
+  <div class="eyebrow">SEREMI MDSyF Araucanía - Herramientas de Formulación - Sistema Nacional de Inversiones</div>
   <h1>Censo de Población y Vivienda 2024</h1>
-  <p>Consulta los datos del censo por región, provincia, comuna, distrito, zona censal (urbano) o localidad/entidad (rural). Selecciona un nivel para ver los resultados urbano y rural.</p>
+  <p>Consulta los datos del CENSO 2024 por región, provincia, comuna, distrito, zona censal (urbano) o localidad/entidad (rural). Selecciona un nivel para ver los resultados urbano y rural.<br>
+  Permite visualizar el o las áreas seleccionadas en el Mapa.<br>
+  Incorpora una herramienta para el cálculo de Proyección de Población de forma automática o con ingreso manual de datos.</p>
 </header>
 
 <main>
@@ -449,7 +603,14 @@
   </div>
 
   <div class="proj-section">
-    <h2>Proyección de población</h2>
+    <div class="h2-with-info">
+      <h2>Proyección de población</h2>
+      <span class="info-icon info-icon-wide">i<span class="tooltip">
+        Este método matemático asume que la tendencia de crecimiento histórico se mantendrá constante en el futuro. Se utiliza principalmente para proyecciones de población total a corto plazo.<br><br>
+        Se aplica el <b>Método Geométrico</b>, que asume que la población crece a un porcentaje constante, similar al interés compuesto en finanzas: <code>Pt = P0 × (1 + r)^t</code><br><br>
+        La tasa de crecimiento (r) se calcula a partir de la población del censo anterior y la vigente: <code>r = (P_vigente / P_anterior)^(1/n) − 1</code>, donde n es el número de años entre ambos censos.
+      </span></span>
+    </div>
     <p class="proj-sub">Calcula la tasa de crecimiento entre el Censo 2017 y el Censo 2024 para la selección actual, y proyecta la población total a futuro.</p>
 
     <div class="proj-controls">
@@ -462,6 +623,74 @@
 
     <div id="proj-result">
       <div class="proj-empty">Selecciona una región, provincia, comuna, distrito u otra área arriba (o agrega varias a la lista de selección), luego presiona "Calcular proyección".</div>
+    </div>
+  </div>
+
+  <div class="manual-section">
+    <div class="h2-with-info">
+      <h2>Proyección con datos manuales</h2>
+      <span class="info-icon info-icon-wide">i<span class="tooltip">
+        Este método matemático asume que la tendencia de crecimiento histórico se mantendrá constante en el futuro. Se utiliza principalmente para proyecciones de población total a corto plazo.<br><br>
+        Se aplica el <b>Método Geométrico</b>, que asume que la población crece a un porcentaje constante, similar al interés compuesto en finanzas: <code>Pt = P0 × (1 + r)^t</code><br><br>
+        La tasa de crecimiento (r) se calcula a partir de la población del censo anterior y la vigente: <code>r = (P_vigente / P_anterior)^(1/n) − 1</code>, donde n es el número de años entre ambos censos.
+      </span></span>
+    </div>
+    <p class="proj-sub">Ingresa tus propios valores de población para calcular la tasa de crecimiento histórica y proyectarla a futuro, sin depender de la selección de arriba.</p>
+
+    <p class="manual-group-title">Datos para calcular la tasa de crecimiento</p>
+    <div class="manual-inputs">
+      <div class="manual-field">
+        <div class="field-label-row">
+          <label for="man-pob-vigente" style="margin-bottom:0;">Población vigente</label>
+          <span class="info-icon">i<span class="tooltip">Población del censo más reciente disponible (ej. Censo 2024).</span></span>
+        </div>
+        <input type="number" id="man-pob-vigente" value="292518" min="0">
+      </div>
+      <div class="manual-field">
+        <div class="field-label-row">
+          <label for="man-pob-anterior" style="margin-bottom:0;">Población anterior</label>
+          <span class="info-icon">i<span class="tooltip">Población del censo anterior, usada junto con la vigente para calcular la tasa de crecimiento histórica.</span></span>
+        </div>
+        <input type="number" id="man-pob-anterior" value="282415" min="0">
+      </div>
+      <div class="manual-field">
+        <div class="field-label-row">
+          <label for="man-anios-entre" style="margin-bottom:0;">Años entre censos</label>
+          <span class="info-icon">i<span class="tooltip">Cantidad de años transcurridos entre el censo anterior y el vigente. Ej: 2017→2024 = 7 años; 2002→2017 = 15 años.</span></span>
+        </div>
+        <input type="number" id="man-anios-entre" value="7" min="1" max="50">
+      </div>
+    </div>
+
+    <p class="manual-group-title">Proyección a calcular</p>
+    <div class="manual-inputs">
+      <div class="manual-field">
+        <div class="field-label-row">
+          <label for="man-anio-base" style="margin-bottom:0;">Año base</label>
+          <span class="info-icon">i<span class="tooltip">Año desde el cual comienza la proyección. Por defecto es el año del censo vigente (2024), pero puede cambiarse, por ejemplo a 2017 si se proyecta desde ese censo.</span></span>
+        </div>
+        <input type="number" id="man-anio-base" value="2024" min="1900" max="2100">
+      </div>
+      <div class="manual-field">
+        <div class="field-label-row">
+          <label for="man-pob-base" style="margin-bottom:0;">Población a proyectar</label>
+          <span class="info-icon">i<span class="tooltip">Población desde la cual se proyecta a futuro usando la tasa de crecimiento calculada. Si se deja vacío, se usa la población vigente.</span></span>
+        </div>
+        <input type="number" id="man-pob-base" placeholder="Por defecto: población vigente" min="0">
+      </div>
+      <div class="manual-field">
+        <div class="field-label-row">
+          <label for="man-anios-proyectar" style="margin-bottom:0;">Años a proyectar</label>
+          <span class="info-icon">i<span class="tooltip">Cantidad de años hacia adelante a calcular, contados desde el Año base. Ej: año base 2017 + 10 años = proyección hasta 2027.</span></span>
+        </div>
+        <input type="number" id="man-anios-proyectar" value="6" min="1" max="50">
+      </div>
+      <button class="proj-btn" id="man-calc-btn">Calcular proyección</button>
+    </div>
+    <div class="manual-error" id="man-error" style="display:none;"></div>
+
+    <div id="man-result">
+      <div class="proj-empty">Ingresa la población vigente, la población anterior y los años entre censos, luego presiona "Calcular proyección".</div>
     </div>
   </div>
 
@@ -528,12 +757,50 @@ const ARCGIS_BASE = "https://services5.arcgis.com/hUyD8u3TeZLKPe4T/ArcGIS/rest/s
 const ARCGIS_LAYERS = { region: 3, provincia: 4, comuna: 11, distrito: 10, zonal: 2 };
 
 function initMap(){
-  map = L.map('map-container', {zoomControl:true, attributionControl:true})
-    .setView([-35.6, -71.5], 4); // vista general de Chile
+  map = L.map('map-container', {
+    zoomControl:true,
+    attributionControl:true,
+    scrollWheelZoom:false,  // desactivado por defecto; se activa con Ctrl/Cmd + rueda
+    touchZoom:true          // pinch-to-zoom con dos dedos; un dedo sigue haciendo scroll de la página
+  }).setView([-35.6, -71.5], 4); // vista general de Chile
+
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors',
     maxZoom: 18
   }).addTo(map);
+
+  // Aviso visual: aparece al pasar el mouse, indicando que hay que usar Ctrl/Cmd + rueda
+  const hint = L.control({position: 'topright'});
+  hint.onAdd = function(){
+    const div = L.DomUtil.create('div', 'map-zoom-hint');
+    div.innerHTML = 'Ctrl + rueda para zoom';
+    return div;
+  };
+  hint.addTo(map);
+
+  const container = map.getContainer();
+  let hintTimeout;
+
+  function showHint(){
+    container.classList.add('show-zoom-hint');
+    clearTimeout(hintTimeout);
+    hintTimeout = setTimeout(() => container.classList.remove('show-zoom-hint'), 1800);
+  }
+
+  // Habilitar zoom con rueda SOLO cuando se mantiene presionado Ctrl/Cmd
+  container.addEventListener('wheel', function(e){
+    if(e.ctrlKey || e.metaKey){
+      e.preventDefault(); // evita que el navegador haga zoom de página
+      if(!map.scrollWheelZoom.enabled()) map.scrollWheelZoom.enable();
+    } else {
+      if(map.scrollWheelZoom.enabled()) map.scrollWheelZoom.disable();
+      showHint();
+    }
+  }, {passive:false});
+
+  container.addEventListener('mouseleave', function(){
+    map.scrollWheelZoom.disable();
+  });
 }
 
 async function fetchBoundary(layerId, where){
@@ -602,6 +869,7 @@ async function updateMap(){
 }
 
 function fmt(n){ return (n===null||n===undefined) ? "—" : Number(n).toLocaleString("es-CL"); }
+function fmtRate(n, decimals){ return n.toFixed(decimals).replace(".", ","); }
 
 function resetSelect(sel, placeholder="Seleccione…"){
   sel.innerHTML = `<option value="">${placeholder}</option>`;
@@ -1586,7 +1854,7 @@ function proj_tableRow(year, pop, basePop, baseYear){
   return `<tr class="${isBase ? 'proj-base-row' : ''}">
     <td>${year}${isBase ? ' (año base)' : ''}</td>
     <td>${Math.round(pop).toLocaleString("es-CL")}</td>
-    <td class="${cls}">${isBase ? "—" : (delta>=0?"+":"")+delta.toFixed(2)+"%"}</td>
+    <td class="${cls}">${isBase ? "—" : (delta>=0?"+":"")+fmtRate(delta, 2)+"%"}</td>
   </tr>`;
 }
 
@@ -1630,7 +1898,7 @@ async function proj_calculate(){
     <div class="proj-summary">
       <div class="card navy">
         <div class="ctitle">Tasa de crecimiento anual (2017→2024)</div>
-        <div class="cvalue">${tcPct.toFixed(3)}%</div>
+        <div class="cvalue">${fmtRate(tcPct, 3)}%</div>
       </div>
       <div class="card">
         <div class="ctitle">Población 2017</div>
@@ -1656,6 +1924,111 @@ async function proj_calculate(){
 }
 
 document.getElementById("proj-calc-btn").addEventListener("click", proj_calculate);
+
+// =====================================================================
+// PROYECCIÓN CON DATOS MANUALES
+// Módulo independiente: no depende de la selección de combos ni de
+// selectedAreas. Usa los mismos cálculos (TC histórica + proyección)
+// pero con valores ingresados directamente por el usuario.
+// =====================================================================
+
+function man_tableRow(label, pop, basePop, isBase){
+  const delta = basePop ? ((pop/basePop - 1) * 100) : 0;
+  const cls = delta > 0 ? "proj-delta-pos" : (delta < 0 ? "proj-delta-neg" : "");
+  return `<tr class="${isBase ? 'proj-base-row' : ''}">
+    <td>${label}</td>
+    <td>${Math.round(pop).toLocaleString("es-CL")}</td>
+    <td class="${cls}">${isBase ? "—" : (delta>=0?"+":"")+fmtRate(delta, 2)+"%"}</td>
+  </tr>`;
+}
+
+function man_calculate(){
+  const errEl = document.getElementById("man-error");
+  const resultEl = document.getElementById("man-result");
+  errEl.style.display = "none";
+
+  const popVigente  = parseFloat(document.getElementById("man-pob-vigente").value);
+  const popAnterior = parseFloat(document.getElementById("man-pob-anterior").value);
+  const aniosEntre  = parseInt(document.getElementById("man-anios-entre").value, 10);
+  const anioBase    = parseInt(document.getElementById("man-anio-base").value, 10);
+  const popBaseInput = document.getElementById("man-pob-base").value;
+  const aniosProyectar = parseInt(document.getElementById("man-anios-proyectar").value, 10);
+
+  // Validaciones
+  if(!popVigente || popVigente <= 0){
+    errEl.textContent = "Ingresa una población vigente válida (mayor a 0).";
+    errEl.style.display = "";
+    return;
+  }
+  if(!popAnterior || popAnterior <= 0){
+    errEl.textContent = "Ingresa una población anterior válida (mayor a 0).";
+    errEl.style.display = "";
+    return;
+  }
+  if(!aniosEntre || aniosEntre <= 0){
+    errEl.textContent = "Los años entre censos deben ser un número mayor a 0.";
+    errEl.style.display = "";
+    return;
+  }
+  if(!anioBase || anioBase <= 0){
+    errEl.textContent = "Ingresa un año base válido.";
+    errEl.style.display = "";
+    return;
+  }
+  if(!aniosProyectar || aniosProyectar <= 0){
+    errEl.textContent = "Los años a proyectar deben ser un número mayor a 0.";
+    errEl.style.display = "";
+    return;
+  }
+
+  // Población base para proyectar: si el usuario no ingresa una distinta, se usa la vigente
+  const popBase = (popBaseInput !== "" && !isNaN(parseFloat(popBaseInput)) && parseFloat(popBaseInput) > 0)
+    ? parseFloat(popBaseInput)
+    : popVigente;
+
+  // Tasa de crecimiento histórica: TC = (Pob.Vigente / Pob.Anterior)^(1/n) - 1
+  const tc = Math.pow(popVigente / popAnterior, 1/aniosEntre) - 1;
+  const tcPct = tc * 100;
+
+  let rows = "";
+  rows += man_tableRow(`${anioBase} (año base)`, popBase, popBase, true);
+  for(let t=1; t<=aniosProyectar; t++){
+    const pop = popBase * Math.pow(1+tc, t);
+    rows += man_tableRow(`${anioBase + t}`, pop, popBase, false);
+  }
+
+  const anioFinal = anioBase + aniosProyectar;
+  const popFinal = popBase * Math.pow(1+tc, aniosProyectar);
+
+  resultEl.innerHTML = `
+    <div class="proj-summary">
+      <div class="card navy">
+        <div class="ctitle">Tasa de crecimiento anual</div>
+        <div class="cvalue">${fmtRate(tcPct, 3)}%</div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Población vigente</div>
+        <div class="cvalue">${Math.round(popVigente).toLocaleString("es-CL")}</div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Población a proyectar (${anioBase})</div>
+        <div class="cvalue">${Math.round(popBase).toLocaleString("es-CL")}</div>
+      </div>
+      <div class="card pink">
+        <div class="ctitle">Proyección ${anioFinal}</div>
+        <div class="cvalue">${Math.round(popFinal).toLocaleString("es-CL")}</div>
+      </div>
+    </div>
+    <div class="proj-table-wrap">
+      <table class="proj-table">
+        <thead><tr><th>Año</th><th>Población proyectada</th><th>Variación vs. ${anioBase}</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+document.getElementById("man-calc-btn").addEventListener("click", man_calculate);
 
 els.region.addEventListener("change", onRegionChange);
 els.provincia.addEventListener("change", onProvinciaChange);
