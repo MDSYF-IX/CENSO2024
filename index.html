@@ -269,6 +269,106 @@
     letter-spacing:.04em;
     text-transform:uppercase;
   }
+
+  .proj-section{
+    margin-top:28px;
+    padding-top:20px;
+    border-top:2px solid var(--ink);
+  }
+  .proj-section h2{
+    font-size:18px;
+    font-weight:700;
+    color:var(--navy);
+    margin:0 0 4px;
+  }
+  .proj-section .proj-sub{
+    font-size:13px;
+    color:var(--muted);
+    margin:0 0 16px;
+  }
+  .proj-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    align-items:flex-end;
+    margin-bottom:16px;
+  }
+  .proj-field{flex:0 0 140px;}
+  .proj-field label{
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--navy);
+    margin-bottom:6px;
+  }
+  .proj-field input{
+    width:100%;
+    padding:9px 10px;
+    font-size:14px;
+    border:1.5px solid var(--line);
+    border-radius:6px;
+    color:var(--ink);
+  }
+  .proj-btn{
+    padding:10px 18px;
+    font-size:13px;
+    font-weight:700;
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .proj-btn:hover{background:var(--navy-deep);}
+  .proj-btn:disabled{background:#c5cdd8;cursor:not-allowed;}
+
+  .proj-summary{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:12px;
+    margin-bottom:18px;
+  }
+  .proj-summary .card{padding:14px 16px;}
+
+  .proj-table-wrap{
+    overflow-x:auto;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:8px;
+  }
+  .proj-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  .proj-table th, .proj-table td{
+    padding:9px 14px;
+    text-align:right;
+    border-bottom:1px solid var(--line);
+  }
+  .proj-table th:first-child, .proj-table td:first-child{text-align:left;}
+  .proj-table thead th{
+    background:var(--navy);
+    color:#fff;
+    font-weight:600;
+    font-size:12px;
+  }
+  .proj-table tbody tr:nth-child(even){background:#f7f9fb;}
+  .proj-table .proj-base-row{font-weight:700;color:var(--navy);}
+  .proj-table .proj-delta-pos{color:#1a7a3c;}
+  .proj-table .proj-delta-neg{color:#c0392b;}
+
+  .proj-empty{
+    padding:30px 20px;
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    background:#fff;
+    border:1px dashed var(--line);
+    border-radius:8px;
+  }
 </style>
 </head>
 <body>
@@ -346,6 +446,23 @@
 
   <div id="result">
     <div class="empty">Selecciona al menos una región para comenzar la consulta.</div>
+  </div>
+
+  <div class="proj-section">
+    <h2>Proyección de población</h2>
+    <p class="proj-sub">Calcula la tasa de crecimiento entre el Censo 2017 y el Censo 2024 para la selección actual, y proyecta la población total a futuro.</p>
+
+    <div class="proj-controls">
+      <div class="proj-field">
+        <label for="proj-years">Años a proyectar</label>
+        <input type="number" id="proj-years" value="6" min="1" max="30">
+      </div>
+      <button class="proj-btn" id="proj-calc-btn">Calcular proyección</button>
+    </div>
+
+    <div id="proj-result">
+      <div class="proj-empty">Selecciona una región, provincia, comuna, distrito u otra área arriba (o agrega varias a la lista de selección), luego presiona "Calcular proyección".</div>
+    </div>
   </div>
 
 </main>
@@ -781,6 +898,7 @@ function renderSelectedList(){
 async function onSelectionChanged(){
   currentNavLevel = null; // al agregar/quitar áreas, mostrar suma combinada
   renderSelectedList();
+  proj_clearResult();
 
   // Guardar TODOS los valores antes de cualquier re-poblado
   const savedRegion    = els.region.value;
@@ -1150,6 +1268,7 @@ async function showAreaPanels(totalView, areaView, filterParams, titlePrefix){
 async function onRegionChange(){
   const cod_region = els.region.value;
   clearBelow("provincia");
+  proj_clearResult();
 
   if(!cod_region){
     currentNavLevel = null;
@@ -1173,6 +1292,7 @@ async function onProvinciaChange(){
   const cod_region = els.region.value;
   const provincia = els.provincia.value;
   clearBelow("comuna");
+  proj_clearResult();
 
   if(!provincia){ await onRegionChange(); return; }
 
@@ -1192,6 +1312,7 @@ async function onProvinciaChange(){
 async function onComunaChange(){
   const cut_comuna = els.comuna.value;
   clearBelow("distrito");
+  proj_clearResult();
 
   if(!cut_comuna){ await onProvinciaChange(); return; }
 
@@ -1213,6 +1334,7 @@ async function onComunaChange(){
 async function onDistritoChange(){
   const id_distrito = els.distrito.value;
   resetSubSelects();
+  proj_clearResult();
 
   if(!id_distrito){ await onComunaChange(); return; }
 
@@ -1247,6 +1369,7 @@ async function onZonaChange(){
   if(!id_zona){ await onDistritoChange(); return; }
   els.localidad.value = "";
   resetSelect(els.entidad);
+  proj_clearResult();
   currentNavLevel = "zona";
   setLoading();
   const data = await sb("vw_zona", `select=*&id_zona=eq.${id_zona}`);
@@ -1260,6 +1383,7 @@ async function onLocalidadChange(){
   const id_distrito = els.distrito.value;
   if(!id_localidad){ resetSelect(els.entidad); await onDistritoChange(); return; }
   els.zona.value = "";
+  proj_clearResult();
   currentNavLevel = "localidad";
   setLoading();
   const data = await sb("vw_localidad", `select=*&id_distrito=eq.${id_distrito}&id_localidad=eq.${id_localidad}&area=eq.RURAL`);
@@ -1300,6 +1424,7 @@ async function onLocalidadChange(){
 async function onEntidadChange(){
   const id_entidad = els.entidad.value;
   if(!id_entidad){ await onLocalidadChange(); return; }
+  proj_clearResult();
   currentNavLevel = "entidad";
   setLoading();
   const data = await sb("vw_entidad", `select=*&id_entidad=eq.${id_entidad}`);
@@ -1318,6 +1443,219 @@ function updateBreadcrumb(){
   add(els.distrito); add(els.zona); add(els.localidad); add(els.entidad);
   els.breadcrumb.innerHTML = parts.length ? parts.join(" › ") : "";
 }
+
+// =====================================================================
+// PROYECCIÓN DE POBLACIÓN (Censo 2017 → 2024)
+// Módulo autocontenido: solo LEE el estado existente (els, selectedAreas,
+// currentPanels, combinedSums, currentFilters) — no modifica nada de la
+// lógica de cascada ni de selección múltiple.
+// =====================================================================
+
+function proj_clearResult(){
+  const resultEl = document.getElementById("proj-result");
+  if(resultEl){
+    resultEl.innerHTML = `<div class="proj-empty">Selecciona una región, provincia, comuna, distrito u otra área arriba (o agrega varias a la lista de selección), luego presiona "Calcular proyección".</div>`;
+  }
+}
+
+async function proj_fetchPop2017ForEntry(e){
+  const f = e.filters;
+  switch(e.type){
+    case "region": {
+      const [r] = await sb("vw17_region", `select=n_per&cod_region=eq.${f.cod_region}`);
+      return r ? Number(r.n_per||0) : 0;
+    }
+    case "provincia": {
+      const comunas = await sb("vw_comuna", `select=cut_comuna&provincia=eq.${encodeURIComponent(f.provincia)}`);
+      let sum = 0;
+      for(const c of comunas){
+        const [r] = await sb("vw17_comuna", `select=n_per&cut_comuna=eq.${c.cut_comuna}`);
+        if(r) sum += Number(r.n_per||0);
+      }
+      return sum;
+    }
+    case "comuna": {
+      const [r] = await sb("vw17_comuna", `select=n_per&cut_comuna=eq.${f.cut_comuna}`);
+      return r ? Number(r.n_per||0) : 0;
+    }
+    case "distrito": {
+      const [r] = await sb("vw17_distrito", `select=n_per&id_distrito=eq.${f.id_distrito}`);
+      return r ? Number(r.n_per||0) : 0;
+    }
+    case "zona": {
+      const [zd] = await sb("vw_zona", `select=id_localidad,id_distrito&id_zona=eq.${f.id_zona}`);
+      if(!zd) return 0;
+      const [r] = await sb("vw17_zona", `select=n_per&id_distrito=eq.${zd.id_distrito}&id_localidad=eq.${zd.id_localidad}&id_zona=eq.${f.id_zona}`);
+      return r ? Number(r.n_per||0) : 0;
+    }
+    case "localidad": {
+      const [r] = await sb("vw17_localidad", `select=n_per&id_distrito=eq.${f.id_distrito}&id_localidad=eq.${f.id_localidad}`);
+      return r ? Number(r.n_per||0) : 0;
+    }
+    case "entidad": {
+      const [ed] = await sb("vw_entidad", `select=id_localidad,id_distrito&id_entidad=eq.${f.id_entidad}`);
+      if(!ed) return 0;
+      const [r] = await sb("vw17_localidad", `select=n_per&id_distrito=eq.${ed.id_distrito}&id_localidad=eq.${ed.id_localidad}`);
+      return r ? Number(r.n_per||0) : 0;
+    }
+  }
+  return 0;
+}
+
+async function proj_fetchPop2017(){
+  // Caso 1: hay selección múltiple en la lista → sumar 2017 para cada área
+  if(selectedAreas.length > 0){
+    let total = 0;
+    for(const e of selectedAreas){
+      total += await proj_fetchPop2017ForEntry(e);
+    }
+    return total;
+  }
+  // Caso 2: usar el nivel actualmente navegado en los combos
+  const f = currentFilters();
+  if(f.id_entidad){
+    const [d] = await sb("vw_entidad", `select=id_localidad,id_distrito&id_entidad=eq.${f.id_entidad}`);
+    if(!d) return null;
+    const [r] = await sb("vw17_localidad", `select=n_per&id_distrito=eq.${d.id_distrito}&id_localidad=eq.${d.id_localidad}`);
+    return r ? Number(r.n_per||0) : null;
+  }
+  if(f.id_localidad){
+    const [r] = await sb("vw17_localidad", `select=n_per&id_distrito=eq.${f.id_distrito}&id_localidad=eq.${f.id_localidad}`);
+    return r ? Number(r.n_per||0) : null;
+  }
+  if(f.id_zona){
+    const [zd] = await sb("vw_zona", `select=id_localidad&id_zona=eq.${f.id_zona}`);
+    if(!zd) return null;
+    const [r] = await sb("vw17_zona", `select=n_per&id_distrito=eq.${f.id_distrito}&id_localidad=eq.${zd.id_localidad}&id_zona=eq.${f.id_zona}`);
+    return r ? Number(r.n_per||0) : null;
+  }
+  if(f.id_distrito){
+    const [r] = await sb("vw17_distrito", `select=n_per&id_distrito=eq.${f.id_distrito}`);
+    return r ? Number(r.n_per||0) : null;
+  }
+  if(f.cut_comuna){
+    const [r] = await sb("vw17_comuna", `select=n_per&cut_comuna=eq.${f.cut_comuna}`);
+    return r ? Number(r.n_per||0) : null;
+  }
+  if(f.provincia){
+    const comunas = await sb("vw_comuna", `select=cut_comuna&provincia=eq.${encodeURIComponent(f.provincia)}`);
+    let sum = 0;
+    for(const c of comunas){
+      const [r] = await sb("vw17_comuna", `select=n_per&cut_comuna=eq.${c.cut_comuna}`);
+      if(r) sum += Number(r.n_per||0);
+    }
+    return sum;
+  }
+  if(f.cod_region){
+    const [r] = await sb("vw17_region", `select=n_per&cod_region=eq.${f.cod_region}`);
+    return r ? Number(r.n_per||0) : null;
+  }
+  return null;
+}
+
+function proj_currentSelectionLabel(){
+  if(selectedAreas.length > 0){
+    return `Selección combinada (${selectedAreas.length} áreas)`;
+  }
+  const f = currentFilters();
+  if(f.id_entidad) return els.entidad.options[els.entidad.selectedIndex]?.textContent || "Entidad";
+  if(f.id_localidad) return els.localidad.options[els.localidad.selectedIndex]?.textContent || "Localidad";
+  if(f.id_zona) return els.zona.options[els.zona.selectedIndex]?.textContent || "Zona censal";
+  if(f.id_distrito) return els.distrito.options[els.distrito.selectedIndex]?.textContent || "Distrito";
+  if(f.cut_comuna) return els.comuna.options[els.comuna.selectedIndex]?.textContent || "Comuna";
+  if(f.provincia) return f.provincia;
+  if(f.cod_region) return els.region.options[els.region.selectedIndex]?.textContent || "Región";
+  return null;
+}
+
+function proj_currentPop2024(){
+  if(selectedAreas.length > 0 && combinedSums){
+    return Number(combinedSums.total.n_per || 0);
+  }
+  if(currentPanels && currentPanels.length > 0){
+    const totalPanel = currentPanels.find(p => p.key === "total") || currentPanels[0];
+    return totalPanel ? Number(totalPanel.row?.n_per || 0) : null;
+  }
+  return null;
+}
+
+function proj_tableRow(year, pop, basePop, baseYear){
+  const delta = basePop ? ((pop/basePop - 1) * 100) : 0;
+  const cls = delta > 0 ? "proj-delta-pos" : (delta < 0 ? "proj-delta-neg" : "");
+  const isBase = year === baseYear;
+  return `<tr class="${isBase ? 'proj-base-row' : ''}">
+    <td>${year}${isBase ? ' (año base)' : ''}</td>
+    <td>${Math.round(pop).toLocaleString("es-CL")}</td>
+    <td class="${cls}">${isBase ? "—" : (delta>=0?"+":"")+delta.toFixed(2)+"%"}</td>
+  </tr>`;
+}
+
+async function proj_calculate(){
+  const resultEl = document.getElementById("proj-result");
+  const label = proj_currentSelectionLabel();
+  if(!label){
+    resultEl.innerHTML = `<div class="proj-empty">Selecciona una región, provincia, comuna, distrito u otra área arriba antes de calcular.</div>`;
+    return;
+  }
+
+  resultEl.innerHTML = `<div class="proj-empty">Calculando proyección…</div>`;
+
+  const pop2024 = proj_currentPop2024();
+  const pop2017 = await proj_fetchPop2017();
+
+  if(!pop2024 || !pop2017 || pop2017 <= 0){
+    resultEl.innerHTML = `<div class="proj-empty">No hay datos suficientes del Censo 2017 para calcular la tasa de crecimiento de esta selección.</div>`;
+    return;
+  }
+
+  const nYears = 7; // 2017 -> 2024
+  const tc = (Math.pow(pop2024/pop2017, 1/nYears) - 1);
+  const tcPct = tc * 100;
+
+  const yearsToProject = parseInt(document.getElementById("proj-years").value, 10) || 6;
+  const baseYear = 2024;
+
+  let rows = "";
+  rows += proj_tableRow(2017, pop2017, pop2024, baseYear);
+  rows += proj_tableRow(2024, pop2024, pop2024, baseYear);
+  for(let t=1; t<=yearsToProject; t++){
+    const year = baseYear + t;
+    const pop = pop2024 * Math.pow(1+tc, t);
+    rows += proj_tableRow(year, pop, pop2024, baseYear);
+  }
+
+  const popFinal = pop2024 * Math.pow(1+tc, yearsToProject);
+
+  resultEl.innerHTML = `
+    <div class="proj-summary">
+      <div class="card navy">
+        <div class="ctitle">Tasa de crecimiento anual (2017→2024)</div>
+        <div class="cvalue">${tcPct.toFixed(3)}%</div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Población 2017</div>
+        <div class="cvalue">${Math.round(pop2017).toLocaleString("es-CL")}</div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Población 2024</div>
+        <div class="cvalue">${Math.round(pop2024).toLocaleString("es-CL")}</div>
+      </div>
+      <div class="card pink">
+        <div class="ctitle">Proyección ${baseYear + yearsToProject}</div>
+        <div class="cvalue">${Math.round(popFinal).toLocaleString("es-CL")}</div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Selección: <b style="color:var(--navy)">${label}</b></p>
+    <div class="proj-table-wrap">
+      <table class="proj-table">
+        <thead><tr><th>Año</th><th>Población proyectada</th><th>Variación vs. 2024</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+document.getElementById("proj-calc-btn").addEventListener("click", proj_calculate);
 
 els.region.addEventListener("change", onRegionChange);
 els.provincia.addEventListener("change", onProvinciaChange);
