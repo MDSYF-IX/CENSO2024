@@ -78,6 +78,81 @@
   .level select:disabled{background:#e7eaef;color:#a7afbc;cursor:not-allowed;}
   .level select:focus-visible{outline:2px solid var(--blue);outline-offset:1px;}
 
+  .add-btn{
+    width:100%;
+    margin-top:6px;
+    padding:6px 8px;
+    font-size:12px;
+    font-weight:600;
+    border:1.5px solid var(--blue);
+    background:#fff;
+    color:var(--blue);
+    border-radius:6px;
+    cursor:pointer;
+    transition:background .15s, color .15s;
+  }
+  .add-btn:hover:not(:disabled){background:var(--blue);color:#fff;}
+  .add-btn:disabled{
+    border-color:var(--line);
+    color:#b7c0cc;
+    cursor:not-allowed;
+    background:#f3f5f8;
+  }
+
+  .selected-areas{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:6px;
+    padding:12px 14px;
+    margin-bottom:14px;
+  }
+  .sa-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+  }
+  .sa-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .sa-chip{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    background:#eef4fb;
+    border:1px solid var(--blue);
+    color:var(--navy);
+    border-radius:16px;
+    padding:5px 8px 5px 12px;
+    font-size:12px;
+    font-weight:600;
+  }
+  .sa-chip .sa-remove{
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    border-radius:50%;
+    width:18px;height:18px;
+    line-height:18px;
+    text-align:center;
+    font-size:12px;
+    cursor:pointer;
+    padding:0;
+  }
+  .clear-btn{
+    font-size:12px;
+    font-weight:600;
+    color:var(--pink);
+    background:none;
+    border:1.5px solid var(--pink);
+    border-radius:6px;
+    padding:4px 10px;
+    cursor:pointer;
+  }
+  .clear-btn:hover{background:var(--pink);color:#fff;}
+
   .view-toggle{
     display:flex;
     gap:18px;
@@ -194,6 +269,106 @@
     letter-spacing:.04em;
     text-transform:uppercase;
   }
+
+  .proj-section{
+    margin-top:28px;
+    padding-top:20px;
+    border-top:2px solid var(--ink);
+  }
+  .proj-section h2{
+    font-size:18px;
+    font-weight:700;
+    color:var(--navy);
+    margin:0 0 4px;
+  }
+  .proj-section .proj-sub{
+    font-size:13px;
+    color:var(--muted);
+    margin:0 0 16px;
+  }
+  .proj-controls{
+    display:flex;
+    flex-wrap:wrap;
+    gap:14px;
+    align-items:flex-end;
+    margin-bottom:16px;
+  }
+  .proj-field{flex:0 0 140px;}
+  .proj-field label{
+    display:block;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--navy);
+    margin-bottom:6px;
+  }
+  .proj-field input{
+    width:100%;
+    padding:9px 10px;
+    font-size:14px;
+    border:1.5px solid var(--line);
+    border-radius:6px;
+    color:var(--ink);
+  }
+  .proj-btn{
+    padding:10px 18px;
+    font-size:13px;
+    font-weight:700;
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+  }
+  .proj-btn:hover{background:var(--navy-deep);}
+  .proj-btn:disabled{background:#c5cdd8;cursor:not-allowed;}
+
+  .proj-summary{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:12px;
+    margin-bottom:18px;
+  }
+  .proj-summary .card{padding:14px 16px;}
+
+  .proj-table-wrap{
+    overflow-x:auto;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:8px;
+  }
+  .proj-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  .proj-table th, .proj-table td{
+    padding:9px 14px;
+    text-align:right;
+    border-bottom:1px solid var(--line);
+  }
+  .proj-table th:first-child, .proj-table td:first-child{text-align:left;}
+  .proj-table thead th{
+    background:var(--navy);
+    color:#fff;
+    font-weight:600;
+    font-size:12px;
+  }
+  .proj-table tbody tr:nth-child(even){background:#f7f9fb;}
+  .proj-table .proj-base-row{font-weight:700;color:var(--navy);}
+  .proj-table .proj-delta-pos{color:#1a7a3c;}
+  .proj-table .proj-delta-neg{color:#c0392b;}
+
+  .proj-empty{
+    padding:30px 20px;
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    background:#fff;
+    border:1px dashed var(--line);
+    border-radius:8px;
+  }
 </style>
 </head>
 <body>
@@ -201,7 +376,7 @@
 <header>
   <div class="eyebrow">SEREMI MDSF Araucanía · Base de datos</div>
   <h1>Censo de Población y Vivienda 2024</h1>
-  <p>Consulta los datos del censo por región, provincia, comuna, distrito, localidad y zona/entidad. Selecciona un nivel para ver los resultados urbano y rural.</p>
+  <p>Consulta los datos del censo por región, provincia, comuna, distrito, zona censal (urbano) o localidad/entidad (rural). Selecciona un nivel para ver los resultados urbano y rural.</p>
 </header>
 
 <main>
@@ -210,27 +385,52 @@
     <div class="level">
       <label for="sel-region">Región</label>
       <select id="sel-region"><option value="">Seleccione…</option></select>
+      <button class="add-btn" id="add-region" disabled>+ Agregar región</button>
     </div>
     <div class="level">
       <label for="sel-provincia">Provincia</label>
       <select id="sel-provincia" disabled><option value="">Seleccione…</option></select>
+      <button class="add-btn" id="add-provincia" disabled>+ Agregar provincia</button>
     </div>
     <div class="level">
       <label for="sel-comuna">Comuna</label>
       <select id="sel-comuna" disabled><option value="">Seleccione…</option></select>
+      <button class="add-btn" id="add-comuna" disabled>+ Agregar comuna</button>
     </div>
     <div class="level">
       <label for="sel-distrito">Distrito</label>
       <select id="sel-distrito" disabled><option value="">Seleccione…</option></select>
+      <button class="add-btn" id="add-distrito" disabled>+ Agregar distrito</button>
+    </div>
+  </div>
+
+  <div class="levels">
+    <div class="level">
+      <label for="sel-zona">Zona censal (Urbano)</label>
+      <select id="sel-zona" disabled><option value="">Seleccione…</option></select>
+      <button class="add-btn" id="add-zona" disabled>+ Agregar zona</button>
+    </div>
+  </div>
+
+  <div class="levels">
+    <div class="level">
+      <label for="sel-localidad">Localidad (Rural)</label>
+      <select id="sel-localidad" disabled><option value="">Seleccione…</option></select>
+      <button class="add-btn" id="add-localidad" disabled>+ Agregar localidad</button>
     </div>
     <div class="level">
-      <label for="sel-localidad">Localidad</label>
-      <select id="sel-localidad" disabled><option value="">Seleccione…</option></select>
+      <label for="sel-entidad">Entidad (Rural)</label>
+      <select id="sel-entidad" disabled><option value="">Seleccione…</option></select>
+      <button class="add-btn" id="add-entidad" disabled>+ Agregar entidad</button>
     </div>
-    <div class="level" id="wrap-sub">
-      <label for="sel-sub">Zona / Entidad</label>
-      <select id="sel-sub" disabled><option value="">Seleccione…</option></select>
+  </div>
+
+  <div class="selected-areas" id="selected-areas" style="display:none;">
+    <div class="sa-header">
+      <span class="vt-label">Áreas seleccionadas (suma combinada)</span>
+      <button class="clear-btn" id="clear-areas">Limpiar selección</button>
     </div>
+    <div class="sa-list" id="sa-list"></div>
   </div>
 
   <div class="view-toggle" id="view-toggle">
@@ -248,9 +448,26 @@
     <div class="empty">Selecciona al menos una región para comenzar la consulta.</div>
   </div>
 
+  <div class="proj-section">
+    <h2>Proyección de población</h2>
+    <p class="proj-sub">Calcula la tasa de crecimiento entre el Censo 2017 y el Censo 2024 para la selección actual, y proyecta la población total a futuro.</p>
+
+    <div class="proj-controls">
+      <div class="proj-field">
+        <label for="proj-years">Años a proyectar</label>
+        <input type="number" id="proj-years" value="6" min="1" max="30">
+      </div>
+      <button class="proj-btn" id="proj-calc-btn">Calcular proyección</button>
+    </div>
+
+    <div id="proj-result">
+      <div class="proj-empty">Selecciona una región, provincia, comuna, distrito u otra área arriba, luego presiona "Calcular proyección".</div>
+    </div>
+  </div>
+
 </main>
 
-<footer>Fuente: Censo de Población y Vivienda 2024, INE · Datos a nivel de manzana / entidad censal</footer>
+<footer>Fuente: Censo de Población y Vivienda 2024 e Censo 2017, INE · Datos a nivel de manzana / entidad censal</footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -281,14 +498,24 @@ const els = {
   provincia: document.getElementById("sel-provincia"),
   comuna: document.getElementById("sel-comuna"),
   distrito: document.getElementById("sel-distrito"),
+  zona: document.getElementById("sel-zona"),
   localidad: document.getElementById("sel-localidad"),
-  sub: document.getElementById("sel-sub"),
-  subLabel: document.querySelector("#wrap-sub label"),
+  entidad: document.getElementById("sel-entidad"),
   breadcrumb: document.getElementById("breadcrumb"),
   result: document.getElementById("result"),
   chkTotal: document.getElementById("chk-total"),
   chkUrbano: document.getElementById("chk-urbano"),
   chkRural: document.getElementById("chk-rural"),
+  addRegion: document.getElementById("add-region"),
+  addProvincia: document.getElementById("add-provincia"),
+  addComuna: document.getElementById("add-comuna"),
+  addDistrito: document.getElementById("add-distrito"),
+  addZona: document.getElementById("add-zona"),
+  addLocalidad: document.getElementById("add-localidad"),
+  addEntidad: document.getElementById("add-entidad"),
+  selectedAreasBox: document.getElementById("selected-areas"),
+  saList: document.getElementById("sa-list"),
+  clearAreas: document.getElementById("clear-areas"),
 };
 
 let currentPanels = [];
@@ -334,17 +561,18 @@ function buildBoundaryQuery(){
   const provincia = els.provincia.value;
   const cut_comuna = els.comuna.value;
   const id_distrito = els.distrito.value;
-  const localVal = els.localidad.value; // "id_localidad|AREA"
-  const id_sub = els.sub.value;
+  const id_zona = els.zona.value;
+  const id_localidad = els.localidad.value;
+  const id_entidad = els.entidad.value;
 
-  if(id_sub){
-    const area = localVal.split("|")[1];
-    const field = area === "URBANO" ? "ID_ZONA" : "ID_ENTIDAD";
-    return { layer: ARCGIS_LAYERS.zonal, where: `${field}=${id_sub}` };
+  if(id_zona){
+    return { layer: ARCGIS_LAYERS.zonal, where: `ID_ZONA=${id_zona}` };
   }
-  if(localVal){
-    const [id_localidad, area] = localVal.split("|");
-    return { layer: ARCGIS_LAYERS.zonal, where: `ID_LOCALIDAD=${id_localidad} AND AREA_C='${area}'` };
+  if(id_entidad){
+    return { layer: ARCGIS_LAYERS.zonal, where: `ID_ENTIDAD=${id_entidad}` };
+  }
+  if(id_localidad){
+    return { layer: ARCGIS_LAYERS.zonal, where: `ID_DISTRITO=${id_distrito} AND ID_LOCALIDAD=${id_localidad} AND AREA_C='RURAL'` };
   }
   if(id_distrito){
     return { layer: ARCGIS_LAYERS.distrito, where: `ID_DISTRITO=${id_distrito}` };
@@ -379,6 +607,15 @@ function resetSelect(sel, placeholder="Seleccione…"){
   sel.innerHTML = `<option value="">${placeholder}</option>`;
   sel.disabled = true;
 }
+function forceRepaint(el){
+  // Workaround para un bug de renderizado de Chrome donde un <select>
+  // habilitado desde código async (tras un await) no se repinta visualmente
+  // aunque su propiedad .disabled ya sea false.
+  el.style.display = "none";
+  // eslint-disable-next-line no-unused-expressions
+  el.offsetHeight; // fuerza reflow
+  el.style.display = "";
+}
 function fillSelect(sel, items, valueFn, labelFn, placeholder="Seleccione…"){
   sel.innerHTML = `<option value="">${placeholder}</option>`;
   for(const it of items){
@@ -388,6 +625,51 @@ function fillSelect(sel, items, valueFn, labelFn, placeholder="Seleccione…"){
     sel.appendChild(opt);
   }
   sel.disabled = items.length === 0;
+  forceRepaint(sel);
+}
+
+// Rellena un combo combinando los ítems del padre actual + los de áreas seleccionadas del mismo nivel padre.
+// parentType: el tipo del padre ("distrito", "comuna", etc.)
+// parentField: el campo por el cual se agrupa (ej. "id_distrito")
+// parentLabelFn: función que devuelve el nombre del padre dado su ID
+// fetchFn: async (parentId) => array de ítems hijos
+// valueFn / labelFn: función para value/label del ítem hijo
+async function fillSelectMultiParent(sel, parentType, parentField, parentLabelFn, fetchFn, valueFn, labelFn, placeholder="Seleccione…"){
+  const currentParentId = currentFilters()[parentField];
+
+  // Recopilar todos los padres: el seleccionado actualmente + los que están en selectedAreas con ese tipo
+  const parents = [];
+  if(currentParentId) parents.push({id: currentParentId, label: null}); // label se resuelve abajo
+
+  const selectedParents = selectedAreas.filter(e => e.type === parentType);
+  for(const sp of selectedParents){
+    const pid = sp.filters[parentField];
+    if(pid && pid !== currentParentId) parents.push({id: pid, label: sp.label});
+  }
+
+  if(parents.length === 0){ resetSelect(sel, placeholder); return; }
+
+  // Resolver labels faltantes (el padre actual no tiene label pre-calculado)
+  const needMultiPrefix = parents.length > 1;
+
+  sel.innerHTML = `<option value="">${placeholder}</option>`;
+  let total = 0;
+
+  for(const parent of parents){
+    const items = await fetchFn(parent.id);
+    for(const it of items){
+      const opt = document.createElement("option");
+      opt.value = valueFn(it);
+      const childLabel = labelFn(it);
+      opt.textContent = needMultiPrefix
+        ? `${parent.label || await parentLabelFn(parent.id)} — ${childLabel}`
+        : childLabel;
+      sel.appendChild(opt);
+      total++;
+    }
+  }
+  sel.disabled = total === 0;
+  forceRepaint(sel);
 }
 function setLoading(){
   els.result.innerHTML = `<div class="loading">Consultando base de datos…</div>`;
@@ -472,17 +754,14 @@ function hasData(row){
   return row && row.n_per !== null && row.n_per !== undefined && row.n_per > 0;
 }
 
-// panels: array of {key:'total'|'urbano'|'rural', title, row, cls}
-function renderFromState(){
-  const checks = {total: els.chkTotal.checked, urbano: els.chkUrbano.checked, rural: els.chkRural.checked};
-  const visible = currentPanels.filter(p => checks[p.key] && hasData(p.row));
-  if(visible.length === 0){
+function renderPanelArray(panels){
+  if(panels.length === 0){
     setEmpty("No hay datos para mostrar con la selección actual.");
     return;
   }
-  const cls = visible.length === 1 ? "panels single" : "panels";
+  const cls = panels.length === 1 ? "panels single" : "panels";
   els.result.innerHTML = `<div class="${cls}">
-    ${visible.map(p => `
+    ${panels.map(p => `
       <div>
         <div class="panel-title ${p.cls||''}">${p.title}</div>
         ${dashboardHTML(p.row)}
@@ -491,12 +770,473 @@ function renderFromState(){
   </div>`;
 }
 
+// panels: array of {key:'total'|'urbano'|'rural', title, row, cls}
+function renderFromState(){
+  const checks = {total: els.chkTotal.checked, urbano: els.chkUrbano.checked, rural: els.chkRural.checked};
+  const visible = currentPanels.filter(p => checks[p.key] && hasData(p.row));
+  renderPanelArray(visible);
+}
+
+function renderCombinedFromState(){
+  if(!combinedSums) return;
+  const checks = {total: els.chkTotal.checked, urbano: els.chkUrbano.checked, rural: els.chkRural.checked};
+  const n = selectedAreas.length;
+  const panels = [];
+  if(checks.total && hasData(combinedSums.total)) panels.push({title:`Selección combinada (${n} áreas) — Total`, row: combinedSums.total, cls:"total"});
+  if(checks.urbano && hasData(combinedSums.urbano)) panels.push({title:`Selección combinada (${n} áreas) — Urbano`, row: combinedSums.urbano, cls:"urbano"});
+  if(checks.rural && hasData(combinedSums.rural)) panels.push({title:`Selección combinada (${n} áreas) — Rural`, row: combinedSums.rural, cls:"rural"});
+  renderPanelArray(panels);
+}
+
 function renderPanels(panels){
   currentPanels = panels;
   renderFromState();
 }
 
-[els.chkTotal, els.chkUrbano, els.chkRural].forEach(c => c.addEventListener("change", renderFromState));
+[els.chkTotal, els.chkUrbano, els.chkRural].forEach(c => c.addEventListener("change", () => {
+  if(selectedAreas.length > 0) renderCombinedFromState();
+  else renderFromState();
+}));
+
+// ---------- Selección múltiple (suma combinada) ----------
+
+const labelCache = {};
+async function resolveDistritoLabel(id_distrito){
+  if(labelCache[`d_${id_distrito}`]) return labelCache[`d_${id_distrito}`];
+  const [d] = await sb("vw_distrito", `select=cod_distrito,distrito&id_distrito=eq.${id_distrito}`);
+  const label = `Dist.${d.cod_distrito}${d.distrito ? ' ' + d.distrito : ''}`;
+  labelCache[`d_${id_distrito}`] = label;
+  return label;
+}
+async function resolveComunaLabel(cut_comuna){
+  if(labelCache[`c_${cut_comuna}`]) return labelCache[`c_${cut_comuna}`];
+  const [c] = await sb("vw_comuna", `select=comuna&cut_comuna=eq.${cut_comuna}`);
+  labelCache[`c_${cut_comuna}`] = c.comuna;
+  return c.comuna;
+}
+async function resolveLocalidadLabel(id_localidad, id_distrito){
+  const key = `l_${id_localidad}_${id_distrito}`;
+  if(labelCache[key]) return labelCache[key];
+  const [l] = await sb("vw_localidad", `select=localidad&id_localidad=eq.${id_localidad}&id_distrito=eq.${id_distrito}&area=eq.RURAL`);
+  const label = l ? l.localidad : id_localidad;
+  labelCache[key] = label;
+  return label;
+}
+let selectedAreas = [];
+let combinedSums = null;
+
+function currentFilters(){
+  return {
+    cod_region: els.region.value,
+    provincia: els.provincia.value,
+    cut_comuna: els.comuna.value,
+    id_distrito: els.distrito.value,
+    id_zona: els.zona.value,
+    id_localidad: els.localidad.value,
+    id_entidad: els.entidad.value,
+  };
+}
+
+function keyFor(type, f){
+  switch(type){
+    case "region": return `region:${f.cod_region}`;
+    case "provincia": return `provincia:${f.cod_region}|${f.provincia}`;
+    case "comuna": return `comuna:${f.cut_comuna}`;
+    case "distrito": return `distrito:${f.id_distrito}`;
+    case "zona": return `zona:${f.id_zona}`;
+    case "localidad": return `localidad:${f.id_distrito}|${f.id_localidad}`;
+    case "entidad": return `entidad:${f.id_entidad}`;
+  }
+}
+
+// Retorna true si 'broad' cubre a 'specific' según jerarquía explícita
+function covers(broad, specific){
+  // mismo tipo no se cubre
+  if(broad.type === specific.type) return false;
+  const bf = broad.filters, sf = specific.filters;
+  switch(broad.type){
+    case "region":
+      return bf.cod_region === sf.cod_region;
+    case "provincia":
+      return bf.cod_region === sf.cod_region && bf.provincia === sf.provincia;
+    case "comuna":
+      return bf.cut_comuna === sf.cut_comuna;
+    case "distrito":
+      return bf.id_distrito === sf.id_distrito;
+    case "localidad":
+      return bf.id_distrito === sf.id_distrito && bf.id_localidad === sf.id_localidad;
+    default:
+      return false;
+  }
+}
+
+function addArea(entry){
+  // Ya existe exactamente
+  if(selectedAreas.some(e => e.key === entry.key)){
+    console.log("BLOCKED duplicate:", entry.key);
+    return;
+  }
+  // Ya hay un área más amplia que la cubre
+  const broader = selectedAreas.find(e => covers(e, entry));
+  if(broader){
+    console.log("BLOCKED covered by:", broader.key);
+    return;
+  }
+  // Eliminar áreas más específicas que quedan cubiertas por la nueva
+  const before = selectedAreas.length;
+  selectedAreas = selectedAreas.filter(e => !covers(entry, e));
+  if(selectedAreas.length < before) console.log("Removed", before - selectedAreas.length, "children");
+  selectedAreas.push(entry);
+  console.log("ADDED:", entry.key, "total:", selectedAreas.map(e=>e.key));
+  onSelectionChanged();
+}
+
+function removeArea(key){
+  selectedAreas = selectedAreas.filter(e => e.key !== key);
+  onSelectionChanged();
+}
+
+function renderSelectedList(){
+  if(selectedAreas.length === 0){
+    els.selectedAreasBox.style.display = "none";
+    els.saList.innerHTML = "";
+    return;
+  }
+  els.selectedAreasBox.style.display = "";
+  els.saList.innerHTML = selectedAreas.map(e => `
+    <span class="sa-chip">${e.label}<button class="sa-remove" data-key="${e.key}" title="Quitar">×</button></span>
+  `).join("");
+  els.saList.querySelectorAll(".sa-remove").forEach(btn => {
+    btn.addEventListener("click", () => removeArea(btn.dataset.key));
+  });
+}
+
+async function onSelectionChanged(){
+  currentNavLevel = null; // al agregar/quitar áreas, mostrar suma combinada
+  renderSelectedList();
+
+  // Guardar TODOS los valores antes de cualquier re-poblado
+  const savedRegion    = els.region.value;
+  const savedProvincia = els.provincia.value;
+  const savedComuna    = els.comuna.value;
+  const savedDistrito  = els.distrito.value;
+  const savedZona      = els.zona.value;
+  const savedLocalidad = els.localidad.value;
+  const savedEntidad   = els.entidad.value;
+
+  // Re-poblar SIEMPRE todos los combos hijos que tengan un padre activo
+  // (ya sea el combo actual o un área seleccionada del tipo padre)
+
+  // Comunas — padre: provincia
+  const hasProvincia = savedProvincia || selectedAreas.some(e => e.type === "provincia");
+  if(hasProvincia){
+    await fillSelectMultiParent(
+      els.comuna, "provincia", "provincia",
+      async prov => prov,
+      async prov => sb("vw_comuna", `select=cut_comuna,comuna&provincia=eq.${encodeURIComponent(prov)}&order=comuna`),
+      d => d.cut_comuna, d => d.comuna
+    );
+  }
+
+  // Distritos — padre: comuna
+  const hasComuna = savedComuna || selectedAreas.some(e => e.type === "comuna");
+  if(hasComuna){
+    await fillSelectMultiParent(
+      els.distrito, "comuna", "cut_comuna",
+      id => resolveComunaLabel(id),
+      async id => sb("vw_distrito", `select=id_distrito,cod_distrito,distrito&cut_comuna=eq.${id}&order=cod_distrito`),
+      d => d.id_distrito, d => `Dist.${d.cod_distrito}${d.distrito ? ' ' + d.distrito : ''}`
+    );
+  }
+
+  // Zonas y Localidades — padre: distrito
+  const hasDistrito = savedDistrito || selectedAreas.some(e => e.type === "distrito");
+  if(hasDistrito){
+    await fillSelectMultiParent(
+      els.zona, "distrito", "id_distrito",
+      id => resolveDistritoLabel(id),
+      async id => sb("vw_zona", `select=id_zona,cod_zona&id_distrito=eq.${id}&order=cod_zona`),
+      d => d.id_zona, d => `Zona censal ${d.cod_zona}`
+    );
+    await fillSelectMultiParent(
+      els.localidad, "distrito", "id_distrito",
+      id => resolveDistritoLabel(id),
+      async id => sb("vw_localidad", `select=id_localidad,localidad&id_distrito=eq.${id}&area=eq.RURAL&order=localidad`),
+      d => d.id_localidad, d => d.localidad
+    );
+  }
+
+  // Restaurar valores guardados si siguen siendo opciones válidas
+  const restore = (sel, val) => {
+    if(val && [...sel.options].some(o => o.value === val)) sel.value = val;
+  };
+  restore(els.comuna,    savedComuna);
+  restore(els.distrito,  savedDistrito);
+  restore(els.zona,      savedZona);
+  restore(els.localidad, savedLocalidad);
+  restore(els.entidad,   savedEntidad);
+  restore(els.provincia, savedProvincia);
+  restore(els.region,    savedRegion);
+
+  // Actualizar botones DESPUÉS de restaurar valores
+  updateAddButtons();
+
+  await refresh();
+}
+
+// ---------- Cálculo de la suma combinada ----------
+
+const METRIC_KEYS = ["n_per","n_hombres","n_mujeres","n_edad_0_5","n_edad_6_13","n_edad_14_17",
+  "n_edad_18_24","n_edad_25_44","n_edad_45_59","n_edad_60_mas","n_pueblos_orig","n_hog","n_vp"];
+
+function emptyAccum(){
+  const acc = {};
+  METRIC_KEYS.forEach(k => acc[k] = 0);
+  return acc;
+}
+function addRow(acc, row){
+  if(!row) return;
+  METRIC_KEYS.forEach(k => acc[k] += Number(row[k] || 0));
+}
+
+async function fetchItemSums(entry){
+  const f = entry.filters;
+  let tot=null, urb=null, rur=null;
+  switch(entry.type){
+    case "region": {
+      [tot] = await sb("vw_region", `select=*&cod_region=eq.${f.cod_region}`);
+      [urb] = await sb("vw_region_area", `select=*&cod_region=eq.${f.cod_region}&area=eq.URBANO`);
+      [rur] = await sb("vw_region_area", `select=*&cod_region=eq.${f.cod_region}&area=eq.RURAL`);
+      break;
+    }
+    case "provincia": {
+      const q = `cod_region=eq.${f.cod_region}&provincia=eq.${encodeURIComponent(f.provincia)}`;
+      [tot] = await sb("vw_provincia", `select=*&${q}`);
+      [urb] = await sb("vw_provincia_area", `select=*&${q}&area=eq.URBANO`);
+      [rur] = await sb("vw_provincia_area", `select=*&${q}&area=eq.RURAL`);
+      break;
+    }
+    case "comuna": {
+      [tot] = await sb("vw_comuna", `select=*&cut_comuna=eq.${f.cut_comuna}`);
+      [urb] = await sb("vw_comuna_area", `select=*&cut_comuna=eq.${f.cut_comuna}&area=eq.URBANO`);
+      [rur] = await sb("vw_comuna_area", `select=*&cut_comuna=eq.${f.cut_comuna}&area=eq.RURAL`);
+      break;
+    }
+    case "distrito": {
+      [tot] = await sb("vw_distrito", `select=*&id_distrito=eq.${f.id_distrito}`);
+      [urb] = await sb("vw_area", `select=*&id_distrito=eq.${f.id_distrito}&area=eq.URBANO`);
+      [rur] = await sb("vw_area", `select=*&id_distrito=eq.${f.id_distrito}&area=eq.RURAL`);
+      break;
+    }
+    case "zona": {
+      [urb] = await sb("vw_zona", `select=*&id_zona=eq.${f.id_zona}`);
+      tot = urb;
+      break;
+    }
+    case "localidad": {
+      [rur] = await sb("vw_localidad", `select=*&id_distrito=eq.${f.id_distrito}&id_localidad=eq.${f.id_localidad}&area=eq.RURAL`);
+      tot = rur;
+      break;
+    }
+    case "entidad": {
+      [rur] = await sb("vw_entidad", `select=*&id_entidad=eq.${f.id_entidad}`);
+      tot = rur;
+      break;
+    }
+  }
+  return {tot, urb, rur};
+}
+
+async function computeCombinedSums(){
+  const results = await Promise.all(selectedAreas.map(fetchItemSums));
+  const total = emptyAccum(), urbano = emptyAccum(), rural = emptyAccum();
+  for(const r of results){
+    addRow(total, r.tot);
+    addRow(urbano, r.urb);
+    addRow(rural, r.rur);
+  }
+  return {total, urbano, rural};
+}
+
+async function renderCombined(){
+  setLoading();
+  combinedSums = await computeCombinedSums();
+  renderCombinedFromState();
+}
+
+// ---------- Mapa combinado ----------
+
+function boundaryQueryForEntry(e){
+  const f = e.filters;
+  switch(e.type){
+    case "region": return { layer: ARCGIS_LAYERS.region, where: `COD_REGION=${f.cod_region}` };
+    case "provincia": {
+      const safe = f.provincia.replace(/'/g, "''");
+      return { layer: ARCGIS_LAYERS.provincia, where: `COD_REGION=${f.cod_region} AND PROVINCIA='${safe}'` };
+    }
+    case "comuna": return { layer: ARCGIS_LAYERS.comuna, where: `CUT=${f.cut_comuna}` };
+    case "distrito": return { layer: ARCGIS_LAYERS.distrito, where: `ID_DISTRITO=${f.id_distrito}` };
+    case "zona": return { layer: ARCGIS_LAYERS.zonal, where: `ID_ZONA=${f.id_zona}` };
+    case "localidad": return { layer: ARCGIS_LAYERS.zonal, where: `ID_DISTRITO=${f.id_distrito} AND ID_LOCALIDAD=${f.id_localidad} AND AREA_C='RURAL'` };
+    case "entidad": return { layer: ARCGIS_LAYERS.zonal, where: `ID_ENTIDAD=${f.id_entidad}` };
+  }
+}
+
+
+// ---------- Refresh unificado ----------
+
+// Estado de navegación actual — qué nivel está mostrando el panel
+let currentNavLevel = null; // null = nada, o "region","provincia","comuna","distrito","zona","localidad","entidad"
+
+async function refresh(){
+  updateAddButtons();
+  if(selectedAreas.length > 0 && currentNavLevel === null){
+    // Solo mostrar suma combinada cuando no hay navegación activa
+    await renderCombined();
+    await updateCombinedMap();
+  } else if(selectedAreas.length > 0 && currentNavLevel !== null){
+    // Hay áreas seleccionadas pero el usuario está navegando un nivel
+    // Mostrar panel del nivel actual + mapa combinado
+    renderFromState();
+    await updateCombinedMap();
+  } else {
+    renderFromState();
+    await updateMap();
+  }
+}
+
+// Cuando hay selectedAreas, el mapa muestra esas + el polígono del nivel actual del combo
+async function updateCombinedMap(){
+  if(boundaryLayer){ map.removeLayer(boundaryLayer); boundaryLayer = null; }
+  try{
+    // Áreas seleccionadas en la lista
+    const queries = selectedAreas.map(e => boundaryQueryForEntry(e));
+
+    // Agregar también el polígono del nivel actual del combo (si no está ya en selectedAreas)
+    const currentQ = buildBoundaryQuery();
+    const f = currentFilters();
+    const currentKey = currentQ ? null : null; // solo usamos currentQ si es distinto
+    if(currentQ){
+      // Verificar que no esté ya cubierto por selectedAreas
+      const tempEntry = {type: currentQ._type || "current", filters: f, key:"_current"};
+      const alreadyCovered = selectedAreas.some(e => {
+        const eq = boundaryQueryForEntry(e);
+        return eq.layer === currentQ.layer && eq.where === currentQ.where;
+      });
+      if(!alreadyCovered) queries.push(currentQ);
+    }
+
+    const geojsons = await Promise.all(queries.map(q => fetchBoundary(q.layer, q.where)));
+    const group = L.featureGroup();
+    let any = false;
+    geojsons.forEach((gj, i) => {
+      if(gj && gj.features && gj.features.length){
+        const isSelected = i < selectedAreas.length;
+        L.geoJSON(gj, { style: {
+          color: isSelected ? "#e6007e" : "#29abe2",
+          weight: isSelected ? 2.5 : 1.5,
+          fillColor: isSelected ? "#29abe2" : "#9fd3f0",
+          fillOpacity: 0.15
+        }}).addTo(group);
+        any = true;
+      }
+    });
+    if(any){
+      group.addTo(map);
+      boundaryLayer = group;
+      map.fitBounds(group.getBounds(), { maxZoom: 15, padding: [20, 20] });
+    } else {
+      map.setView([-35.6, -71.5], 4);
+    }
+  } catch(e){
+    console.warn("Error mapa combinado:", e);
+  }
+}
+
+function updateAddButtons(){
+  // Un botón está habilitado si el combo tiene valor seleccionado
+  // Y ese valor no está ya cubierto en selectedAreas
+  const f = currentFilters();
+  
+  const regionEntry = f.cod_region ? {type:"region", filters:{cod_region:f.cod_region}, key:keyFor("region",{cod_region:f.cod_region})} : null;
+  const provEntry = f.provincia ? {type:"provincia", filters:{cod_region:f.cod_region,provincia:f.provincia}, key:keyFor("provincia",{cod_region:f.cod_region,provincia:f.provincia})} : null;
+  const comunaEntry = f.cut_comuna ? {type:"comuna", filters:{cod_region:f.cod_region,provincia:f.provincia,cut_comuna:f.cut_comuna}, key:keyFor("comuna",{cut_comuna:f.cut_comuna})} : null;
+  const distritoEntry = f.id_distrito ? {type:"distrito", filters:{cod_region:f.cod_region,provincia:f.provincia,cut_comuna:f.cut_comuna,id_distrito:f.id_distrito}, key:keyFor("distrito",{id_distrito:f.id_distrito})} : null;
+  const zonaEntry = f.id_zona ? {type:"zona", filters:{id_zona:f.id_zona}, key:keyFor("zona",{id_zona:f.id_zona})} : null;
+  const localidadEntry = f.id_localidad ? {type:"localidad", filters:{id_distrito:f.id_distrito,id_localidad:f.id_localidad}, key:keyFor("localidad",{id_distrito:f.id_distrito,id_localidad:f.id_localidad})} : null;
+  const entidadEntry = f.id_entidad ? {type:"entidad", filters:{id_entidad:f.id_entidad}, key:keyFor("entidad",{id_entidad:f.id_entidad})} : null;
+
+  function canAdd(entry){
+    if(!entry) return false;
+    if(selectedAreas.some(e => e.key === entry.key)) return false; // ya está
+    if(selectedAreas.some(e => covers(e, entry))) return false; // cubierto por algo más amplio
+    return true;
+  }
+
+  els.addRegion.disabled    = !canAdd(regionEntry);
+  els.addProvincia.disabled = !canAdd(provEntry);
+  els.addComuna.disabled    = !canAdd(comunaEntry);
+  els.addDistrito.disabled  = !canAdd(distritoEntry);
+  els.addZona.disabled      = !canAdd(zonaEntry);
+  els.addLocalidad.disabled = !canAdd(localidadEntry);
+  els.addEntidad.disabled   = !canAdd(entidadEntry);
+}
+
+els.addRegion.addEventListener("click", () => {
+  const f = currentFilters();
+  if(!f.cod_region) return;
+  const label = els.region.options[els.region.selectedIndex].textContent;
+  addArea({type:"region", label: `Región: ${label}`, filters:{cod_region:f.cod_region}, key: keyFor("region",{cod_region:f.cod_region})});
+});
+els.addProvincia.addEventListener("click", () => {
+  const f = currentFilters();
+  if(!f.provincia) return;
+  const fl = {cod_region:f.cod_region, provincia:f.provincia};
+  addArea({type:"provincia", label: `Provincia: ${f.provincia}`, filters: fl, key: keyFor("provincia", fl)});
+});
+els.addComuna.addEventListener("click", () => {
+  const f = currentFilters();
+  if(!f.cut_comuna) return;
+  const label = els.comuna.options[els.comuna.selectedIndex].textContent;
+  const fl = {cod_region:f.cod_region, provincia:f.provincia, cut_comuna:f.cut_comuna};
+  addArea({type:"comuna", label: `Comuna: ${label}`, filters: fl, key: keyFor("comuna", fl)});
+});
+els.addDistrito.addEventListener("click", () => {
+  const f = currentFilters();
+  if(!f.id_distrito) return;
+  const distLabel = els.distrito.options[els.distrito.selectedIndex].textContent;
+  const comunaLabel = els.comuna.options[els.comuna.selectedIndex].textContent;
+  const fl = {cod_region:f.cod_region, provincia:f.provincia, cut_comuna:f.cut_comuna, id_distrito:f.id_distrito};
+  addArea({type:"distrito", label: `${distLabel} (${comunaLabel})`, filters: fl, key: keyFor("distrito", fl)});
+});
+els.addZona.addEventListener("click", () => {
+  const f = currentFilters();
+  if(!f.id_zona) return;
+  const zonaLabel = els.zona.options[els.zona.selectedIndex].textContent;
+  const distLabel = els.distrito.options[els.distrito.selectedIndex].textContent;
+  const fl = {cod_region:f.cod_region, provincia:f.provincia, cut_comuna:f.cut_comuna, id_distrito:f.id_distrito, id_zona:f.id_zona};
+  addArea({type:"zona", label: `${zonaLabel} (${distLabel})`, filters: fl, key: keyFor("zona", fl)});
+});
+els.addLocalidad.addEventListener("click", () => {
+  const f = currentFilters();
+  if(!f.id_localidad) return;
+  const locLabel = els.localidad.options[els.localidad.selectedIndex].textContent;
+  const distLabel = els.distrito.options[els.distrito.selectedIndex].textContent;
+  const fl = {cod_region:f.cod_region, provincia:f.provincia, cut_comuna:f.cut_comuna, id_distrito:f.id_distrito, id_localidad:f.id_localidad};
+  addArea({type:"localidad", label: `${locLabel} — Rural (${distLabel})`, filters: fl, key: keyFor("localidad", fl)});
+});
+els.addEntidad.addEventListener("click", () => {
+  const f = currentFilters();
+  if(!f.id_entidad) return;
+  const entLabel = els.entidad.options[els.entidad.selectedIndex].textContent;
+  const locLabel = els.localidad.options[els.localidad.selectedIndex].textContent;
+  const fl = {cod_region:f.cod_region, provincia:f.provincia, cut_comuna:f.cut_comuna, id_distrito:f.id_distrito, id_localidad:f.id_localidad, id_entidad:f.id_entidad};
+  addArea({type:"entidad", label: `Entidad ${entLabel} (${locLabel})`, filters: fl, key: keyFor("entidad", fl)});
+});
+els.clearAreas.addEventListener("click", () => {
+  selectedAreas = [];
+  onSelectionChanged();
+});
 
 // ---------- Cascade ----------
 
@@ -505,10 +1245,17 @@ async function loadRegiones(){
   fillSelect(els.region, data, d=>d.cod_region, d=>d.region);
 }
 
+function resetSubSelects(){
+  resetSelect(els.zona);
+  resetSelect(els.localidad);
+  resetSelect(els.entidad);
+}
+
 function clearBelow(level){
-  const order = ["provincia","comuna","distrito","localidad","sub"];
+  const order = ["provincia","comuna","distrito"];
   const idx = order.indexOf(level);
   for(let i=idx;i<order.length;i++) resetSelect(els[order[i]]);
+  resetSubSelects();
 }
 
 async function showAreaPanels(totalView, areaView, filterParams, titlePrefix){
@@ -530,19 +1277,21 @@ async function onRegionChange(){
   clearBelow("provincia");
 
   if(!cod_region){
+    currentNavLevel = null;
     setEmpty("Selecciona al menos una región para comenzar la consulta.");
     updateBreadcrumb();
-    await updateMap();
+    await refresh();
     return;
   }
 
+  currentNavLevel = "region";
   const data = await sb("vw_region", `select=*&cod_region=eq.${cod_region}`);
   await showAreaPanels("vw_region", "vw_region_area", `cod_region=eq.${cod_region}`, `Región de ${data[0].region}`);
 
   const provs = await sb("vw_provincia", `select=provincia&cod_region=eq.${cod_region}&order=provincia`);
   fillSelect(els.provincia, provs, d=>d.provincia, d=>d.provincia);
   updateBreadcrumb();
-  await updateMap();
+  await refresh();
 }
 
 async function onProvinciaChange(){
@@ -552,12 +1301,17 @@ async function onProvinciaChange(){
 
   if(!provincia){ await onRegionChange(); return; }
 
+  currentNavLevel = "provincia";
   await showAreaPanels("vw_provincia", "vw_provincia_area", `cod_region=eq.${cod_region}&provincia=eq.${encodeURIComponent(provincia)}`, `Provincia de ${provincia}`);
 
-  const comunas = await sb("vw_comuna", `select=cut_comuna,comuna&provincia=eq.${encodeURIComponent(provincia)}&order=comuna`);
-  fillSelect(els.comuna, comunas, d=>d.cut_comuna, d=>d.comuna);
+  await fillSelectMultiParent(
+    els.comuna, "provincia", "provincia",
+    async prov => prov,
+    async prov => sb("vw_comuna", `select=cut_comuna,comuna&provincia=eq.${encodeURIComponent(prov)}&order=comuna`),
+    d => d.cut_comuna, d => d.comuna
+  );
   updateBreadcrumb();
-  await updateMap();
+  await refresh();
 }
 
 async function onComunaChange(){
@@ -566,74 +1320,118 @@ async function onComunaChange(){
 
   if(!cut_comuna){ await onProvinciaChange(); return; }
 
+  currentNavLevel = "comuna";
   const data = await sb("vw_comuna", `select=*&cut_comuna=eq.${cut_comuna}`);
   await showAreaPanels("vw_comuna", "vw_comuna_area", `cut_comuna=eq.${cut_comuna}`, `Comuna de ${data[0].comuna}`);
 
-  const distritos = await sb("vw_distrito", `select=id_distrito,cod_distrito,distrito&cut_comuna=eq.${cut_comuna}&order=cod_distrito`);
-  fillSelect(els.distrito, distritos, d=>d.id_distrito, d=>`Distrito ${d.cod_distrito} · ${d.distrito}`);
+  await fillSelectMultiParent(
+    els.distrito, "comuna", "cut_comuna",
+    id => resolveComunaLabel(id),
+    async id => sb("vw_distrito", `select=id_distrito,cod_distrito,distrito&cut_comuna=eq.${id}&order=cod_distrito`),
+    d => d.id_distrito,
+    d => `Dist.${d.cod_distrito}${d.distrito ? ' ' + d.distrito : ''}`
+  );
   updateBreadcrumb();
-  await updateMap();
+  await refresh();
 }
 
 async function onDistritoChange(){
   const id_distrito = els.distrito.value;
-  clearBelow("localidad");
+  resetSubSelects();
 
   if(!id_distrito){ await onComunaChange(); return; }
 
+  currentNavLevel = "distrito";
   const data = await sb("vw_distrito", `select=*&id_distrito=eq.${id_distrito}`);
-  await showAreaPanels("vw_distrito", "vw_area", `id_distrito=eq.${id_distrito}`, `Distrito ${data[0].cod_distrito} · ${data[0].distrito}`);
+  await showAreaPanels("vw_distrito", "vw_area", `id_distrito=eq.${id_distrito}`, `Distrito ${data[0].cod_distrito}${data[0].distrito ? ' · ' + data[0].distrito : ''}`);
 
-  const localidades = await sb("vw_localidad", `select=id_localidad,localidad,area&id_distrito=eq.${id_distrito}&order=localidad`);
-  fillSelect(els.localidad, localidades, d=>`${d.id_localidad}|${d.area}`, d=>`${d.localidad} (${d.area === "URBANO" ? "Urbano" : "Rural"})`);
+  // Zona censal — con prefijo del distrito si hay varios distritos en selección
+  await fillSelectMultiParent(
+    els.zona, "distrito", "id_distrito",
+    id => resolveDistritoLabel(id),
+    async id => sb("vw_zona", `select=id_zona,cod_zona&id_distrito=eq.${id}&order=cod_zona`),
+    d => d.id_zona,
+    d => `Zona censal ${d.cod_zona}`
+  );
+
+  // Localidad rural — con prefijo del distrito si hay varios
+  await fillSelectMultiParent(
+    els.localidad, "distrito", "id_distrito",
+    id => resolveDistritoLabel(id),
+    async id => sb("vw_localidad", `select=id_localidad,localidad&id_distrito=eq.${id}&area=eq.RURAL&order=localidad`),
+    d => d.id_localidad,
+    d => d.localidad
+  );
+
   updateBreadcrumb();
-  await updateMap();
+  await refresh();
+}
+
+async function onZonaChange(){
+  const id_zona = els.zona.value;
+  if(!id_zona){ await onDistritoChange(); return; }
+  els.localidad.value = "";
+  resetSelect(els.entidad);
+  currentNavLevel = "zona";
+  setLoading();
+  const data = await sb("vw_zona", `select=*&id_zona=eq.${id_zona}`);
+  renderPanels([{key:"urbano", title: `Zona censal ${data[0].cod_zona} — Urbano`, row: data[0], cls:"urbano"}]);
+  updateBreadcrumb();
+  await refresh();
 }
 
 async function onLocalidadChange(){
-  const val = els.localidad.value;
+  const id_localidad = els.localidad.value;
   const id_distrito = els.distrito.value;
-  resetSelect(els.sub);
-  els.subLabel.textContent = "Zona / Entidad";
-
-  if(!val){ await onDistritoChange(); return; }
-  const [id_localidad, area] = val.split("|");
-
+  if(!id_localidad){ resetSelect(els.entidad); await onDistritoChange(); return; }
+  els.zona.value = "";
+  currentNavLevel = "localidad";
   setLoading();
-  const data = await sb("vw_localidad", `select=*&id_distrito=eq.${id_distrito}&id_localidad=eq.${id_localidad}&area=eq.${area}`);
+  const data = await sb("vw_localidad", `select=*&id_distrito=eq.${id_distrito}&id_localidad=eq.${id_localidad}&area=eq.RURAL`);
   const row = data[0];
-  renderPanels([{key: area==="URBANO"?"urbano":"rural", title: `Localidad ${row.localidad} — ${area === "URBANO" ? "Urbano" : "Rural"}`, row, cls: area==="URBANO"?"urbano":"rural"}]);
+  renderPanels([{key:"rural", title: `Localidad ${row.localidad} — Rural`, row, cls:"rural"}]);
 
-  if(area === "URBANO"){
-    els.subLabel.textContent = "Zona censal";
-    const zonas = await sb("vw_zona", `select=id_zona,cod_zona&id_distrito=eq.${id_distrito}&id_localidad=eq.${id_localidad}&order=cod_zona`);
-    fillSelect(els.sub, zonas, d=>d.id_zona, d=>`Zona censal ${d.cod_zona}`);
-  } else {
-    els.subLabel.textContent = "Entidad";
-    const entidades = await sb("vw_entidad", `select=id_entidad,entidad&id_distrito=eq.${id_distrito}&id_localidad=eq.${id_localidad}&order=entidad`);
-    fillSelect(els.sub, entidades, d=>d.id_entidad, d=>d.entidad);
+  // Entidades — con prefijo de localidad si hay varias localidades seleccionadas
+  // Recopilamos pares (id_localidad, id_distrito) del combo actual + selectedAreas tipo localidad
+  const currentPair = {id_localidad, id_distrito};
+  const selectedLocalidades = selectedAreas.filter(e => e.type === "localidad");
+  const allPairs = [currentPair];
+  for(const sl of selectedLocalidades){
+    if(sl.filters.id_localidad !== id_localidad || sl.filters.id_distrito !== id_distrito){
+      allPairs.push({id_localidad: sl.filters.id_localidad, id_distrito: sl.filters.id_distrito});
+    }
   }
+
+  const needPrefix = allPairs.length > 1;
+  els.entidad.innerHTML = `<option value="">Seleccione…</option>`;
+  let total = 0;
+  for(const pair of allPairs){
+    const ents = await sb("vw_entidad", `select=id_entidad,entidad&id_distrito=eq.${pair.id_distrito}&id_localidad=eq.${pair.id_localidad}&order=entidad`);
+    const prefix = needPrefix ? await resolveLocalidadLabel(pair.id_localidad, pair.id_distrito) : null;
+    for(const e of ents){
+      const opt = document.createElement("option");
+      opt.value = e.id_entidad;
+      opt.textContent = needPrefix ? `${prefix} — ${e.entidad}` : e.entidad;
+      els.entidad.appendChild(opt);
+      total++;
+    }
+  }
+  els.entidad.disabled = total === 0;
+  forceRepaint(els.entidad);
+
   updateBreadcrumb();
-  await updateMap();
+  await refresh();
 }
 
-async function onSubChange(){
-  const id_sub = els.sub.value;
-  const localVal = els.localidad.value;
-  const area = localVal.split("|")[1];
-
-  if(!id_sub){ await onLocalidadChange(); return; }
-
+async function onEntidadChange(){
+  const id_entidad = els.entidad.value;
+  if(!id_entidad){ await onLocalidadChange(); return; }
+  currentNavLevel = "entidad";
   setLoading();
-  if(area === "URBANO"){
-    const data = await sb("vw_zona", `select=*&id_zona=eq.${id_sub}`);
-    renderPanels([{key:"urbano", title: `Zona censal ${data[0].cod_zona} — Urbano`, row: data[0], cls:"urbano"}]);
-  } else {
-    const data = await sb("vw_entidad", `select=*&id_entidad=eq.${id_sub}`);
-    renderPanels([{key:"rural", title: `Entidad ${data[0].entidad} — Rural`, row: data[0], cls:"rural"}]);
-  }
+  const data = await sb("vw_entidad", `select=*&id_entidad=eq.${id_entidad}`);
+  renderPanels([{key:"rural", title: `Entidad ${data[0].entidad} — Rural`, row: data[0], cls:"rural"}]);
   updateBreadcrumb();
-  await updateMap();
+  await refresh();
 }
 
 function updateBreadcrumb(){
@@ -643,16 +1441,220 @@ function updateBreadcrumb(){
     if(sel.value) parts.push(`<b>${opt.textContent}</b>`);
   };
   add(els.region); add(els.provincia); add(els.comuna);
-  add(els.distrito); add(els.localidad); add(els.sub);
+  add(els.distrito); add(els.zona); add(els.localidad); add(els.entidad);
   els.breadcrumb.innerHTML = parts.length ? parts.join(" › ") : "";
 }
 
-els.region.addEventListener("change", onRegionChange);
+// ---------- Proyección de población (Censo 2017 → 2024) ----------
+
+async function fetchPop2017(){
+  // Si hay selección múltiple, sumar 2017 para cada área de la misma forma que 2024
+  if(selectedAreas.length > 0){
+    let total = 0;
+    for(const e of selectedAreas){
+      total += await fetchPop2017ForEntry(e);
+    }
+    return total;
+  }
+  // Si no, usar el nivel actual de navegación según los combos
+  const f = currentFilters();
+  if(f.id_entidad){
+    // Entidad: usamos id_localidad+id_distrito+cod_entidad si están disponibles; fallback a localidad
+    const [d] = await sb("vw_entidad", `select=entidad,id_localidad&id_entidad=eq.${f.id_entidad}`);
+    if(!d) return null;
+    const [r] = await sb("vw17_entidad", `select=n_per&id_distrito=eq.${f.id_distrito}&id_localidad=eq.${f.id_localidad}`);
+    return r ? r.n_per : null; // aproximado a nivel localidad rural si no hay match exacto de entidad
+  }
+  if(f.id_localidad){
+    const [r] = await sb("vw17_localidad", `select=n_per&id_distrito=eq.${f.id_distrito}&id_localidad=eq.${f.id_localidad}`);
+    return r ? r.n_per : null;
+  }
+  if(f.id_zona){
+    const [zd] = await sb("vw_zona", `select=id_localidad&id_zona=eq.${f.id_zona}`);
+    if(!zd) return null;
+    const [r] = await sb("vw17_zona", `select=n_per&id_distrito=eq.${f.id_distrito}&id_localidad=eq.${zd.id_localidad}&id_zona=eq.${f.id_zona}`);
+    return r ? r.n_per : null;
+  }
+  if(f.id_distrito){
+    const [r] = await sb("vw17_distrito", `select=n_per&id_distrito=eq.${f.id_distrito}`);
+    return r ? r.n_per : null;
+  }
+  if(f.cut_comuna){
+    const [r] = await sb("vw17_comuna", `select=n_per&cut_comuna=eq.${f.cut_comuna}`);
+    return r ? r.n_per : null;
+  }
+  if(f.provincia){
+    // 2017 no tiene provincia en este extracto; aproximamos sumando las comunas 2024 de esa provincia
+    const comunas = await sb("vw_comuna", `select=cut_comuna&provincia=eq.${encodeURIComponent(f.provincia)}`);
+    let sum = 0;
+    for(const c of comunas){
+      const [r] = await sb("vw17_comuna", `select=n_per&cut_comuna=eq.${c.cut_comuna}`);
+      if(r) sum += Number(r.n_per || 0);
+    }
+    return sum;
+  }
+  if(f.cod_region){
+    const [r] = await sb("vw17_region", `select=n_per&cod_region=eq.${f.cod_region}`);
+    return r ? r.n_per : null;
+  }
+  return null;
+}
+
+async function fetchPop2017ForEntry(e){
+  const f = e.filters;
+  switch(e.type){
+    case "region": {
+      const [r] = await sb("vw17_region", `select=n_per&cod_region=eq.${f.cod_region}`);
+      return r ? Number(r.n_per||0) : 0;
+    }
+    case "provincia": {
+      const comunas = await sb("vw_comuna", `select=cut_comuna&provincia=eq.${encodeURIComponent(f.provincia)}`);
+      let sum = 0;
+      for(const c of comunas){
+        const [r] = await sb("vw17_comuna", `select=n_per&cut_comuna=eq.${c.cut_comuna}`);
+        if(r) sum += Number(r.n_per||0);
+      }
+      return sum;
+    }
+    case "comuna": {
+      const [r] = await sb("vw17_comuna", `select=n_per&cut_comuna=eq.${f.cut_comuna}`);
+      return r ? Number(r.n_per||0) : 0;
+    }
+    case "distrito": {
+      const [r] = await sb("vw17_distrito", `select=n_per&id_distrito=eq.${f.id_distrito}`);
+      return r ? Number(r.n_per||0) : 0;
+    }
+    case "zona": {
+      const [zd] = await sb("vw_zona", `select=id_localidad,id_distrito&id_zona=eq.${f.id_zona}`);
+      if(!zd) return 0;
+      const [r] = await sb("vw17_zona", `select=n_per&id_distrito=eq.${zd.id_distrito}&id_localidad=eq.${zd.id_localidad}&id_zona=eq.${f.id_zona}`);
+      return r ? Number(r.n_per||0) : 0;
+    }
+    case "localidad": {
+      const [r] = await sb("vw17_localidad", `select=n_per&id_distrito=eq.${f.id_distrito}&id_localidad=eq.${f.id_localidad}`);
+      return r ? Number(r.n_per||0) : 0;
+    }
+    case "entidad": {
+      const [ed] = await sb("vw_entidad", `select=id_localidad,id_distrito&id_entidad=eq.${f.id_entidad}`);
+      if(!ed) return 0;
+      const [r] = await sb("vw17_localidad", `select=n_per&id_distrito=eq.${ed.id_distrito}&id_localidad=eq.${ed.id_localidad}`);
+      return r ? Number(r.n_per||0) : 0;
+    }
+  }
+  return 0;
+}
+
+function currentSelectionLabel(){
+  if(selectedAreas.length > 0){
+    return `Selección combinada (${selectedAreas.length} áreas)`;
+  }
+  const f = currentFilters();
+  if(f.id_entidad) return els.entidad.options[els.entidad.selectedIndex]?.textContent || "Entidad";
+  if(f.id_localidad) return els.localidad.options[els.localidad.selectedIndex]?.textContent || "Localidad";
+  if(f.id_zona) return els.zona.options[els.zona.selectedIndex]?.textContent || "Zona censal";
+  if(f.id_distrito) return els.distrito.options[els.distrito.selectedIndex]?.textContent || "Distrito";
+  if(f.cut_comuna) return els.comuna.options[els.comuna.selectedIndex]?.textContent || "Comuna";
+  if(f.provincia) return f.provincia;
+  if(f.cod_region) return els.region.options[els.region.selectedIndex]?.textContent || "Región";
+  return null;
+}
+
+async function currentPop2024(){
+  if(selectedAreas.length > 0 && combinedSums){
+    return combinedSums.total.n_per;
+  }
+  if(currentPanels.length > 0){
+    const totalPanel = currentPanels.find(p => p.key === "total") || currentPanels[0];
+    return totalPanel ? Number(totalPanel.row?.n_per || 0) : null;
+  }
+  return null;
+}
+
+function projTableRow(year, pop, basePop, baseYear){
+  const delta = basePop ? ((pop/basePop - 1) * 100) : 0;
+  const cls = delta > 0 ? "proj-delta-pos" : (delta < 0 ? "proj-delta-neg" : "");
+  const isBase = year === baseYear;
+  return `<tr class="${isBase ? 'proj-base-row' : ''}">
+    <td>${year}${isBase ? ' (año base)' : ''}</td>
+    <td>${Math.round(pop).toLocaleString("es-CL")}</td>
+    <td class="${cls}">${isBase ? "—" : (delta>=0?"+":"")+delta.toFixed(2)+"%"}</td>
+  </tr>`;
+}
+
+async function calculateProjection(){
+  const label = currentSelectionLabel();
+  if(!label){
+    document.getElementById("proj-result").innerHTML = `<div class="proj-empty">Selecciona una región, provincia, comuna, distrito u otra área arriba antes de calcular.</div>`;
+    return;
+  }
+
+  document.getElementById("proj-result").innerHTML = `<div class="proj-empty">Calculando proyección…</div>`;
+
+  const pop2024 = await currentPop2024();
+  const pop2017 = await fetchPop2017();
+
+  if(!pop2024 || !pop2017 || pop2017 <= 0){
+    document.getElementById("proj-result").innerHTML = `<div class="proj-empty">No hay datos suficientes del Censo 2017 para calcular la tasa de crecimiento de esta selección.</div>`;
+    return;
+  }
+
+  const nYears = 7; // 2017 -> 2024
+  const tc = (Math.pow(pop2024/pop2017, 1/nYears) - 1); // tasa decimal anual
+  const tcPct = tc * 100;
+
+  const yearsToProject = parseInt(document.getElementById("proj-years").value, 10) || 6;
+  const baseYear = 2024;
+
+  let rows = "";
+  // Mostrar años históricos de referencia + proyección futura
+  rows += projTableRow(2017, pop2017, pop2024, baseYear);
+  rows += projTableRow(2024, pop2024, pop2024, baseYear);
+  for(let t=1; t<=yearsToProject; t++){
+    const year = baseYear + t;
+    const pop = pop2024 * Math.pow(1+tc, t);
+    rows += projTableRow(year, pop, pop2024, baseYear);
+  }
+
+  const popFinal = pop2024 * Math.pow(1+tc, yearsToProject);
+
+  document.getElementById("proj-result").innerHTML = `
+    <div class="proj-summary">
+      <div class="card navy">
+        <div class="ctitle">Tasa de crecimiento anual (2017→2024)</div>
+        <div class="cvalue">${tcPct.toFixed(3)}%</div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Población 2017</div>
+        <div class="cvalue">${Math.round(pop2017).toLocaleString("es-CL")}</div>
+      </div>
+      <div class="card">
+        <div class="ctitle">Población 2024</div>
+        <div class="cvalue">${Math.round(pop2024).toLocaleString("es-CL")}</div>
+      </div>
+      <div class="card pink">
+        <div class="ctitle">Proyección ${baseYear + yearsToProject}</div>
+        <div class="cvalue">${Math.round(popFinal).toLocaleString("es-CL")}</div>
+      </div>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:10px;">Selección: <b style="color:var(--navy)">${label}</b></p>
+    <div class="proj-table-wrap">
+      <table class="proj-table">
+        <thead><tr><th>Año</th><th>Población proyectada</th><th>Variación vs. 2024</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+document.getElementById("proj-calc-btn").addEventListener("click", calculateProjection);
+
+// ---------- Event listeners de la cascada ----------
 els.provincia.addEventListener("change", onProvinciaChange);
 els.comuna.addEventListener("change", onComunaChange);
 els.distrito.addEventListener("change", onDistritoChange);
+els.zona.addEventListener("change", onZonaChange);
 els.localidad.addEventListener("change", onLocalidadChange);
-els.sub.addEventListener("change", onSubChange);
+els.entidad.addEventListener("change", onEntidadChange);
 
 initMap();
 
