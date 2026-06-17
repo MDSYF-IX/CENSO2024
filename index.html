@@ -745,21 +745,16 @@ function covers(broad, specific){
 function addArea(entry){
   // Ya existe exactamente
   if(selectedAreas.some(e => e.key === entry.key)){
-    console.log("BLOCKED duplicate:", entry.key);
     return;
   }
   // Ya hay un área más amplia que la cubre
   const broader = selectedAreas.find(e => covers(e, entry));
   if(broader){
-    console.log("BLOCKED covered by:", broader.key);
     return;
   }
   // Eliminar áreas más específicas que quedan cubiertas por la nueva
-  const before = selectedAreas.length;
   selectedAreas = selectedAreas.filter(e => !covers(entry, e));
-  if(selectedAreas.length < before) console.log("Removed", before - selectedAreas.length, "children");
   selectedAreas.push(entry);
-  console.log("ADDED:", entry.key, "total:", selectedAreas.map(e=>e.key));
   onSelectionChanged();
 }
 
@@ -808,6 +803,10 @@ async function onSelectionChanged(){
       async prov => sb("vw_comuna", `select=cut_comuna,comuna&provincia=eq.${encodeURIComponent(prov)}&order=comuna`),
       d => d.cut_comuna, d => d.comuna
     );
+    // Restaurar el valor de comuna inmediatamente, antes de usarlo como padre para distritos
+    if(savedComuna && [...els.comuna.options].some(o => o.value === savedComuna)){
+      els.comuna.value = savedComuna;
+    }
   }
 
   // Distritos — padre: comuna
@@ -819,6 +818,10 @@ async function onSelectionChanged(){
       async id => sb("vw_distrito", `select=id_distrito,cod_distrito,distrito&cut_comuna=eq.${id}&order=cod_distrito`),
       d => d.id_distrito, d => `Dist.${d.cod_distrito}${d.distrito ? ' ' + d.distrito : ''}`
     );
+    // Restaurar el valor de distrito inmediatamente, antes de usarlo como padre para zona/localidad
+    if(savedDistrito && [...els.distrito.options].some(o => o.value === savedDistrito)){
+      els.distrito.value = savedDistrito;
+    }
   }
 
   // Zonas y Localidades — padre: distrito
