@@ -174,6 +174,124 @@
     margin-right:4px;
   }
   .view-toggle label{display:flex;align-items:center;gap:6px;cursor:pointer;}
+  .uv-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:8px 0 4px;
+    padding:10px 14px;
+    background:#f0f4fb;
+    border:1px solid var(--line);
+    border-radius:8px;
+  }
+  .uv-label{
+    font-size:12px;
+    font-weight:700;
+    color:var(--navy);
+    white-space:nowrap;
+    letter-spacing:.02em;
+    text-transform:uppercase;
+  }
+  #sel-uv{
+    flex:1;
+    padding:8px 10px;
+    font-size:13px;
+    border:1.5px solid var(--line);
+    border-radius:6px;
+    color:var(--ink);
+    background:#fff;
+  }
+  .uv-clear{
+    background:none;
+    border:1px solid var(--line);
+    border-radius:50%;
+    width:26px;height:26px;
+    font-size:13px;
+    cursor:pointer;
+    color:var(--muted);
+    display:flex;align-items:center;justify-content:center;
+    padding:0;
+  }
+  .uv-clear:hover{background:#fee2e2;border-color:#f87171;color:#c0392b;}
+  .rsh-section{
+    margin-top:24px;
+    padding-top:20px;
+    border-top:2px solid var(--line);
+  }
+  .rsh-kpi-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:14px;
+    margin-bottom:16px;
+  }
+  .rsh-card{
+    background:#fff;
+    border:1.5px solid var(--line);
+    border-radius:10px;
+    padding:14px 16px;
+  }
+  .rsh-card-title{
+    font-size:11px;
+    font-weight:600;
+    color:var(--muted);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    margin-bottom:6px;
+  }
+  .rsh-card-value{
+    font-size:26px;
+    font-weight:800;
+    color:var(--navy);
+  }
+  .rsh-card-sub{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:4px;
+  }
+  .rsh-bar-wrap{
+    background:#f1f5f9;
+    border-radius:4px;
+    height:8px;
+    margin-top:6px;
+    overflow:hidden;
+  }
+  .rsh-bar{
+    height:100%;
+    border-radius:4px;
+    background:var(--blue);
+  }
+  .rsh-table-wrap{
+    overflow-x:auto;
+    border:1px solid var(--line);
+    border-radius:8px;
+    margin-top:12px;
+  }
+  .rsh-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+  }
+  .rsh-table th{
+    background:var(--navy);
+    color:#fff;
+    padding:9px 14px;
+    font-size:12px;
+    font-weight:600;
+    text-align:left;
+    white-space:nowrap;
+  }
+  .rsh-table td{
+    padding:8px 14px;
+    border-bottom:1px solid var(--line);
+  }
+  .rsh-table td.num{text-align:right;}
+  .rsh-table tbody tr:nth-child(even){background:#f7f9fb;}
+  .rsh-note{
+    font-size:11px;
+    color:var(--muted);
+    margin-top:10px;
+    font-style:italic;
+  }
   .view-toggle input{accent-color:var(--blue);width:15px;height:15px;cursor:pointer;}
 
   .map-card{
@@ -553,6 +671,14 @@
     <label><input type="checkbox" id="chk-rural" checked> Rural</label>
   </div>
 
+  <div class="uv-row" id="uv-row" style="display:none;">
+    <label class="uv-label" for="sel-uv">Unidad Vecinal Comuna</label>
+    <select id="sel-uv">
+      <option value="">— Seleccione una unidad vecinal —</option>
+    </select>
+    <button id="btn-clear-uv" class="uv-clear" title="Quitar selección UV" style="display:none;">✕</button>
+  </div>
+
   <div class="breadcrumb" id="breadcrumb"></div>
 
   <div id="result">
@@ -643,10 +769,35 @@
     </button>
   </div>
 
+  <!-- SECCIÓN RSH -->
+  <div class="rsh-section" id="rsh-section" style="display:none;">
+    <div class="h2-with-info">
+      <h2>Registro Social de Hogares <span style="font-size:13px;font-weight:400;color:var(--muted);">(RSH)</span></h2>
+      <span class="info-icon info-icon-wide">i<span class="tooltip">
+        Datos del Registro Social de Hogares (RSH) del Ministerio de Desarrollo Social y Familia, disponibles a nivel de Unidad Vecinal.<br><br>
+        Fuente: BIDAT MDS · Los datos corresponden a la información del RSH del período indicado al pie de la página.<br><br>
+        <b>Nota:</b> El RSH no cubre a toda la población, solo a hogares inscritos que son potenciales beneficiarios de prestaciones sociales.
+      </span></span>
+    </div>
+    <p class="proj-sub" id="rsh-uv-label"></p>
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
+      <label style="font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;">Indicador RSH</label>
+      <select id="sel-rsh-indicador" style="flex:1;min-width:220px;padding:8px 12px;font-size:13px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);" disabled>
+        <option value="">— Selecciona una Unidad Vecinal primero —</option>
+      </select>
+    </div>
+
+    <div id="rsh-result">
+      <div class="proj-empty">Selecciona una Unidad Vecinal y un indicador para ver los datos del RSH.</div>
+    </div>
+  </div>
+
 </main>
 
 <footer>
   <div>Fuente: Censo de Población y Vivienda 2024, INE · Datos a nivel de manzana / entidad censal</div>
+  <div id="rsh-footer-meta" style="margin-top:4px;font-size:10px;color:var(--muted);opacity:0.8;"></div>
   <div style="margin-top:6px;font-size:10px;color:var(--muted);opacity:0.7;letter-spacing:.04em;">Desarrollado por Cristóbal Oyarzún Parra</div>
 </footer>
 
@@ -1549,6 +1700,7 @@ async function onRegionChange(){
 
   if(!cod_region){
     currentNavLevel = null;
+    uv_load(null);
     setEmpty("Selecciona al menos una región para comenzar la consulta.");
     updateBreadcrumb();
     await refresh();
@@ -1571,7 +1723,7 @@ async function onProvinciaChange(){
   clearBelow("comuna");
 
 
-  if(!provincia){ await onRegionChange(); return; }
+  if(!provincia){ uv_load(null); await onRegionChange(); return; }
 
   currentNavLevel = "provincia";
   await showAreaPanels("vw_provincia", "vw_provincia_area", `cod_region=eq.${cod_region}&provincia=eq.${encodeURIComponent(provincia)}`, `Provincia de ${provincia}`);
@@ -1590,8 +1742,7 @@ async function onComunaChange(){
   const cut_comuna = els.comuna.value;
   clearBelow("distrito");
 
-
-  if(!cut_comuna){ await onProvinciaChange(); return; }
+  if(!cut_comuna){ uv_load(null); await onProvinciaChange(); return; }
 
   currentNavLevel = "comuna";
   const data = await sb("vw_comuna", `select=*&cut_comuna=eq.${cut_comuna}`);
@@ -1604,6 +1755,10 @@ async function onComunaChange(){
     d => d.id_distrito,
     d => `Dist.${d.cod_distrito}${d.distrito ? ' ' + d.distrito : ''}`
   );
+
+  // Cargar unidades vecinales de la comuna seleccionada
+  uv_load(cut_comuna);
+
   updateBreadcrumb();
   await refresh();
 }
@@ -1955,7 +2110,167 @@ function man_calculate(){
   `;
 }
 
-document.getElementById("man-calc-btn").addEventListener("click", man_calculate);
+// =====================================================================
+// MÓDULO RSH - Registro Social de Hogares (tabla universal)
+// =====================================================================
+
+let rshCurrentUV = null;
+let rshIndicadoresDisponibles = []; // lista de indicadores en la base para esta UV
+
+async function rsh_loadMeta(){
+  try {
+    const rows = await sb("rsh_meta", "select=periodo,fecha_carga&order=fecha_carga.desc&limit=1");
+    if(rows && rows.length){
+      const r = rows[0];
+      const p = r.periodo;
+      const anio = p.substring(0,4);
+      const mes = parseInt(p.substring(4,6));
+      const meses = ["","Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+      const el = document.getElementById("rsh-footer-meta");
+      if(el) el.textContent = `RSH (Registro Social de Hogares) · Período: ${meses[mes]} ${anio} · Fuente: BIDAT, Ministerio de Desarrollo Social y Familia`;
+    }
+  } catch(e){ console.warn("No meta RSH:", e); }
+}
+
+async function rsh_show(uvObjectId, uvNom, uvNum, cut_comuna){
+  rshCurrentUV = { objectId:uvObjectId, nom:uvNom, num:uvNum, cut_comuna };
+  const sec = document.getElementById("rsh-section");
+  const lbl = document.getElementById("rsh-uv-label");
+  if(lbl) lbl.textContent = `UV ${uvNum} — ${uvNom}`;
+
+  // Cargar indicadores disponibles para esta UV
+  await rsh_loadIndicadores(cut_comuna, uvNum);
+  sec.style.display = "";
+  await rsh_renderIndicador();
+}
+
+function rsh_hide(){
+  rshCurrentUV = null;
+  rshIndicadoresDisponibles = [];
+  document.getElementById("rsh-section").style.display = "none";
+  document.getElementById("rsh-result").innerHTML =
+    '<div class="proj-empty">Selecciona una Unidad Vecinal para ver los datos del RSH.</div>';
+}
+
+async function rsh_loadIndicadores(cut_comuna, cod_uv){
+  const sel = document.getElementById("sel-rsh-indicador");
+  sel.innerHTML = '<option value="">Cargando indicadores…</option>';
+  sel.disabled = true;
+
+  try {
+    // Obtener indicadores únicos disponibles para esta UV
+    const rows = await sb("rsh_indicadores",
+      `select=indicador,nombre_archivo,periodo&cut_comuna=eq.${cut_comuna}&cod_uv=eq.${cod_uv}&order=nombre_archivo,indicador`
+    );
+
+    if(!rows || !rows.length){
+      sel.innerHTML = '<option value="">Sin datos RSH para esta UV</option>';
+      return;
+    }
+
+    rshIndicadoresDisponibles = rows;
+
+    // Agrupar por nombre_archivo para crear optgroups
+    const grupos = {};
+    rows.forEach(r => {
+      if(!grupos[r.nombre_archivo]) grupos[r.nombre_archivo] = [];
+      if(!grupos[r.nombre_archivo].find(x => x.indicador === r.indicador))
+        grupos[r.nombre_archivo].push(r);
+    });
+
+    sel.innerHTML = '<option value="">— Seleccione un indicador —</option>';
+    Object.entries(grupos).forEach(([archivo, items]) => {
+      const grp = document.createElement("optgroup");
+      grp.label = archivo.replace(/_/g," ").replace(/\b\w/g, l=>l.toUpperCase());
+      items.forEach(item => {
+        const opt = document.createElement("option");
+        opt.value = `${item.nombre_archivo}||${item.indicador}`;
+        opt.textContent = item.indicador.replace(/\b\w/g, l=>l.toUpperCase());
+        grp.appendChild(opt);
+      });
+      sel.appendChild(grp);
+    });
+    sel.disabled = false;
+
+  } catch(e){
+    console.error("Error cargando indicadores RSH:", e);
+    sel.innerHTML = '<option value="">Error al cargar indicadores</option>';
+  }
+}
+
+async function rsh_renderIndicador(){
+  if(!rshCurrentUV) return;
+  const val = document.getElementById("sel-rsh-indicador").value;
+  const resultEl = document.getElementById("rsh-result");
+  if(!val){
+    resultEl.innerHTML = '<div class="proj-empty">Selecciona un indicador para ver los datos.</div>';
+    return;
+  }
+
+  const [nombre_archivo, indicador] = val.split("||");
+  resultEl.innerHTML = '<div class="proj-empty">Cargando…</div>';
+
+  try {
+    const rows = await sb("rsh_indicadores",
+      `select=*&cut_comuna=eq.${rshCurrentUV.cut_comuna}&cod_uv=eq.${rshCurrentUV.num}&nombre_archivo=eq.${encodeURIComponent(nombre_archivo)}&indicador=eq.${encodeURIComponent(indicador)}&order=periodo.desc&limit=1`
+    );
+
+    if(!rows || !rows.length){
+      resultEl.innerHTML = '<div class="proj-empty">Sin datos para este indicador.</div>';
+      return;
+    }
+
+    const r = rows[0];
+    const vuv = r.valor_uv != null ? Number(r.valor_uv) : null;
+    const vcom = r.valor_comuna != null ? Number(r.valor_comuna) : null;
+    const vreg = r.valor_region != null ? Number(r.valor_region) : null;
+
+    // Calcular % UV vs comuna
+    const pct = (vuv != null && vcom != null && vcom > 0)
+      ? (vuv/vcom*100).toFixed(1) : null;
+
+    resultEl.innerHTML = `
+      <div class="rsh-kpi-grid">
+        <div class="rsh-card" style="border-top:3px solid #0f766e;">
+          <div class="rsh-card-title">En esta UV</div>
+          <div class="rsh-card-value">${vuv != null ? vuv.toLocaleString("es-CL") : "—"}</div>
+          ${pct ? `<div class="rsh-card-sub">${pct}% del total comunal</div>` : ""}
+        </div>
+        ${vcom != null ? `
+        <div class="rsh-card">
+          <div class="rsh-card-title">En la comuna</div>
+          <div class="rsh-card-value">${vcom.toLocaleString("es-CL")}</div>
+          <div class="rsh-card-sub">${r.comuna}</div>
+        </div>` : ""}
+        ${vreg != null ? `
+        <div class="rsh-card">
+          <div class="rsh-card-title">En la región</div>
+          <div class="rsh-card-value">${vreg.toLocaleString("es-CL")}</div>
+          <div class="rsh-card-sub">${r.region}</div>
+        </div>` : ""}
+      </div>
+      ${vcom != null && vuv != null && vcom > 0 ? `
+      <div style="margin-top:12px;">
+        <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Participación de la UV en la comuna</div>
+        <div style="background:#f1f5f9;border-radius:6px;height:12px;overflow:hidden;">
+          <div style="width:${Math.min(vuv/vcom*100,100).toFixed(1)}%;height:100%;background:#0f766e;border-radius:6px;"></div>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-top:4px;">${pct}% de ${vcom.toLocaleString("es-CL")}</div>
+      </div>` : ""}
+      <p class="rsh-note">
+        Indicador: <b>${indicador}</b> · 
+        Fuente: ${nombre_archivo.replace(/_/g," ")} · 
+        Período: ${r.periodo}
+      </p>
+    `;
+  } catch(e){
+    console.error("Error RSH:", e);
+    resultEl.innerHTML = '<div class="proj-empty">Error al cargar datos RSH.</div>';
+  }
+}
+
+document.getElementById("sel-rsh-indicador").addEventListener("change", rsh_renderIndicador);
+rsh_loadMeta();
 
 // Poblar combo "Proyectar hasta año" desde año base hasta año base + 20
 function man_populateHastaAnio(anioBase, defaultAnio){
@@ -1989,6 +2304,109 @@ document.getElementById("man-anio-base").addEventListener("input", function(){
   if(anioBase && anioBase > 1900) man_populateHastaAnio(anioBase, anioBase + 6);
 });
 
+
+// =====================================================================
+// UNIDADES VECINALES
+// =====================================================================
+const UV_BASE = "http://www.geoportal.cl/arcgis/rest/services/MinisteriodeDesarrolloSocial/chile_mds_Unidades_Vecinales/MapServer/0";
+let uvLayer = null;
+
+async function uv_load(cut_comuna){
+  const sel = document.getElementById("sel-uv");
+  const row = document.getElementById("uv-row");
+  const clearBtn = document.getElementById("btn-clear-uv");
+
+  // Limpiar selección anterior
+  uv_clear(false);
+  sel.innerHTML = '<option value="">— Seleccione una unidad vecinal —</option>';
+
+  if(!cut_comuna){ row.style.display = "none"; return; }
+
+  row.style.display = "flex";
+  sel.disabled = true;
+  sel.innerHTML = '<option value="">Cargando unidades vecinales…</option>';
+
+  try {
+    const url = `${UV_BASE}/query?where=CUT=${cut_comuna}&outFields=OBJECTID,T_UV_NOM,T_UV_NUM&returnGeometry=false&orderByFields=T_UV_NUM&f=json`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if(!data.features || !data.features.length){
+      sel.innerHTML = '<option value="">Sin unidades vecinales para esta comuna</option>';
+      sel.disabled = true;
+      return;
+    }
+
+    sel.innerHTML = '<option value="">— Seleccione una unidad vecinal —</option>';
+    data.features.forEach(f => {
+      const opt = document.createElement("option");
+      opt.value = f.attributes.OBJECTID;
+      opt.dataset.nom = f.attributes.T_UV_NOM;
+      opt.dataset.num = f.attributes.T_UV_NUM;
+      opt.textContent = `UV ${f.attributes.T_UV_NUM} — ${f.attributes.T_UV_NOM}`;
+      sel.appendChild(opt);
+    });
+    sel.disabled = false;
+  } catch(e){
+    console.warn("Error cargando UVs:", e);
+    sel.innerHTML = '<option value="">No se pudo cargar las unidades vecinales</option>';
+    sel.disabled = true;
+  }
+}
+
+async function uv_select(objectId){
+  const clearBtn = document.getElementById("btn-clear-uv");
+  if(uvLayer){ map.removeLayer(uvLayer); uvLayer = null; }
+  if(!objectId){ clearBtn.style.display = "none"; rsh_hide(); return; }
+
+  clearBtn.style.display = "";
+  try {
+    const url = `${UV_BASE}/query?objectIds=${objectId}&outFields=T_UV_NOM,T_UV_NUM&returnGeometry=true&geometryPrecision=5&f=geojson`;
+    const res = await fetch(url);
+    const geojson = await res.json();
+    if(!geojson.features || !geojson.features.length) return;
+
+    uvLayer = L.geoJSON(geojson, {
+      style: {
+        color: "#0f766e",
+        weight: 2.5,
+        fillColor: "#0f766e",
+        fillOpacity: 0.12,
+        dashArray: "6,4"
+      }
+    }).addTo(map);
+
+    const feat = geojson.features[0];
+    const nom = feat.properties?.T_UV_NOM || "";
+    const num = feat.properties?.T_UV_NUM || "";
+    uvLayer.bindPopup(`<b>UV ${num} — ${nom}</b>`).openPopup();
+    map.fitBounds(uvLayer.getBounds(), {maxZoom:14, padding:[20,20]});
+
+    // Activar sección RSH
+    const cut_comuna = els.comuna.value;
+    await rsh_show(objectId, nom, num, cut_comuna);
+
+  } catch(e){
+    console.warn("Error cargando geometría UV:", e);
+  }
+}
+
+function uv_clear(resetCombo = true){
+  if(uvLayer){ map.removeLayer(uvLayer); uvLayer = null; }
+  const clearBtn = document.getElementById("btn-clear-uv");
+  if(clearBtn) clearBtn.style.display = "none";
+  if(resetCombo){
+    const sel = document.getElementById("sel-uv");
+    if(sel) sel.value = "";
+  }
+}
+
+document.getElementById("sel-uv").addEventListener("change", function(){
+  uv_select(this.value);
+});
+document.getElementById("btn-clear-uv").addEventListener("click", function(){
+  uv_clear(true);
+});
 
 els.region.addEventListener("change", onRegionChange);
 els.provincia.addEventListener("change", onProvinciaChange);
