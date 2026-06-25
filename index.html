@@ -403,14 +403,6 @@
     color:#c0392b;
     margin:-8px 0 14px;
   }
-  .input-hint{
-    display:block;
-    font-size:11px;
-    color:var(--blue);
-    font-weight:600;
-    margin-top:3px;
-    min-height:14px;
-  }
 
   .field-label-row{
     display:flex;
@@ -586,16 +578,14 @@
           <label for="man-pob-vigente" style="margin-bottom:0;">Población vigente</label>
           <span class="info-icon">i<span class="tooltip">Población del censo más reciente disponible (ej. Censo 2024).</span></span>
         </div>
-        <input type="number" id="man-pob-vigente" value="292518" min="0" oninput="fmtHint(this,'hint-vigente')">
-        <span class="input-hint" id="hint-vigente">292.518 hab.</span>
+        <input type="number" id="man-pob-vigente" value="292518" min="0">
       </div>
       <div class="manual-field">
         <div class="field-label-row">
           <label for="man-pob-anterior" style="margin-bottom:0;">Población anterior</label>
           <span class="info-icon">i<span class="tooltip">Población del censo anterior, usada junto con la vigente para calcular la tasa de crecimiento histórica.</span></span>
         </div>
-        <input type="number" id="man-pob-anterior" value="282415" min="0" oninput="fmtHint(this,'hint-anterior')">
-        <span class="input-hint" id="hint-anterior">282.415 hab.</span>
+        <input type="number" id="man-pob-anterior" value="282415" min="0">
       </div>
       <div class="manual-field">
         <div class="field-label-row">
@@ -609,35 +599,32 @@
     <p id="man-2017-note" style="font-size:12px;color:#b45309;margin:-6px 0 12px;font-style:italic;"></p>
 
     <p class="manual-group-title">Proyección a calcular</p>
-    <table style="width:100%;border-collapse:separate;border-spacing:14px 0;margin:0 -14px 16px;" cellpadding="0">
-      <tr style="vertical-align:bottom;">
-        <td>
-          <div class="field-label-row">
-            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);margin-bottom:6px;white-space:nowrap;" for="man-pob-base">Población base</label>
-            <span class="info-icon">i<span class="tooltip">Población desde la cual se proyecta a futuro usando la tasa de crecimiento calculada. Si se deja vacío, se usa la población vigente.</span></span>
-          </div>
-          <input type="number" id="man-pob-base" placeholder="Por defecto: población vigente" min="0" oninput="fmtHint(this,'hint-base')" style="width:100%;padding:9px 10px;font-size:14px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);">
-          <span class="input-hint" id="hint-base"></span>
-        </td>
-        <td style="width:130px;">
-          <div class="field-label-row">
-            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);margin-bottom:6px;white-space:nowrap;" for="man-anio-base">Año base</label>
-            <span class="info-icon">i<span class="tooltip">Año desde el cual comienza la proyección.</span></span>
-          </div>
-          <input type="number" id="man-anio-base" value="2024" min="1900" max="2100" style="width:100%;padding:9px 10px;font-size:14px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);">
-        </td>
-        <td style="width:140px;">
-          <div class="field-label-row">
-            <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--navy);margin-bottom:6px;white-space:nowrap;" for="man-hasta-anio">Hasta año</label>
-            <span class="info-icon">i<span class="tooltip">Año hasta el cual se proyecta la población.</span></span>
-          </div>
-          <select id="man-hasta-anio" style="width:100%;padding:9px 10px;font-size:14px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);"></select>
-        </td>
-        <td style="white-space:nowrap;padding-bottom:2px;">
-          <button class="proj-btn" id="man-calc-btn">Calcular proyección</button>
-        </td>
-      </tr>
-    </table>
+    <div style="display:flex;flex-wrap:nowrap;gap:14px;align-items:flex-end;margin-bottom:16px;">
+      <div style="flex:1;min-width:0;">
+        <div class="field-label-row">
+          <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--navy);margin-bottom:6px;white-space:nowrap;" for="man-pob-base">Población base</label>
+          <span class="info-icon">i<span class="tooltip">Población desde la cual se proyecta a futuro usando la tasa de crecimiento calculada. Si se deja vacío, se usa la población vigente.</span></span>
+        </div>
+        <input type="number" id="man-pob-base" placeholder="Por defecto: población vigente" min="0" style="width:100%;padding:9px 10px;font-size:14px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);box-sizing:border-box;">
+      </div>
+      <div style="flex:0 0 110px;">
+        <div class="field-label-row">
+          <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--navy);margin-bottom:6px;white-space:nowrap;" for="man-anio-base">Año base</label>
+          <span class="info-icon">i<span class="tooltip">Año desde el cual comienza la proyección.</span></span>
+        </div>
+        <input type="number" id="man-anio-base" value="2024" min="1900" max="2100" style="width:110px;padding:9px 10px;font-size:14px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);box-sizing:border-box;">
+      </div>
+      <div style="flex:0 0 120px;">
+        <div class="field-label-row">
+          <label style="display:block;font-size:11px;font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--navy);margin-bottom:6px;white-space:nowrap;" for="man-hasta-anio">Hasta año</label>
+          <span class="info-icon">i<span class="tooltip">Año hasta el cual se proyecta la población.</span></span>
+        </div>
+        <select id="man-hasta-anio" style="width:120px;padding:9px 10px;font-size:14px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);box-sizing:border-box;"></select>
+      </div>
+      <div style="flex:0 0 auto;padding-bottom:2px;">
+        <button class="proj-btn" id="man-calc-btn" style="white-space:nowrap;">Calcular proyección</button>
+      </div>
+    </div>
     <div class="manual-error" id="man-error" style="display:none;"></div>
 
     <div id="man-result">
@@ -645,9 +632,23 @@
     </div>
   </div>
 
+  <div style="margin-top:24px;padding-top:20px;border-top:2px solid var(--line);display:flex;justify-content:flex-end;gap:12px;">
+    <button id="btn-export-excel" class="proj-btn" style="background:#1a7a3c;font-size:14px;padding:12px 24px;display:flex;align-items:center;gap:8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10,9 9,9 8,9"/></svg>
+      Exportar Excel
+    </button>
+    <button id="btn-export-pdf" class="proj-btn" style="background:#c0392b;font-size:14px;padding:12px 24px;display:flex;align-items:center;gap:8px;">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/><polyline points="8,9 9,9 10,9"/></svg>
+      Exportar PDF
+    </button>
+  </div>
+
 </main>
 
-<footer>Fuente: Censo de Población y Vivienda 2024, INE · Datos a nivel de manzana / entidad censal</footer>
+<footer>
+  <div>Fuente: Censo de Población y Vivienda 2024, INE · Datos a nivel de manzana / entidad censal</div>
+  <div style="margin-top:6px;font-size:10px;color:var(--muted);opacity:0.7;letter-spacing:.04em;">Desarrollado por Cristóbal Oyarzún Parra</div>
+</footer>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -847,17 +848,7 @@ async function updateMap(){
 
 function fmt(n){ return (n===null||n===undefined) ? "—" : Number(n).toLocaleString("es-CL"); }
 function fmtRate(n, decimals){ return n.toFixed(decimals).replace(".", ","); }
-function fmtHint(input, hintId){
-  const el = document.getElementById(hintId);
-  if(!el) return;
-  const v = parseFloat(input.value);
-  el.textContent = (!isNaN(v) && v > 0) ? Math.round(v).toLocaleString("es-CL") + " hab." : "";
-}
 // También actualiza el hint de man-pob-base cuando se sincroniza automáticamente
-function updatePopBaseHint(){
-  const input = document.getElementById("man-pob-base");
-  if(input) fmtHint(input, "hint-base");
-}
 
 function resetSelect(sel, placeholder="Seleccione…"){
   sel.innerHTML = `<option value="">${placeholder}</option>`;
@@ -1841,10 +1832,8 @@ async function man_syncFromResults(){
 
   // Rellenar campos
   pop2024Field.value = Math.round(pop2024);
-  fmtHint(pop2024Field, "hint-vigente");
   if(pop2017 && pop2017 > 0){
     pop2017Field.value = Math.round(pop2017);
-    fmtHint(pop2017Field, "hint-anterior");
     // Agregar nota si la población 2017 es aproximada (zona o entidad → usa localidad/distrito 2017)
     const f = currentFilters();
     const noteEl = document.getElementById("man-2017-note");
@@ -1857,10 +1846,12 @@ async function man_syncFromResults(){
 
   // Rellenar Población a proyectar con la población 2024
   popBaseField.value = Math.round(pop2024);
-  fmtHint(popBaseField, "hint-base");
 
-  // Calcular automáticamente
-  man_calculate();
+  // Calcular automáticamente solo si hay una selección activa
+  const haySeleccion = selectedAreas.length > 0 ||
+    els.region.value || els.provincia.value || els.comuna.value ||
+    els.distrito.value || els.zona.value || els.localidad.value || els.entidad.value;
+  if(haySeleccion) man_calculate();
 }
 
 function man_tableRow(label, pop, basePop, isBase){
@@ -1981,6 +1972,10 @@ function man_populateHastaAnio(anioBase, defaultAnio){
 // Inicializar combo al cargar la página
 man_populateHastaAnio(2024, 2030);
 
+// Asegurar que la proyección esté en blanco al cargar la página
+document.getElementById("man-result").innerHTML =
+  `<div class="proj-empty">Ingresa la población vigente, la población anterior y los años entre censos, luego presiona "Calcular proyección".</div>`;
+
 // Recargar combo cuando el usuario cambia el año base
 document.getElementById("man-anio-base").addEventListener("change", function(){
   const anioBase = parseInt(this.value, 10);
@@ -2008,5 +2003,235 @@ loadRegiones().catch(err => {
 });
 </script>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// =====================================================================
+// HELPERS COMUNES
+// =====================================================================
+function fmtT(n, dec){ return n.toFixed(dec).replace(".",",") + "%"; }
+
+function getExportData(){
+  const chkTotal  = document.getElementById("chk-total")?.checked;
+  const chkUrbano = document.getElementById("chk-urbano")?.checked;
+  const chkRural  = document.getElementById("chk-rural")?.checked;
+  const colsActivas = [];
+  if(chkTotal)  colsActivas.push("total");
+  if(chkUrbano) colsActivas.push("urbano");
+  if(chkRural)  colsActivas.push("rural");
+
+  const isMultiple = selectedAreas.length > 0;
+  let areas = [];
+  if(isMultiple && combinedSums){
+    areas = [{ label:`Selección combinada (${selectedAreas.length} áreas)`, ...combinedSums }];
+  } else if(currentPanels && currentPanels.length > 0){
+    const pm = {};
+    currentPanels.forEach(p => pm[p.key] = p.row);
+    const label = currentPanels[0]?.title?.replace(/ — (Total|Urbano|Rural)$/i,"") || "Selección";
+    areas = [{ label, total:pm.total, urbano:pm.urbano, rural:pm.rural }];
+  }
+
+  const filtros = [
+    ["REGIÓN",          els.region.value    ? els.region.options[els.region.selectedIndex].textContent    : (selectedAreas.find(e=>e.type==="region")?.label||"")],
+    ["PROVINCIA",       els.provincia.value ? els.provincia.value : (selectedAreas.find(e=>e.type==="provincia")?.label||"")],
+    ["COMUNA",          els.comuna.value    ? els.comuna.options[els.comuna.selectedIndex].textContent    : (selectedAreas.find(e=>e.type==="comuna")?.label||"")],
+    ["DISTRITO",        els.distrito.value  ? els.distrito.options[els.distrito.selectedIndex].textContent : (selectedAreas.find(e=>e.type==="distrito")?.label||"")],
+    ["ZONA CENSAL",     els.zona.value      ? els.zona.options[els.zona.selectedIndex].textContent        : ""],
+    ["LOCALIDAD RURAL", els.localidad.value ? els.localidad.options[els.localidad.selectedIndex].textContent : ""],
+    ["ENTIDAD",         els.entidad.value   ? els.entidad.options[els.entidad.selectedIndex].textContent  : ""],
+  ].filter(([k,v]) => v);
+
+  const manResult = document.getElementById("man-result");
+  const tieneProyeccion = manResult && !manResult.querySelector(".proj-empty");
+  let proyData = null;
+  if(tieneProyeccion){
+    const pobVig = parseFloat(document.getElementById("man-pob-vigente")?.value)||0;
+    const pobAnt = parseFloat(document.getElementById("man-pob-anterior")?.value)||0;
+    const nAnios = parseInt(document.getElementById("man-anios-entre")?.value||7);
+    const anioBase = parseInt(document.getElementById("man-anio-base")?.value||2024);
+    const popBase = parseFloat(document.getElementById("man-pob-base")?.value)||pobVig||0;
+    const hastaAnio = parseInt(document.getElementById("man-hasta-anio")?.value||2030);
+    if(pobVig > 0 && pobAnt > 0){
+      const tc = Math.pow(pobVig/pobAnt, 1/nAnios) - 1;
+      const filas = [];
+      for(let y = anioBase+1; y <= hastaAnio; y++)
+        filas.push([y, Math.round(popBase * Math.pow(1+tc, y-anioBase))]);
+      proyData = { tc, popBase, anioBase, hastaAnio, filas };
+    }
+  }
+
+  return { colsActivas, areas, filtros, proyData, isMultiple };
+}
+
+// =====================================================================
+// EXPORTAR EXCEL (solo datos, con formato)
+// =====================================================================
+function exportExcel(){
+  const { colsActivas, areas, filtros, proyData, isMultiple } = getExportData();
+  if(!colsActivas.length){ alert("Selecciona al menos una columna (Total, Urbano o Rural)."); return; }
+  if(!areas.length){ alert("No hay datos para exportar. Selecciona un área primero."); return; }
+
+  const colNames = { total:"TOTAL", urbano:"URBANA", rural:"RURAL" };
+  const val = (area, col, field) => { const r = area[col]; return r ? Math.round(Number(r[field]||0)) : 0; };
+  const rows = [];
+
+  rows.push(["Araucanía - Herramientas de Formulación - Sistema Nacional de Inversiones"]);
+  rows.push([]);
+  filtros.forEach(([k,v]) => rows.push([k, v]));
+  rows.push([]);
+
+  if(!isMultiple){
+    rows.push(["", ...colsActivas.map(c => colNames[c])]);
+  } else {
+    const hdr = [""];
+    colsActivas.forEach(col => areas.forEach(a => hdr.push(`${colNames[col]} — ${a.label}`)));
+    rows.push(hdr);
+  }
+
+  const metricas = [
+    ["POBLACIÓN","n_per"],["HOMBRES","n_hombres"],["MUJERES","n_mujeres"],
+    ["VIVIENDAS PARTICULARES","n_vp"],["HOGARES","n_hog"],["PUEBLOS ORIGINARIOS","n_pueblos_orig"],
+    ["PERS. 0-5 AÑOS","n_edad_0_5"],["PERS. 6-13 AÑOS","n_edad_6_13"],
+    ["PERS. 14-17 AÑOS","n_edad_14_17"],["PERS. 18-24 AÑOS","n_edad_18_24"],
+    ["PERS. 25-44 AÑOS","n_edad_25_44"],["PERS. 45-59 AÑOS","n_edad_45_59"],
+    ["PERS. 60 Y MÁS","n_edad_60_mas"],
+  ];
+  metricas.forEach(([n,f]) => {
+    const fila = [n];
+    colsActivas.forEach(col => areas.forEach(a => fila.push(val(a, col, f))));
+    rows.push(fila);
+  });
+
+  if(proyData){
+    rows.push([]); rows.push(["PROYECCIÓN DE LA POBLACIÓN"]);
+    rows.push(["TASA DE CRECIMIENTO ANUAL", fmtT(proyData.tc*100, 3)]);
+    rows.push(["POBLACIÓN A PROYECTAR", proyData.popBase, proyData.anioBase]);
+    proyData.filas.forEach(([y, p], i) => rows.push([i===0?"RESULTADO":"", p, y]));
+  }
+
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  // Formato número entero con miles para celdas numéricas
+  const range = XLSX.utils.decode_range(ws["!ref"]||"A1");
+  for(let R = range.s.r; R <= range.e.r; R++){
+    for(let C = 1; C <= range.e.c; C++){
+      const ref = XLSX.utils.encode_cell({r:R,c:C});
+      if(ws[ref] && typeof ws[ref].v === "number"){
+        ws[ref].t = "n";
+        ws[ref].z = "#,##0";
+      }
+    }
+  }
+  ws["!cols"] = [{wch:30},{wch:16},{wch:16},{wch:16},{wch:16}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Reporte");
+  const fecha = new Date().toISOString().slice(0,10);
+  const nombre = (areas[0]?.label||"reporte").replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]/g,"").trim().slice(0,30);
+  XLSX.writeFile(wb, `Censo2024_${nombre}_${fecha}.xlsx`);
+}
+
+// =====================================================================
+// EXPORTAR PDF (mapa + cuadros + proyección)
+// =====================================================================
+async function exportPDF(){
+  const { areas, filtros, proyData } = getExportData();
+  if(!areas.length){ alert("No hay datos para exportar. Selecciona un área primero."); return; }
+
+  const btn = document.getElementById("btn-export-pdf");
+  const orig = btn.innerHTML;
+  btn.innerHTML = "Generando PDF…"; btn.disabled = true;
+
+  try {
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:"portrait", unit:"mm", format:"a4" });
+    const W = 190; // ancho útil en mm
+    let y = 15;
+
+    // Título
+    pdf.setFontSize(11); pdf.setFont("helvetica","bold");
+    pdf.text("Araucanía - Herramientas de Formulación - Sistema Nacional de Inversiones", 10, y);
+    y += 7;
+    pdf.setFontSize(14);
+    pdf.text("Reporte Censo de Población y Vivienda 2024", 10, y);
+    y += 7;
+
+    // Filtros
+    pdf.setFontSize(9); pdf.setFont("helvetica","normal");
+    filtros.forEach(([k,v]) => {
+      pdf.setFont("helvetica","bold"); pdf.text(k+":", 10, y);
+      pdf.setFont("helvetica","normal"); pdf.text(String(v), 50, y);
+      y += 5;
+    });
+    y += 4;
+
+    // Capturar mapa
+    const mapEl = document.getElementById("map-container");
+    if(mapEl){
+      pdf.setFont("helvetica","bold"); pdf.setFontSize(10);
+      pdf.text("Mapa del área seleccionada", 10, y); y += 4;
+      try {
+        const canvas = await html2canvas(mapEl, {useCORS:true, allowTaint:true, scale:1.5, logging:false, backgroundColor:"#ffffff"});
+        const imgData = canvas.toDataURL("image/jpeg", 0.85);
+        const ratio = canvas.height / canvas.width;
+        const imgH = Math.round(W * ratio);
+        pdf.addImage(imgData, "JPEG", 10, y, W, imgH);
+        y += imgH + 6;
+      } catch(e){ pdf.setFont("helvetica","italic"); pdf.text("(No se pudo capturar el mapa)", 10, y); y += 6; }
+    }
+
+    // Capturar cuadros de resultados
+    const resEl = document.getElementById("result");
+    if(resEl && !resEl.querySelector(".empty")){
+      if(y > 240){ pdf.addPage(); y = 15; }
+      pdf.setFont("helvetica","bold"); pdf.setFontSize(10);
+      pdf.text("Cuadros de resultados", 10, y); y += 4;
+      try {
+        const canvas = await html2canvas(resEl, {useCORS:true, allowTaint:true, scale:1.5, logging:false, backgroundColor:"#ffffff"});
+        const imgData = canvas.toDataURL("image/jpeg", 0.85);
+        const ratio = canvas.height / canvas.width;
+        const imgH = Math.min(Math.round(W * ratio), 180);
+        pdf.addImage(imgData, "JPEG", 10, y, W, imgH);
+        y += imgH + 6;
+      } catch(e){ pdf.setFont("helvetica","italic"); pdf.text("(No se pudo capturar los resultados)", 10, y); y += 6; }
+    }
+
+    // Capturar proyección
+    const manResult = document.getElementById("man-result");
+    if(manResult && !manResult.querySelector(".proj-empty")){
+      if(y > 220){ pdf.addPage(); y = 15; }
+      pdf.setFont("helvetica","bold"); pdf.setFontSize(10);
+      pdf.text("Proyección de la Población", 10, y); y += 4;
+      try {
+        const canvas = await html2canvas(manResult, {useCORS:true, allowTaint:true, scale:1.5, logging:false, backgroundColor:"#ffffff"});
+        const imgData = canvas.toDataURL("image/jpeg", 0.85);
+        const ratio = canvas.height / canvas.width;
+        const imgH = Math.min(Math.round(W * ratio), 200);
+        pdf.addImage(imgData, "JPEG", 10, y, W, imgH);
+        y += imgH + 6;
+      } catch(e){ pdf.setFont("helvetica","italic"); pdf.text("(No se pudo capturar la proyección)", 10, y); y += 6; }
+    }
+
+    // Pie de página
+    const pageCount = pdf.internal.getNumberOfPages();
+    for(let i=1; i<=pageCount; i++){
+      pdf.setPage(i);
+      pdf.setFontSize(8); pdf.setFont("helvetica","normal");
+      pdf.text(`Fuente: Censo de Población y Vivienda 2024, INE · Página ${i} de ${pageCount}`, 10, 290);
+    }
+
+    const fecha = new Date().toISOString().slice(0,10);
+    const nombre = (areas[0]?.label||"reporte").replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ0-9\s]/g,"").trim().slice(0,30);
+    pdf.save(`Censo2024_${nombre}_${fecha}.pdf`);
+
+  } catch(e){
+    console.error("Error PDF:", e);
+    alert("Ocurrió un error al generar el PDF.");
+  } finally {
+    btn.innerHTML = orig; btn.disabled = false;
+  }
+}
+
+document.getElementById("btn-export-excel").addEventListener("click", exportExcel);
+document.getElementById("btn-export-pdf").addEventListener("click", exportPDF);
+</script>
 </body>
-</html>
