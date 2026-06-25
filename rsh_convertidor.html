@@ -190,10 +190,17 @@ function handleFile(file){
     .slice(0, 60);
   document.getElementById('inp-nombre').value = nombre;
 
-  // Leer primeras filas para detectar período y sep
+  // Leer con detección automática de encoding
   const reader = new FileReader();
   reader.onload = e => {
-    const txt = e.target.result;
+    let txt;
+    const buf = e.target.result;
+    let t8 = new TextDecoder('utf-8').decode(buf);
+    if(t8.includes('\uFFFD') || t8.includes('?mero')){
+      txt = new TextDecoder('windows-1252').decode(buf);
+    } else {
+      txt = t8;
+    }
     const lines = txt.split('\n').slice(0, 500); // primeras 500 filas
     const sep = lines[0].includes('\t') ? '\t' : ';';
     const headers = lines[0].split(sep).map(h => h.trim().replace(/^"|"$/g,''));
@@ -222,7 +229,7 @@ function handleFile(file){
 
     document.getElementById('btn-convertir').disabled = false;
   };
-  reader.readAsText(file, 'utf-8');
+  reader.readAsArrayBuffer(file);
 }
 
 // ── Conversión ───────────────────────────────────────────
@@ -253,7 +260,16 @@ async function convertir(){
     fill.style.width = '10%';
     await sleep(50);
 
-    const txt = await archivoCSV.text();
+    // Leer con detección de encoding — BIDAT usa a veces latin-1/windows-1252
+    let txt = await archivoCSV.arrayBuffer().then(buf => {
+      // Intentar UTF-8 primero
+      let t = new TextDecoder('utf-8').decode(buf);
+      // Si hay caracteres de reemplazo (encoding incorrecto), usar latin-1
+      if(t.includes('\uFFFD') || t.includes('?mero')){
+        t = new TextDecoder('windows-1252').decode(buf);
+      }
+      return t;
+    });
     const lines = txt.split('\n').filter(l => l.trim());
     const sep = lines[0].includes('\t') ? '\t' : ';';
     const headers = lines[0].split(sep).map(h => h.trim().replace(/^"|"$/g,'').toLowerCase());
@@ -320,14 +336,12 @@ async function convertir(){
       if(uvRaw && uvRaw !== 'S/N' && !isNaN(parseFloat(uvRaw))){
         const uvNum = Math.round(parseFloat(uvRaw));
         if(uvNum > 9999){
-          // Formato BIDAT: CUT(4)+cod_uv — probar con divisor 100 y 1000
-          const cut4 = Math.floor(uvNum / 100);
-          const uv2  = uvNum % 100;
-          const cut5 = Math.floor(uvNum / 1000);
-          const uv3  = uvNum % 1000;
-          // Usar divisor 100 si cod_uv < 100, sino 1000
-          if(uv2 > 0){ cut_comuna = cut_comuna || cut4; codUV = uv2; }
-          else if(uv3 > 0){ cut_comuna = cut_comuna || cut5; codUV = uv3; }
+          // Formato BIDAT: CUT(4)+cod_uv, ej: 110146 = CUT 1101 + UV 46
+          // CUT son siempre 4 dígitos, cod_uv es el resto
+          const cutStr = String(uvNum).slice(0, 4);
+          const uvStr  = String(uvNum).slice(4);
+          cut_comuna = cut_comuna || parseInt(cutStr);
+          codUV = parseInt(uvStr) || null;
         } else {
           codUV = uvNum;
         }
@@ -348,7 +362,7 @@ async function convertir(){
           comuna,
           cut_comuna,
           cod_uv: codUV,
-          nom_uv: uvRaw,
+          nom_uv: codUV ? String(codUV) : (uvRaw === 'S/N' ? null : uvRaw),
           nombre_archivo: nombre,
           indicador,
           valor_uv:      parseFloat(cols[col.i]) || null,
