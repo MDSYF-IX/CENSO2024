@@ -712,13 +712,16 @@ function initMap(){
   map = L.map('map-container', {
     zoomControl:true,
     attributionControl:true,
-    scrollWheelZoom:false,  // desactivado por defecto; se activa con Ctrl/Cmd + rueda
-    touchZoom:true          // pinch-to-zoom con dos dedos; un dedo sigue haciendo scroll de la página
-  }).setView([-35.6, -71.5], 4); // vista general de Chile
+    scrollWheelZoom:false,
+    touchZoom:true
+  }).setView([-35.6, -71.5], 4);
+  window._leafletMap = map; // exponer globalmente para captura PDF
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
-    maxZoom: 18
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19,
+    crossOrigin: 'anonymous'
   }).addTo(map);
 
   // Aviso visual: aparece al pasar el mouse, indicando que hay que usar Ctrl/Cmd + rueda
@@ -2006,6 +2009,7 @@ loadRegiones().catch(err => {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://unpkg.com/leaflet-image@0.4.0/leaflet-image.js"></script>
 <script>
 // =====================================================================
 // HELPERS COMUNES
@@ -2164,20 +2168,7 @@ async function exportPDF(){
     });
     y += 4;
 
-    // Capturar mapa
-    const mapEl = document.getElementById("map-container");
-    if(mapEl){
-      pdf.setFont("helvetica","bold"); pdf.setFontSize(10);
-      pdf.text("Mapa del área seleccionada", 10, y); y += 4;
-      try {
-        const canvas = await html2canvas(mapEl, {useCORS:true, allowTaint:true, scale:1.5, logging:false, backgroundColor:"#ffffff"});
-        const imgData = canvas.toDataURL("image/jpeg", 0.85);
-        const ratio = canvas.height / canvas.width;
-        const imgH = Math.round(W * ratio);
-        pdf.addImage(imgData, "JPEG", 10, y, W, imgH);
-        y += imgH + 6;
-      } catch(e){ pdf.setFont("helvetica","italic"); pdf.text("(No se pudo capturar el mapa)", 10, y); y += 6; }
-    }
+    // (Mapa no incluido en PDF por restricciones técnicas del navegador)
 
     // Capturar cuadros de resultados
     const resEl = document.getElementById("result");
