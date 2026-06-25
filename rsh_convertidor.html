@@ -316,16 +316,28 @@ async function convertir(){
       filasTotal++;
 
       const cols = lines[li].split(sep).map(c => c.trim().replace(/^"|"$/g,''));
-      const reg  = (cols[iRegion] || '').trim().toUpperCase();
-      const per  = (cols[iPerio]  || '').trim();
+      const regRaw = (cols[iRegion] || '').trim();
+      const reg    = regRaw.toUpperCase();
+      const per    = (cols[iPerio]  || '').trim();
 
+      // El campo región puede venir como nombre ("LA ARAUCANÍA") o número ("9")
+      const numCodReg = parseInt(regRaw);
+      const codRegNum = !isNaN(numCodReg) ? numCodReg : (regCod[reg.toLowerCase()] || null);
+      const regNom = !isNaN(numCodReg) 
+        ? (Object.entries(regCod).find(([k,v]) => v === numCodReg)?.[0]?.toUpperCase() || reg)
+        : reg;
+
+      // Filtrar por región — comparar tanto por nombre como por número
       if(per !== periodo) continue;
-      if(region !== 'TODAS' && reg !== region) continue;
+      if(region !== 'TODAS'){
+        const regionNum = regCod[region.toLowerCase()] || 9;
+        if(codRegNum !== regionNum && reg !== region) continue;
+      }
 
       filasFiltradas++;
       const comuna = (cols[iComuna] || '').trim();
       const uvRaw  = (cols[iUV]     || '').trim();
-      const codReg = regCod[reg.toLowerCase()] || null;
+      const codReg = codRegNum;
 
       // El campo "unidad vecinal" en BIDAT viene como CUT+cod_uv (ej: "110146.0" = CUT 1101 + UV 46)
       let cut_comuna = null;
@@ -357,7 +369,7 @@ async function convertir(){
 
         salida.push({
           periodo,
-          region: reg,
+          region: regNom,
           cod_region: codReg,
           comuna,
           cut_comuna,
