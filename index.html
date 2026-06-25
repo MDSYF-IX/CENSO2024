@@ -677,6 +677,10 @@
       <option value="">— Seleccione una unidad vecinal —</option>
     </select>
     <button id="btn-clear-uv" class="uv-clear" title="Quitar selección UV" style="display:none;">✕</button>
+    <label class="uv-label" for="sel-rsh-indicador" id="rsh-inline-label" style="display:none;white-space:nowrap;">Información RSH</label>
+    <select id="sel-rsh-indicador" style="flex:1;min-width:180px;padding:8px 12px;font-size:13px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);display:none;" disabled>
+      <option value="">— Seleccione indicador —</option>
+    </select>
   </div>
 
   <div class="breadcrumb" id="breadcrumb"></div>
@@ -780,16 +784,8 @@
       </span></span>
     </div>
     <p class="proj-sub" id="rsh-uv-label"></p>
-
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap;">
-      <label style="font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;">Indicador RSH</label>
-      <select id="sel-rsh-indicador" style="flex:1;min-width:220px;padding:8px 12px;font-size:13px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);" disabled>
-        <option value="">— Selecciona una Unidad Vecinal primero —</option>
-      </select>
-    </div>
-
     <div id="rsh-result">
-      <div class="proj-empty">Selecciona una Unidad Vecinal y un indicador para ver los datos del RSH.</div>
+      <div class="proj-empty">Selecciona una Unidad Vecinal para ver los datos del RSH.</div>
     </div>
   </div>
 
@@ -2150,27 +2146,34 @@ function rsh_hide(){
   document.getElementById("rsh-section").style.display = "none";
   document.getElementById("rsh-result").innerHTML =
     '<div class="proj-empty">Selecciona una Unidad Vecinal para ver los datos del RSH.</div>';
+  const sel = document.getElementById("sel-rsh-indicador");
+  const lbl = document.getElementById("rsh-inline-label");
+  if(sel){ sel.style.display = "none"; sel.innerHTML = '<option value="">— Seleccione indicador —</option>'; }
+  if(lbl) lbl.style.display = "none";
 }
 
 async function rsh_loadIndicadores(cut_comuna, cod_uv){
   const sel = document.getElementById("sel-rsh-indicador");
-  sel.innerHTML = '<option value="">Cargando indicadores…</option>';
+  const lbl = document.getElementById("rsh-inline-label");
+  sel.innerHTML = '<option value="">Cargando…</option>';
   sel.disabled = true;
+  sel.style.display = "none";
+  lbl.style.display = "none";
 
   try {
-    // Obtener indicadores únicos disponibles para esta UV
     const rows = await sb("rsh_indicadores",
       `select=indicador,nombre_archivo,periodo&cut_comuna=eq.${cut_comuna}&cod_uv=eq.${cod_uv}&order=nombre_archivo,indicador`
     );
 
     if(!rows || !rows.length){
       sel.innerHTML = '<option value="">Sin datos RSH para esta UV</option>';
+      sel.style.display = "";
+      lbl.style.display = "";
       return;
     }
 
     rshIndicadoresDisponibles = rows;
 
-    // Agrupar por nombre_archivo para crear optgroups
     const grupos = {};
     rows.forEach(r => {
       if(!grupos[r.nombre_archivo]) grupos[r.nombre_archivo] = [];
@@ -2178,7 +2181,7 @@ async function rsh_loadIndicadores(cut_comuna, cod_uv){
         grupos[r.nombre_archivo].push(r);
     });
 
-    sel.innerHTML = '<option value="">— Seleccione un indicador —</option>';
+    sel.innerHTML = '<option value="">— Seleccione indicador —</option>';
     Object.entries(grupos).forEach(([archivo, items]) => {
       const grp = document.createElement("optgroup");
       grp.label = archivo.replace(/_/g," ").replace(/\b\w/g, l=>l.toUpperCase());
@@ -2191,10 +2194,15 @@ async function rsh_loadIndicadores(cut_comuna, cod_uv){
       sel.appendChild(grp);
     });
     sel.disabled = false;
+    sel.style.display = "";
+    lbl.style.display = "";
+    forceRepaint(sel);
 
   } catch(e){
     console.error("Error cargando indicadores RSH:", e);
     sel.innerHTML = '<option value="">Error al cargar indicadores</option>';
+    sel.style.display = "";
+    lbl.style.display = "";
   }
 }
 
@@ -2367,17 +2375,12 @@ async function uv_select(id){
     const nom_uv = opt?.dataset?.nom || "";
     const cut_comuna = els.comuna.value;
 
-    // Consultar geometría como GeoJSON
-    const url = `${SUPABASE_URL}/rest/v1/rpc/uv_geojson`;
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/uv_chile?id=eq.${id}&select=id,cod_uv,nom_uv,cut,nom_comuna,geom`, {
-      headers: { "apikey": SUPABASE_KEY, "Accept": "application/vnd.pgrst.object+json" }
-    });
-
-    // Usar función RPC para obtener GeoJSON de la geometría
-    const rpcRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_uv_geojson`, {
+    // Consultar geometría como GeoJSON via RPC
+    const rpcRes = await fetch(`https://dsrvxgpdxzjcpqtopfrk.supabase.co/rest/v1/rpc/get_uv_geojson`, {
       method: "POST",
       headers: {
         "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({ uv_id: parseInt(id) })
