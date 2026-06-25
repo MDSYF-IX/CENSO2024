@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Importar UV → Supabase · MDS Araucanía</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh;}
+  header{background:#1e3a5f;color:#fff;padding:18px 32px;}
+  header h1{font-size:16px;font-weight:700;}
+  header p{font-size:12px;opacity:.6;margin-top:2px;}
+  main{max-width:700px;margin:32px auto;padding:0 24px;}
+  .card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:28px 32px;margin-bottom:20px;}
+  .card h2{font-size:13px;font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #e2e8f0;}
+  label{display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:5px;}
+  input[type=text]{width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:7px;color:#1e293b;margin-bottom:14px;}
+  input[type=text]:focus{outline:none;border-color:#1e3a5f;}
+  .drop-zone{border:2px dashed #94a3b8;border-radius:10px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;background:#f8fafc;}
+  .drop-zone:hover,.drop-zone.drag-over{border-color:#1e3a5f;background:#eff6ff;}
+  .drop-zone.has-file{border-color:#22c55e;background:#f0fdf4;}
+  .drop-icon{font-size:32px;margin-bottom:8px;}
+  .drop-label{font-size:14px;font-weight:600;color:#475569;}
+  .drop-sub{font-size:12px;color:#94a3b8;margin-top:4px;}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;font-size:14px;font-weight:600;border:none;border-radius:8px;cursor:pointer;}
+  .btn-primary{background:#1e3a5f;color:#fff;}
+  .btn-primary:disabled{background:#94a3b8;cursor:not-allowed;}
+  .progress{display:none;margin-top:16px;}
+  .bar{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-bottom:6px;}
+  .fill{height:100%;background:#1e3a5f;border-radius:4px;transition:width .3s;}
+  .ptext{font-size:12px;color:#64748b;}
+  .result{display:none;margin-top:14px;padding:14px;border-radius:8px;font-size:13px;}
+  .result.ok{background:#f0fdf4;border:1px solid #86efac;color:#15803d;}
+  .result.err{background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;}
+  .note{font-size:12px;color:#64748b;margin-top:8px;line-height:1.5;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Importar Unidades Vecinales → Supabase</h1>
+  <p>Araucanía · Herramientas de Formulación · SNI</p>
+</header>
+<main>
+
+  <div class="card">
+    <h2>Configuración Supabase</h2>
+    <label>URL de Supabase</label>
+    <input type="text" id="inp-url" value="https://dsrvxgpdxzjcpqtopfrk.supabase.co">
+    <label>API Key (anon key)</label>
+    <input type="text" id="inp-key" placeholder="eyJ...">
+    <p class="note">⚠️ Usa la <strong>anon key</strong> de Supabase → Settings → API. No compartas esta página con la key visible.</p>
+  </div>
+
+  <div class="card">
+    <h2>Seleccionar GeoJSON</h2>
+    <div class="drop-zone" id="dz" onclick="document.getElementById('fi').click()">
+      <div class="drop-icon">🗺️</div>
+      <div class="drop-label" id="dz-label">Arrastra el GeoJSON aquí o haz clic</div>
+      <div class="drop-sub">uv_chile_2024.geojson (~14 MB)</div>
+    </div>
+    <input type="file" id="fi" accept=".geojson,.json" style="display:none;">
+  </div>
+
+  <div class="card">
+    <h2>Importar</h2>
+    <p class="note" style="margin-bottom:14px;">
+      El proceso sube los datos en lotes de 50 UVs para no saturar Supabase.
+      Para todo Chile (~6.800 UVs) tomará aprox. 3-5 minutos.
+    </p>
+    <button class="btn btn-primary" id="btn" disabled onclick="importar()">🚀 Iniciar importación</button>
+    <div class="progress" id="prog">
+      <div class="bar"><div class="fill" id="fill" style="width:0%"></div></div>
+      <div class="ptext" id="ptext">Preparando…</div>
+    </div>
+    <div class="result" id="result"></div>
+  </div>
+
+</main>
+<script>
+let geojsonData = null;
+
+// Drag & drop
+const dz = document.getElementById('dz');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); handleFile(e.dataTransfer.files[0]); });
+document.getElementById('fi').addEventListener('change', e => handleFile(e.target.files[0]));
+
+function handleFile(file){
+  if(!file) return;
+  document.getElementById('dz-label').textContent = `⏳ Leyendo ${file.name}…`;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      geojsonData = JSON.parse(e.target.result);
+      const n = geojsonData.features?.length || 0;
+      document.getElementById('dz-label').textContent = `✓ ${file.name} · ${n.toLocaleString('es-CL')} features`;
+      dz.classList.add('has-file');
+      document.getElementById('btn').disabled = false;
+    } catch(err){
+      document.getElementById('dz-label').textContent = `❌ Error leyendo el archivo`;
+    }
+  };
+  reader.readAsText(file, 'utf-8');
+}
+
+async function importar(){
+  const url = document.getElementById('inp-url').value.trim();
+  const key = document.getElementById('inp-key').value.trim();
+  if(!url || !key){ alert('Ingresa la URL y API Key de Supabase.'); return; }
+  if(!geojsonData){ alert('Primero selecciona el archivo GeoJSON.'); return; }
+
+  const btn = document.getElementById('btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Importando…';
+  document.getElementById('prog').style.display = '';
+  document.getElementById('result').style.display = 'none';
+
+  const features = geojsonData.features || [];
+  const BATCH = 50;
+  let ok = 0, err = 0;
+
+  // Limpiar tabla primero
+  try {
+    await fetch(`${url}/rest/v1/uv_chile?id=gt.0`, {
+      method: 'DELETE',
+      headers: { 'apikey': key, 'Authorization': `Bearer ${key}` }
+    });
+  } catch(e){ console.warn('No se pudo limpiar tabla:', e); }
+
+  for(let i = 0; i < features.length; i += BATCH){
+    const batch = features.slice(i, i + BATCH);
+    const rows = batch.map(f => {
+      const p = f.properties || {};
+      // Detectar campos del shapefile MDS
+      const cut     = parseInt(p.t_com || p.CUT || p.cut || 0);
+      const cod_uv  = parseInt(p.uv_carto || p.T_UV_NUM || p.UV_NUM || 0);
+      const nom_uv  = p.t_uv_nom || p.T_UV_NOM || p.UV_NOM || '';
+      const comuna  = p.t_com_nom || p.NOM_COM || p.COMUNA || '';
+      // Convertir geometría a WKT via GeoJSON string
+      const geomStr = JSON.stringify(f.geometry);
+      return { cut, nom_comuna: comuna, cod_uv, nom_uv, geom: `SRID=4326;${geojsonToWKT(f.geometry)}` };
+    }).filter(r => r.cut > 0);
+
+    try {
+      const res = await fetch(`${url}/rest/v1/uv_chile`, {
+        method: 'POST',
+        headers: {
+          'apikey': key,
+          'Authorization': `Bearer ${key}`,
+          'Content-Type': 'application/json',
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify(rows)
+      });
+      if(res.ok) ok += rows.length;
+      else {
+        const txt = await res.text();
+        console.error('Error batch:', txt);
+        err += rows.length;
+      }
+    } catch(e){
+      err += batch.length;
+      console.error('Error:', e);
+    }
+
+    const pct = Math.round((i + BATCH) / features.length * 100);
+    document.getElementById('fill').style.width = `${Math.min(pct,100)}%`;
+    document.getElementById('ptext').textContent =
+      `Subiendo lote ${Math.floor(i/BATCH)+1} de ${Math.ceil(features.length/BATCH)} · ${ok.toLocaleString('es-CL')} UVs importadas`;
+    await new Promise(r => setTimeout(r, 10));
+  }
+
+  btn.disabled = false;
+  btn.textContent = '🚀 Iniciar importación';
+
+  const res = document.getElementById('result');
+  if(err === 0){
+    res.className = 'result ok';
+    res.innerHTML = `✅ <strong>Importación exitosa</strong><br>${ok.toLocaleString('es-CL')} unidades vecinales importadas a Supabase.`;
+  } else {
+    res.className = 'result err';
+    res.innerHTML = `⚠️ Importadas ${ok.toLocaleString('es-CL')} · Errores: ${err}<br>Revisa la consola para más detalles.`;
+  }
+  res.style.display = '';
+}
+
+// Convertir GeoJSON geometry a WKT simplificado
+function geojsonToWKT(geom){
+  if(!geom) return 'GEOMETRYCOLLECTION EMPTY';
+  const type = geom.type;
+  const coords = geom.coordinates;
+
+  const pt  = c => `${c[0]} ${c[1]}`;
+  const ring = cs => `(${cs.map(pt).join(',')})`;
+  const poly = cs => `(${cs.map(ring).join(',')})`;
+
+  if(type === 'Polygon') return `POLYGON(${poly(coords)})`;
+  if(type === 'MultiPolygon') return `MULTIPOLYGON(${coords.map(poly).join(',')})`;
+  if(type === 'Point') return `POINT(${pt(coords)})`;
+  if(type === 'MultiPoint') return `MULTIPOINT(${coords.map(pt).join(',')})`;
+  if(type === 'LineString') return `LINESTRING(${coords.map(pt).join(',')})`;
+  return 'GEOMETRYCOLLECTION EMPTY';
+}
+</script>
+</body>
+</html>
