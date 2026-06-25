@@ -2306,9 +2306,8 @@ document.getElementById("man-anio-base").addEventListener("input", function(){
 
 
 // =====================================================================
-// UNIDADES VECINALES
+// UNIDADES VECINALES (desde Supabase)
 // =====================================================================
-const UV_BASE = "https://www.geoportal.cl/arcgis/rest/services/MinisteriodeDesarrolloSocial/chile_mds_Unidades_Vecinales/MapServer/0";
 let uvLayer = null;
 
 async function uv_load(cut_comuna){
@@ -2316,7 +2315,6 @@ async function uv_load(cut_comuna){
   const row = document.getElementById("uv-row");
   const clearBtn = document.getElementById("btn-clear-uv");
 
-  // Limpiar selección anterior
   uv_clear(false);
   sel.innerHTML = '<option value="">— Seleccione una unidad vecinal —</option>';
 
@@ -2327,64 +2325,76 @@ async function uv_load(cut_comuna){
   sel.innerHTML = '<option value="">Cargando unidades vecinales…</option>';
 
   try {
-    const url = `${UV_BASE}/query?where=CUT=${cut_comuna}&outFields=OBJECTID,T_UV_NOM,T_UV_NUM&returnGeometry=false&orderByFields=T_UV_NUM&f=json`;
-    const res = await fetch(url);
-    const data = await res.json();
+    const uvs = await sb("uv_chile",
+      `select=id,cod_uv,nom_uv&cut=eq.${cut_comuna}&order=cod_uv`
+    );
 
-    if(!data.features || !data.features.length){
+    if(!uvs || !uvs.length){
       sel.innerHTML = '<option value="">Sin unidades vecinales para esta comuna</option>';
       sel.disabled = true;
       return;
     }
 
     sel.innerHTML = '<option value="">— Seleccione una unidad vecinal —</option>';
-    data.features.forEach(f => {
+    uvs.forEach(u => {
       const opt = document.createElement("option");
-      opt.value = f.attributes.OBJECTID;
-      opt.dataset.nom = f.attributes.T_UV_NOM;
-      opt.dataset.num = f.attributes.T_UV_NUM;
-      opt.textContent = `UV ${f.attributes.T_UV_NUM} — ${f.attributes.T_UV_NOM}`;
+      opt.value = u.id;
+      opt.dataset.cod = u.cod_uv;
+      opt.dataset.nom = u.nom_uv;
+      opt.textContent = `UV ${u.cod_uv} — ${u.nom_uv}`;
       sel.appendChild(opt);
     });
     sel.disabled = false;
+    forceRepaint(sel);
   } catch(e){
     console.warn("Error cargando UVs:", e);
-    sel.innerHTML = '<option value="">No se pudo cargar las unidades vecinales</option>';
+    sel.innerHTML = '<option value="">Error al cargar las unidades vecinales</option>';
     sel.disabled = true;
   }
 }
 
-async function uv_select(objectId){
+async function uv_select(id){
   const clearBtn = document.getElementById("btn-clear-uv");
   if(uvLayer){ map.removeLayer(uvLayer); uvLayer = null; }
-  if(!objectId){ clearBtn.style.display = "none"; rsh_hide(); return; }
+  if(!id){ clearBtn.style.display = "none"; rsh_hide(); return; }
 
   clearBtn.style.display = "";
+
+  // Obtener geometría desde Supabase usando PostGIS
   try {
-    const url = `${UV_BASE}/query?objectIds=${objectId}&outFields=T_UV_NOM,T_UV_NUM&returnGeometry=true&geometryPrecision=5&f=geojson`;
-    const res = await fetch(url);
-    const geojson = await res.json();
-    if(!geojson.features || !geojson.features.length) return;
-
-    uvLayer = L.geoJSON(geojson, {
-      style: {
-        color: "#0f766e",
-        weight: 2.5,
-        fillColor: "#0f766e",
-        fillOpacity: 0.12,
-        dashArray: "6,4"
-      }
-    }).addTo(map);
-
-    const feat = geojson.features[0];
-    const nom = feat.properties?.T_UV_NOM || "";
-    const num = feat.properties?.T_UV_NUM || "";
-    uvLayer.bindPopup(`<b>UV ${num} — ${nom}</b>`).openPopup();
-    map.fitBounds(uvLayer.getBounds(), {maxZoom:14, padding:[20,20]});
-
-    // Activar sección RSH
+    const opt = document.querySelector(`#sel-uv option[value="${id}"]`);
+    const cod_uv = opt?.dataset?.cod;
+    const nom_uv = opt?.dataset?.nom || "";
     const cut_comuna = els.comuna.value;
-    await rsh_show(objectId, nom, num, cut_comuna);
+
+    // Consultar geometría como GeoJSON
+    const url = `${SUPABASE_URL}/rest/v1/rpc/uv_geojson`;
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/uv_chile?id=eq.${id}&select=id,cod_uv,nom_uv,cut,nom_comuna,geom`, {
+      headers: { "apikey": SUPABASE_KEY, "Accept": "application/vnd.pgrst.object+json" }
+    });
+
+    // Usar función RPC para obtener GeoJSON de la geometría
+    const rpcRes = await fetch(`${SUPABASE_URL}/rest/v1/rpc/get_uv_geojson`, {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ uv_id: parseInt(id) })
+    });
+
+    if(rpcRes.ok){
+      const geojson = await rpcRes.json();
+      if(geojson && geojson.type){
+        uvLayer = L.geoJSON(geojson, {
+          style:{ color:"#0f766e", weight:2.5, fillColor:"#0f766e", fillOpacity:0.12, dashArray:"6,4" }
+        }).addTo(map);
+        uvLayer.bindPopup(`<b>UV ${cod_uv} — ${nom_uv}</b>`).openPopup();
+        map.fitBounds(uvLayer.getBounds(), {maxZoom:14, padding:[20,20]});
+      }
+    }
+
+    await rsh_show(id, nom_uv, cod_uv, cut_comuna);
 
   } catch(e){
     console.warn("Error cargando geometría UV:", e);
@@ -2399,6 +2409,7 @@ function uv_clear(resetCombo = true){
     const sel = document.getElementById("sel-uv");
     if(sel) sel.value = "";
   }
+  rsh_hide();
 }
 
 document.getElementById("sel-uv").addEventListener("change", function(){
