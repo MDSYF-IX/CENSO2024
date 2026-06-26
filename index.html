@@ -1744,6 +1744,8 @@ async function refresh(){
     renderFromState();
     await updateMap();
   }
+  // Actualizar panel RSH (territorial o UV)
+  if(document.getElementById("chk-rsh")?.checked) renderRSHPanel();
 }
 
 // Cuando hay selectedAreas, el mapa muestra esas + el polígono del nivel actual del combo
@@ -3230,6 +3232,7 @@ document.addEventListener("keydown",e=>{
 // =====================================================================
 // ADMIN: Importar datos RSH con contraseña
 // =====================================================================
+async function sha256(msg){
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(msg));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
 }
@@ -3294,6 +3297,112 @@ function rsh_adminImport(e){
 }
 
 // Panel RSH inline en resultados (cuando checkbox RSH está marcado)
+// Renderiza panel RSH territorial (región/provincia/comuna) desde rsh_agregados
+async function rsh_renderTerritorial(){
+  // Determinar nivel y código según selección o combo activo
+  let nivel = null, codigo = null, etiqueta = "";
+
+  if(selectedAreas.length > 0){
+    // Multiselección: sumar todas las áreas que sean region/provincia/comuna
+    const aplicables = selectedAreas.filter(e => ["region","provincia","comuna"].includes(e.type));
+    if(!aplicables.length) return null;
+    return await rsh_renderTerritorialMulti(aplicables);
+  }
+
+  // Navegación simple por combo
+  const f = currentFilters();
+  if(f.cut_comuna){ nivel = "comuna"; codigo = String(f.cut_comuna); etiqueta = els.comuna.options[els.comuna.selectedIndex]?.textContent || "Comuna"; }
+  else if(f.provincia){ nivel = "provincia"; codigo = f.provincia; etiqueta = `Provincia de ${f.provincia}`; }
+  else if(f.cod_region){ nivel = "region"; codigo = String(f.cod_region); etiqueta = els.region.options[els.region.selectedIndex]?.textContent || "Región"; }
+  else return null;
+
+  // No mostrar territorial si hay distrito/zona/localidad/entidad activos (esos no tienen RSH agregado)
+  if(f.id_distrito || f.id_zona || f.id_localidad || f.id_entidad) return null;
+
+  try {
+    const [per, hog] = await Promise.all([
+      sb("rsh_agregados", `select=*&nivel=eq.${nivel}&codigo=eq.${encodeURIComponent(codigo)}&tipo=eq.personas&limit=1`),
+      sb("rsh_agregados", `select=*&nivel=eq.${nivel}&codigo=eq.${encodeURIComponent(codigo)}&tipo=eq.hogares&limit=1`),
+    ]);
+    if(!per?.[0] && !hog?.[0]) return null;
+    return rsh_buildTerritorialHTML(per?.[0], hog?.[0], etiqueta, per?.[0]?.periodo || hog?.[0]?.periodo || "");
+  } catch(e){
+    console.warn("Error RSH territorial:", e);
+    return null;
+  }
+}
+
+// Multiselección territorial: suma varias áreas
+async function rsh_renderTerritorialMulti(areas){
+  try {
+    const tramosKeys = ["tramo_0_40","tramo_41_50","tramo_51_60","tramo_61_70","tramo_71_80","tramo_81_90","tramo_91_100"];
+    const accPer = Object.fromEntries([...tramosKeys,"total"].map(k=>[k,0]));
+    const accHog = Object.fromEntries([...tramosKeys,"total"].map(k=>[k,0]));
+    let hasPer = false, hasHog = false, periodo = "";
+
+    await Promise.all(areas.map(async e => {
+      let nivel = e.type, codigo;
+      const f = e.filters;
+      if(e.type==="comuna") codigo = String(f.cut_comuna);
+      else if(e.type==="provincia") codigo = f.provincia;
+      else if(e.type==="region") codigo = String(f.cod_region);
+      const [per, hog] = await Promise.all([
+        sb("rsh_agregados", `select=*&nivel=eq.${nivel}&codigo=eq.${encodeURIComponent(codigo)}&tipo=eq.personas&limit=1`),
+        sb("rsh_agregados", `select=*&nivel=eq.${nivel}&codigo=eq.${encodeURIComponent(codigo)}&tipo=eq.hogares&limit=1`),
+      ]);
+      if(per?.[0]){ hasPer=true; accPer.total+=Number(per[0].total||0); tramosKeys.forEach(k=>accPer[k]+=Number(per[0][k]||0)); if(!periodo)periodo=per[0].periodo; }
+      if(hog?.[0]){ hasHog=true; accHog.total+=Number(hog[0].total||0); tramosKeys.forEach(k=>accHog[k]+=Number(hog[0][k]||0)); }
+    }));
+
+    if(!hasPer && !hasHog) return null;
+    const etiqueta = `${areas.length} áreas combinadas`;
+    return rsh_buildTerritorialHTML(hasPer?accPer:null, hasHog?accHog:null, etiqueta, periodo);
+  } catch(e){
+    console.warn("Error RSH territorial multi:", e);
+    return null;
+  }
+}
+
+// Construye el HTML del panel territorial (igual diseño que el de UV)
+function rsh_buildTerritorialHTML(per, hog, etiqueta, periodo){
+  const tramosLbl = [
+    {k:"tramo_0_40",l:"0%-40%"},{k:"tramo_41_50",l:"41%-50%"},{k:"tramo_51_60",l:"51%-60%"},
+    {k:"tramo_61_70",l:"61%-70%"},{k:"tramo_71_80",l:"71%-80%"},{k:"tramo_81_90",l:"81%-90%"},{k:"tramo_91_100",l:"91%-100%"},
+  ];
+  const makeBars = (obj) => {
+    const items = tramosLbl.filter(t => Number(obj[t.k]||0) > 0);
+    const maxV = Math.max(...items.map(t=>Number(obj[t.k])), 1);
+    const sumTotal = items.reduce((a,t)=>a+Number(obj[t.k]),0);
+    return items.map(t => {
+      const v = Number(obj[t.k]);
+      const barPct = (v/maxV*100).toFixed(1);
+      const totalPct = sumTotal>0 ? fmtPct(v/sumTotal*100) : "0,0%";
+      return `<div class="bar-row"><div class="label">${t.l}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${barPct}%;background:var(--blue);"></div></div>
+        <div class="num">${v.toLocaleString("es-CL")}</div><div class="pct">${totalPct}</div></div>`;
+    }).join("");
+  };
+
+  let cards = `<div class="dash-grid" style="margin-bottom:0;">`;
+  if(per) cards += `<div class="card pink" style="align-self:start;">
+    <div class="ctitle">Personas con RSH · Total</div>
+    <div class="cvalue">${Number(per.total||0).toLocaleString("es-CL")}</div></div>`;
+  if(hog) cards += `<div class="card navy" style="align-self:start;">
+    <div class="ctitle">Hogares con RSH · Total</div>
+    <div class="cvalue">${Number(hog.total||0).toLocaleString("es-CL")}</div></div>`;
+  cards += `</div>`;
+  if(per) cards += `<div class="card span2" style="border-top:3px solid var(--blue);margin-top:12px;">
+    <div class="ctitle">Distribución por tramo CSE · Personas</div>
+    <div class="bars">${makeBars(per)}</div></div>`;
+
+  return `<div class="panels single"><div>
+    <div class="panel-title" style="border-color:#e6007e;">RSH · ${etiqueta}
+      <span style="font-weight:400;font-size:12px;opacity:.7;"> · Período ${periodo}</span></div>
+    ${cards}
+    <p style="font-size:11px;color:var(--muted);margin-top:8px;font-style:italic;padding:0 2px;">Fuente: Registro Social de Hogares · BIDAT, Ministerio de Desarrollo Social y Familia. Totales agregados por ${etiqueta.includes("área")?"suma de áreas":"nivel territorial"}.</p>
+  </div></div>`;
+}
+
 async function renderRSHPanel(){
   const panel = document.getElementById("rsh-inline-panel");
   if(!panel) return;
@@ -3304,10 +3413,13 @@ async function renderRSHPanel(){
     ? selectedUVs
     : (rshCurrentUV?.cod_uv_bidat ? [{ ...rshCurrentUV, cod_uv: rshCurrentUV.num, nom_uv: rshCurrentUV.nom }] : []);
 
+  // Si no hay UVs seleccionadas, intentar mostrar RSH territorial (región/provincia/comuna)
   if(!uvsAMostrar.length){
+    const territorial = await rsh_renderTerritorial();
+    if(territorial){ panel.innerHTML = territorial; panel.style.display = ""; return; }
     panel.innerHTML = `<div class="panels single"><div>
       <div class="panel-title">RSH — Registro Social de Hogares</div>
-      <div class="card span2"><p style="font-size:13px;color:var(--muted);padding:8px 0;">Selecciona una <strong>Unidad Vecinal</strong> para ver los datos RSH.</p></div>
+      <div class="card span2"><p style="font-size:13px;color:var(--muted);padding:8px 0;">Selecciona una <strong>Unidad Vecinal</strong> o un nivel territorial (región, provincia o comuna) para ver los datos RSH.</p></div>
     </div></div>`;
     panel.style.display = "";
     return;
