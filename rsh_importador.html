@@ -102,12 +102,17 @@
 <script>
 // ── Config ──────────────────────────────────────────────
 const SUPABASE_URL_DEFAULT = "https://dsrvxgpdxzjcpqtopfrk.supabase.co/rest/v1";
+const SUPABASE_KEY_DEFAULT = "sb_publishable_jsz5WVNHq33JNXqQqKY9UQ_b53dB0kk";
 let currentTab = "personas";
 let archivoCSV = null;
 
+window._sbUrl = SUPABASE_URL_DEFAULT;
+window._sbKey = SUPABASE_KEY_DEFAULT;
 
-
-// ── Tabs ─────────────────────────────────────────────────
+// Mostrar estado de conexión al cargar
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("conexion-ok").style.display = "";
+});// ── Tabs ─────────────────────────────────────────────────
 function setTab(t){
   currentTab = t;
   document.getElementById("tab-personas").classList.toggle("active", t==="personas");
