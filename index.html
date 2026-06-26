@@ -213,6 +213,16 @@
     padding:0;
   }
   .uv-clear:hover{background:#fee2e2;border-color:#f87171;color:#c0392b;}
+  .uv-total-card{
+    background:#fff;
+    border:1.5px solid var(--line);
+    border-top:3px solid #e6007e;
+    border-radius:8px;
+    padding:10px 14px;
+    min-width:150px;
+  }
+  .uv-total-card .utc-lbl{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+  .uv-total-card .utc-val{font-size:22px;font-weight:800;color:#e6007e;margin-top:2px;}
   .rsh-section{
     margin-top:24px;
     padding-top:20px;
@@ -380,11 +390,12 @@
   .sex-legend b{font-size:14px;}
 
   .bars{font-size:12px;}
-  .bar-row{display:grid;grid-template-columns:62px 1fr 50px;align-items:center;gap:8px;margin-bottom:5px;}
-  .bar-row .label{color:var(--muted);}
+  .bar-row{display:grid;grid-template-columns:58px 1fr 52px 42px;align-items:center;gap:8px;margin-bottom:5px;}
+  .bar-row .label{color:var(--muted);white-space:nowrap;font-size:12px;}
   .bar-track{background:#eef1f5;border-radius:4px;height:10px;overflow:hidden;}
   .bar-fill{height:100%;background:var(--blue);border-radius:4px;}
   .bar-row .num{text-align:right;font-weight:600;color:var(--ink);}
+  .bar-row .pct{text-align:right;font-size:11px;color:var(--muted);}
 
   .empty, .loading{
     padding:50px 20px;
@@ -613,6 +624,7 @@
 
 <main>
 
+  <!-- FILA 1: Región, Provincia, Comuna -->
   <div class="levels">
     <div class="level">
       <label for="sel-region">Región</label>
@@ -629,13 +641,32 @@
       <select id="sel-comuna" disabled><option value="">Seleccione…</option></select>
       <button class="add-btn" id="add-comuna" disabled>+ Agregar comuna</button>
     </div>
-    <div class="level">
-      <label for="sel-distrito">Distrito</label>
+  </div>
+
+  <!-- FILA 2: Distrito + RSH por Unidad Vecinal -->
+  <div class="levels" style="align-items:flex-end;">
+    <div class="level" style="flex:1 1 170px;">
+      <label for="sel-distrito">Distrito Censal</label>
       <select id="sel-distrito" disabled><option value="">Seleccione…</option></select>
       <button class="add-btn" id="add-distrito" disabled>+ Agregar distrito</button>
     </div>
+    <div class="level" style="flex:2 1 340px;gap:6px;">
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <span style="font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;">RSH por Unidad Vecinal</span>
+        <span style="font-size:10px;color:var(--muted);">Registro Social de Hogares · Personas y Hogares</span>
+        <button onclick="rsh_adminImport(event)" title="Importar datos RSH" style="margin-left:auto;background:none;border:1px solid var(--line);border-radius:5px;font-size:9px;padding:2px 7px;color:var(--muted);cursor:pointer;font-weight:600;white-space:nowrap;">
+          ⬆ Actualizar RSH
+        </button>
+      </div>
+      <select id="sel-uv" disabled style="width:100%;padding:9px 10px;font-size:14px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);opacity:.4;font-family:inherit;background:#fff;">
+        <option value="">— Seleccione una comuna primero —</option>
+      </select>
+      <button id="btn-clear-uv" style="display:none;"></button>
+      <button class="add-btn" id="add-uv" disabled>+ Agregar UV</button>
+    </div>
   </div>
 
+  <!-- FILA 3: Zona censal, Localidad, Entidad -->
   <div class="levels">
     <div class="level">
       <label for="sel-zona">Zona censal (Urbano)</label>
@@ -654,12 +685,26 @@
     </div>
   </div>
 
+  <!-- elementos ocultos necesarios para el JS -->
+  <div id="uv-row" style="display:none;"></div>
+  <select id="sel-rsh-indicador" style="display:none;" disabled></select>
+  <label id="rsh-inline-label" style="display:none;"></label>
+
   <div class="selected-areas" id="selected-areas" style="display:none;">
     <div class="sa-header">
-      <span class="vt-label">Áreas seleccionadas (suma combinada)</span>
+      <span class="vt-label">Áreas del CENSO seleccionadas (suma combinada)</span>
       <button class="clear-btn" id="clear-areas">Limpiar selección</button>
     </div>
     <div class="sa-list" id="sa-list"></div>
+  </div>
+
+  <div class="selected-areas" id="selected-uvs" style="display:none;">
+    <div class="sa-header">
+      <span class="vt-label">Unidades Vecinales seleccionadas</span>
+      <button class="clear-btn" id="clear-uvs">Limpiar UVs</button>
+    </div>
+    <div class="sa-list" id="uv-list"></div>
+    <div id="uv-rsh-totals" style="display:none;margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;"></div>
   </div>
 
   <div id="map-container" class="map-card"></div>
@@ -667,26 +712,9 @@
   <div class="view-toggle" id="view-toggle">
     <span class="vt-label">Mostrar</span>
     <label><input type="checkbox" id="chk-total" checked> Total</label>
-    <label><input type="checkbox" id="chk-urbano" checked> Urbano</label>
-    <label><input type="checkbox" id="chk-rural" checked> Rural</label>
-    <label><input type="checkbox" id="chk-rsh"> RSH</label>
-  </div>
-
-  <div class="uv-row" id="uv-row">
-    <label class="uv-label" for="sel-uv">Unidad Vecinal Comuna</label>
-    <select id="sel-uv" disabled style="opacity:.4;">
-      <option value="">— Seleccione una comuna primero —</option>
-    </select>
-    <button id="btn-clear-uv" class="uv-clear" title="Quitar selección UV" style="display:none;">✕</button>
-    <label class="uv-label" for="sel-rsh-indicador" id="rsh-inline-label" style="white-space:nowrap;opacity:.4;">
-      Información RSH
-      <button onclick="rsh_adminImport(event)" title="Importar datos RSH" style="display:block;margin-top:4px;background:none;border:1px solid var(--line);border-radius:4px;font-size:9px;padding:2px 6px;color:var(--muted);cursor:pointer;font-weight:400;letter-spacing:.03em;text-transform:uppercase;">
-        ⬆ Actualizar datos
-      </button>
-    </label>
-    <select id="sel-rsh-indicador" style="flex:1;min-width:180px;padding:8px 12px;font-size:13px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);opacity:.4;" disabled>
-      <option value="">— Seleccione una UV primero —</option>
-    </select>
+    <label><input type="checkbox" id="chk-urbano"> Urbano</label>
+    <label><input type="checkbox" id="chk-rural"> Rural</label>
+    <label><input type="checkbox" id="chk-rsh" checked> RSH</label>
   </div>
 
   <div class="breadcrumb" id="breadcrumb"></div>
@@ -782,20 +810,10 @@
   </div>
 
   <!-- SECCIÓN RSH -->
-  <div class="rsh-section" id="rsh-section" style="display:none;">
-    <div class="h2-with-info">
-      <h2>Registro Social de Hogares <span style="font-size:13px;font-weight:400;color:var(--muted);">(RSH)</span></h2>
-      <span class="info-icon info-icon-wide">i<span class="tooltip">
-        Datos del Registro Social de Hogares (RSH) del Ministerio de Desarrollo Social y Familia, disponibles a nivel de Unidad Vecinal.<br><br>
-        Fuente: BIDAT MDS · Los datos corresponden a la información del RSH del período indicado al pie de la página.<br><br>
-        <b>Nota:</b> El RSH no cubre a toda la población, solo a hogares inscritos que son potenciales beneficiarios de prestaciones sociales.
-      </span></span>
-    </div>
-    <p class="proj-sub" id="rsh-uv-label"></p>
-    <div id="rsh-result">
-      <div class="proj-empty">Selecciona una Unidad Vecinal para ver los datos del RSH.</div>
-    </div>
-  </div>
+  <!-- Elementos fantasma para compatibilidad JS -->
+  <div id="rsh-section" style="display:none;"></div>
+  <div id="rsh-uv-label" style="display:none;"></div>
+  <div id="rsh-result" style="display:none;"></div>
 
 </main>
 
@@ -1006,6 +1024,7 @@ async function updateMap(){
 
 function fmt(n){ return (n===null||n===undefined) ? "—" : Number(n).toLocaleString("es-CL"); }
 function fmtRate(n, decimals){ return n.toFixed(decimals).replace(".", ","); }
+function fmtPct(n){ return typeof n === "number" ? n.toFixed(1).replace(".",",")+"%" : (n||"").toString().replace(".",",")+"%"; }
 // También actualiza el hint de man-pob-base cuando se sincroniza automáticamente
 
 function resetSelect(sel, placeholder="Seleccione…"){
@@ -1099,17 +1118,19 @@ function donutSVG(hombres, mujeres){
 
 function dashboardHTML(row){
   const total = row.n_per || 0;
-  const hPct = total ? ((row.n_hombres/total)*100).toFixed(1) : "0.0";
-  const mPct = total ? ((row.n_mujeres/total)*100).toFixed(1) : "0.0";
+  const hPct = total ? fmtPct(row.n_hombres/total*100) : "0,0%";
+  const mPct = total ? fmtPct(row.n_mujeres/total*100) : "0,0%";
   const maxAge = Math.max(...AGE_GROUPS.map(a => row[a.key] || 0), 1);
 
   const bars = AGE_GROUPS.map(a => {
     const v = row[a.key] || 0;
-    const pct = (v/maxAge*100).toFixed(1);
+    const barPct = (v/maxAge*100).toFixed(1);
+    const totalPct = total ? fmtPct(v/total*100) : "0,0%";
     return `<div class="bar-row">
       <div class="label">${a.label}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${barPct}%"></div></div>
       <div class="num">${fmt(v)}</div>
+      <div class="pct">${totalPct}</div>
     </div>`;
   }).join("");
 
@@ -1129,8 +1150,8 @@ function dashboardHTML(row){
         <div class="sex-block">
           ${donutSVG(row.n_hombres, row.n_mujeres)}
           <div class="sex-legend">
-            <div><span class="swatch" style="background:var(--navy)"></span>Hombres: <b>${fmt(row.n_hombres)}</b> (${hPct}%)</div>
-            <div><span class="swatch" style="background:var(--blue)"></span>Mujeres: <b>${fmt(row.n_mujeres)}</b> (${mPct}%)</div>
+            <div><span class="swatch" style="background:var(--navy)"></span>Hombres: <b>${fmt(row.n_hombres)}</b> (${hPct})</div>
+            <div><span class="swatch" style="background:var(--blue)"></span>Mujeres: <b>${fmt(row.n_mujeres)}</b> (${mPct})</div>
           </div>
         </div>
       </div>
@@ -1711,10 +1732,11 @@ async function onRegionChange(){
   const cod_region = els.region.value;
   clearBelow("provincia");
 
+  // Resetear UV completamente al cambiar región
+  uv_resetAll();
 
   if(!cod_region){
     currentNavLevel = null;
-    uv_load(null);
     setEmpty("Selecciona al menos una región para comenzar la consulta.");
     updateBreadcrumb();
     await refresh();
@@ -1736,8 +1758,10 @@ async function onProvinciaChange(){
   const provincia = els.provincia.value;
   clearBelow("comuna");
 
+  // Resetear UV al cambiar provincia
+  uv_resetAll();
 
-  if(!provincia){ uv_load(null); await onRegionChange(); return; }
+  if(!provincia){ await onRegionChange(); return; }
 
   currentNavLevel = "provincia";
   await showAreaPanels("vw_provincia", "vw_provincia_area", `cod_region=eq.${cod_region}&provincia=eq.${encodeURIComponent(provincia)}`, `Provincia de ${provincia}`);
@@ -1756,7 +1780,7 @@ async function onComunaChange(){
   const cut_comuna = els.comuna.value;
   clearBelow("distrito");
 
-  if(!cut_comuna){ uv_load(null); await onProvinciaChange(); return; }
+  if(!cut_comuna){ uv_resetAll(); await onProvinciaChange(); return; }
 
   currentNavLevel = "comuna";
   const data = await sb("vw_comuna", `select=*&cut_comuna=eq.${cut_comuna}`);
@@ -1770,7 +1794,8 @@ async function onComunaChange(){
     d => `Dist.${d.cod_distrito}${d.distrito ? ' ' + d.distrito : ''}`
   );
 
-  // Cargar unidades vecinales de la comuna seleccionada
+  // Limpiar selección anterior y cargar UVs nuevas
+  uv_resetAll();
   uv_load(cut_comuna);
 
   updateBreadcrumb();
@@ -2155,10 +2180,8 @@ async function rsh_show(uvObjectId, uvNom, uvNum, cut_comuna){
   const lbl = document.getElementById("rsh-uv-label");
   if(lbl) lbl.textContent = `UV ${uvNum} — ${uvNom}`;
 
-  // Cargar indicadores disponibles para esta UV
   await rsh_loadIndicadores(cut_comuna, uvNum);
   sec.style.display = "";
-  await rsh_renderIndicador();
 
   // Refrescar panel inline si checkbox RSH está marcado
   if(document.getElementById("chk-rsh")?.checked) await renderRSHPanel();
@@ -2170,92 +2193,48 @@ function rsh_hide(){
   document.getElementById("rsh-section").style.display = "none";
   document.getElementById("rsh-result").innerHTML =
     '<div class="proj-empty">Selecciona una Unidad Vecinal para ver los datos del RSH.</div>';
-  const sel = document.getElementById("sel-rsh-indicador");
-  const lbl = document.getElementById("rsh-inline-label");
-  if(sel){
-    sel.innerHTML = '<option value="">— Seleccione una UV primero —</option>';
-    sel.disabled = true;
-    sel.style.opacity = "0.4";
-  }
-  if(lbl) lbl.style.opacity = "0.4";
+  const panel = document.getElementById("rsh-inline-panel");
+  if(panel) panel.style.display = "none";
 }
 
 async function rsh_loadIndicadores(cut_comuna, cod_uv){
-  const sel = document.getElementById("sel-rsh-indicador");
   const lbl = document.getElementById("rsh-inline-label");
-  sel.innerHTML = '<option value="">Cargando…</option>';
-  sel.disabled = true;
-  sel.style.display = "none";
-  lbl.style.display = "none";
-
   try {
-    // Traducir cod_uv del shapefile al cod_uv de BIDAT
     const codUvInt = parseInt(cod_uv);
     const equiv = await sb("uv_equivalencia",
       `select=cod_uv_bidat&cut_comuna=eq.${cut_comuna}&cod_uv_shapefile=eq.${codUvInt}&limit=1`
     );
-    if(!equiv || !equiv.length){
-      sel.innerHTML = '<option value="">Sin datos RSH para esta UV</option>';
-      sel.style.opacity = "0.4"; lbl.style.opacity = "0.4";
-      return;
-    }
-    const cod_uv_bidat = equiv[0].cod_uv_bidat;
-    rshCurrentUV.cod_uv_bidat = cod_uv_bidat;
-
-    // Verificar qué tablas tienen datos para esta UV
-    const [rPer, rHog] = await Promise.all([
-      sb("rsh_personas", `select=total&cut_comuna=eq.${cut_comuna}&cod_uv=eq.${cod_uv_bidat}&limit=1`),
-      sb("rsh_hogares",  `select=total&cut_comuna=eq.${cut_comuna}&cod_uv=eq.${cod_uv_bidat}&limit=1`),
-    ]);
-
-    const opciones = [];
-    if(rPer && rPer.length) opciones.push({value:"personas", label:"Personas con RSH"});
-    if(rHog && rHog.length) opciones.push({value:"hogares",  label:"Hogares con RSH"});
-
-    if(!opciones.length){
-      sel.innerHTML = '<option value="">Sin datos RSH para esta UV</option>';
-      sel.style.opacity = "0.4"; lbl.style.opacity = "0.4";
-      return;
-    }
-
-    sel.innerHTML = '<option value="">— Seleccione indicador —</option>';
-    opciones.forEach(o => {
-      const opt = document.createElement("option");
-      opt.value = o.value;
-      opt.textContent = o.label;
-      sel.appendChild(opt);
-    });
-    sel.disabled = false;
-    sel.style.opacity = "1";
-    lbl.style.opacity = "1";
-    forceRepaint(sel);
-
+    if(!equiv || !equiv.length){ if(lbl) lbl.style.opacity="0.4"; return; }
+    rshCurrentUV.cod_uv_bidat = equiv[0].cod_uv_bidat;
   } catch(e){
-    console.error("Error cargando indicadores RSH:", e);
-    sel.innerHTML = '<option value="">Error al cargar indicadores</option>';
-    sel.style.opacity = "0.4"; lbl.style.opacity = "0.4"; sel.innerHTML = '<option value="">Sin datos RSH para esta UV</option>';
+    console.error("Error RSH equiv:", e);
+    if(lbl) lbl.style.display = "none";
   }
 }
+
 
 // Helper: genera HTML de barras desde fila de rsh_personas/rsh_hogares
 function rshBarsHTML(r, tipo){
   const tramos = [
-    {key:"tramo_0_40",  lbl:"0% - 40%"},
-    {key:"tramo_41_50", lbl:"41% - 50%"},
-    {key:"tramo_51_60", lbl:"51% - 60%"},
-    {key:"tramo_61_70", lbl:"61% - 70%"},
-    {key:"tramo_71_80", lbl:"71% - 80%"},
-    {key:"tramo_81_90", lbl:"81% - 90%"},
-    {key:"tramo_91_100",lbl:"91% - 100%"},
+    {key:"tramo_0_40",  lbl:"0%-40%"},
+    {key:"tramo_41_50", lbl:"41%-50%"},
+    {key:"tramo_51_60", lbl:"51%-60%"},
+    {key:"tramo_61_70", lbl:"61%-70%"},
+    {key:"tramo_71_80", lbl:"71%-80%"},
+    {key:"tramo_81_90", lbl:"81%-90%"},
+    {key:"tramo_91_100",lbl:"91%-100%"},
   ].filter(t => r[t.key] != null);
   const maxV = Math.max(...tramos.map(t=>Number(r[t.key]||0)),1);
+  const sumTotal = tramos.reduce((a,t)=>a+Number(r[t.key]||0),0);
   return tramos.map(t => {
     const v = Number(r[t.key]||0);
-    const p = (v/maxV*100).toFixed(1);
+    const barPct = (v/maxV*100).toFixed(1);
+    const totalPct = sumTotal > 0 ? fmtPct(v/sumTotal*100) : "0,0%";
     return `<div class="bar-row">
       <div class="label">${t.lbl}</div>
-      <div class="bar-track"><div class="bar-fill" style="width:${p}%;background:var(--blue);"></div></div>
+      <div class="bar-track"><div class="bar-fill" style="width:${barPct}%;background:var(--blue);"></div></div>
       <div class="num">${v.toLocaleString("es-CL")}</div>
+      <div class="pct">${totalPct}</div>
     </div>`;
   }).join("");
 }
@@ -2286,7 +2265,7 @@ async function rsh_renderIndicador(){
     const totalVal = r.total != null ? Number(r.total) : null;
     const vcom = r.total_comuna != null ? Number(r.total_comuna) : null;
     const vreg = r.total_region != null ? Number(r.total_region) : null;
-    const pct = (totalVal != null && vcom != null && vcom > 0) ? (totalVal/vcom*100).toFixed(1) : null;
+    const pct = (totalVal != null && vcom != null && vcom > 0) ? fmtPct(totalVal/vcom*100) : null;
     const titulo = tipo === "personas" ? "Personas con RSH" : "Hogares con RSH";
 
     resultEl.innerHTML = `
@@ -2294,7 +2273,7 @@ async function rsh_renderIndicador(){
         <div class="rsh-card" style="border-top:3px solid #e6007e;">
           <div class="rsh-card-title">${titulo} en esta UV</div>
           <div class="rsh-card-value" style="color:#e6007e;">${totalVal != null ? totalVal.toLocaleString("es-CL") : "—"}</div>
-          ${pct ? `<div class="rsh-card-sub">${pct}% del total comunal</div>` : ""}
+          ${pct ? `<div class="rsh-card-sub">${pct} del total comunal</div>` : ""}
         </div>
         ${vcom != null ? `
         <div class="rsh-card">
@@ -2327,12 +2306,137 @@ async function rsh_renderIndicador(){
   }
 }
 
-document.getElementById("sel-rsh-indicador").addEventListener("change", rsh_renderIndicador);
+// RSH se activa automáticamente al seleccionar UV y al marcar checkbox
 rsh_loadMeta();
+// Mostrar panel RSH al cargar (checkbox marcado por defecto)
+renderRSHPanel();
 
 // =====================================================================
-// ADMIN: Importar datos RSH con contraseña
+// MÓDULO: Selección múltiple de Unidades Vecinales RSH
 // =====================================================================
+let selectedUVs = [];
+
+function uv_addSelected(){
+  const sel = document.getElementById("sel-uv");
+  const opt = sel.options[sel.selectedIndex];
+  if(!sel.value || !opt) return;
+
+  const id         = sel.value;
+  const cod_uv     = parseInt(opt.dataset.cod);
+  const nom_uv     = opt.dataset.nom;
+  const cut_comuna = parseInt(els.comuna.value);
+
+  if(selectedUVs.some(u => u.id === id)) return;
+  const color = UV_COLORS[uvColorIdx % UV_COLORS.length];
+  uvColorIdx++;
+  selectedUVs.push({ id, cod_uv, nom_uv, cut_comuna, cod_uv_bidat: rshCurrentUV?.cod_uv_bidat || null, color });
+
+  // Agregar polígono al mapa con color único
+  uv_addToMap(id, cod_uv, nom_uv, color);
+
+  uv_renderSelected();
+  uv_calcTotals();
+  if(document.getElementById("chk-rsh")?.checked) renderRSHPanel();
+}
+
+function uv_removeSelected(id){
+  selectedUVs = selectedUVs.filter(u => u.id !== id);
+  uv_removeFromMap(id);
+  uv_renderSelected();
+  uv_calcTotals();
+  if(document.getElementById("chk-rsh")?.checked) renderRSHPanel();
+}
+
+// Resetea TODO el estado UV: combo, selección, mapa, RSH
+function uv_resetAll(){
+  // Limpiar mapa
+  if(uvLayer){ map.removeLayer(uvLayer); uvLayer = null; }
+  uv_clearAllFromMap();
+  // Limpiar selección
+  selectedUVs = [];
+  uvColorIdx = 0;
+  // Resetear combo
+  const sel = document.getElementById("sel-uv");
+  if(sel){
+    sel.innerHTML = '<option value="">— Seleccione una comuna primero —</option>';
+    sel.disabled = true;
+    sel.style.opacity = ".4";
+  }
+  // Deshabilitar botón agregar
+  const addBtn = document.getElementById("add-uv");
+  if(addBtn) addBtn.disabled = true;
+  // Ocultar sección seleccionadas
+  uv_renderSelected();
+  // Ocultar panel RSH
+  rsh_hide();
+}
+
+function uv_clearSelected(){
+  selectedUVs = [];
+  uvColorIdx = 0;
+  uv_clearAllFromMap();
+  if(uvLayer){ map.removeLayer(uvLayer); uvLayer = null; }
+  uv_renderSelected();
+  document.getElementById("add-uv").disabled = true;
+  rsh_hide();
+}
+
+function uv_renderSelected(){
+  const box  = document.getElementById("selected-uvs");
+  const list = document.getElementById("uv-list");
+  const totDiv = document.getElementById("uv-rsh-totals");
+  if(!selectedUVs.length){
+    box.style.display = "none";
+    totDiv.style.display = "none";
+    return;
+  }
+  box.style.display = "";
+  list.innerHTML = selectedUVs.map(u => `
+    <span class="sa-chip" style="background:${u.color}18;border-color:${u.color};color:var(--navy);">
+      <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${u.color||'#e6007e'};"></span>
+      UV ${u.cod_uv} — ${u.nom_uv}
+      <button onclick="uv_removeSelected('${u.id}')" style="background:${u.color||'#e6007e'};color:#fff;border:none;border-radius:50%;width:18px;height:18px;line-height:18px;text-align:center;font-size:12px;cursor:pointer;padding:0;">×</button>
+    </span>`).join("");
+}
+
+async function uv_calcTotals(){
+  const totDiv = document.getElementById("uv-rsh-totals");
+  if(!selectedUVs.length){ totDiv.style.display = "none"; return; }
+
+  totDiv.style.display = "flex";
+  totDiv.innerHTML = '<span style="font-size:12px;color:var(--muted);">Calculando totales RSH…</span>';
+
+  let totalPersonas = 0, totalHogares = 0, hasPer = false, hasHog = false;
+
+  await Promise.all(selectedUVs.map(async u => {
+    let bidat = u.cod_uv_bidat;
+    if(!bidat){
+      const eq = await sb("uv_equivalencia",
+        `select=cod_uv_bidat&cut_comuna=eq.${u.cut_comuna}&cod_uv_shapefile=eq.${u.cod_uv}&limit=1`);
+      bidat = eq?.[0]?.cod_uv_bidat || null;
+      u.cod_uv_bidat = bidat;
+    }
+    if(!bidat) return;
+
+    const [rPer, rHog] = await Promise.all([
+      sb("rsh_personas", `select=total&cut_comuna=eq.${u.cut_comuna}&cod_uv=eq.${bidat}&limit=1`),
+      sb("rsh_hogares",  `select=total&cut_comuna=eq.${u.cut_comuna}&cod_uv=eq.${bidat}&limit=1`),
+    ]);
+    if(rPer?.[0]?.total != null){ totalPersonas += Number(rPer[0].total); hasPer = true; }
+    if(rHog?.[0]?.total != null){ totalHogares  += Number(rHog[0].total); hasHog = true; }
+  }));
+
+  let html = "";
+  if(hasPer) html += `<div class="uv-total-card"><div class="utc-lbl">Personas con RSH</div><div class="utc-val">${totalPersonas.toLocaleString("es-CL")}</div></div>`;
+  if(hasHog) html += `<div class="uv-total-card"><div class="utc-lbl">Hogares con RSH</div><div class="utc-val">${totalHogares.toLocaleString("es-CL")}</div></div>`;
+  if(!html)  html  = '<span style="font-size:12px;color:var(--muted);">Sin datos RSH para las UVs seleccionadas.</span>';
+  totDiv.innerHTML = html;
+}
+
+document.getElementById("add-uv").addEventListener("click", () => {
+  if(rshCurrentUV) uv_addSelected();
+});
+document.getElementById("clear-uvs").addEventListener("click", uv_clearSelected);
 async function sha256(msg){
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(msg));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
@@ -2404,7 +2508,11 @@ async function renderRSHPanel(){
   const chk = document.getElementById("chk-rsh");
   if(!chk?.checked){ panel.style.display = "none"; return; }
 
-  if(!rshCurrentUV || !rshCurrentUV.cod_uv_bidat){
+  const uvsAMostrar = selectedUVs.length > 0
+    ? selectedUVs
+    : (rshCurrentUV?.cod_uv_bidat ? [{ ...rshCurrentUV, cod_uv: rshCurrentUV.num, nom_uv: rshCurrentUV.nom }] : []);
+
+  if(!uvsAMostrar.length){
     panel.innerHTML = `<div class="panels single"><div>
       <div class="panel-title">RSH — Registro Social de Hogares</div>
       <div class="card span2"><p style="font-size:13px;color:var(--muted);padding:8px 0;">Selecciona una <strong>Unidad Vecinal</strong> para ver los datos RSH.</p></div>
@@ -2414,54 +2522,113 @@ async function renderRSHPanel(){
   }
 
   panel.innerHTML = `<div class="panels single"><div>
-    <div class="panel-title" style="border-color:#e6007e;">RSH — UV ${rshCurrentUV.num} ${rshCurrentUV.nom}</div>
+    <div class="panel-title" style="border-color:#e6007e;">RSH — Cargando…</div>
     <div class="card span2"><p style="font-size:13px;color:var(--muted);padding:8px 0;">Cargando datos RSH…</p></div>
   </div></div>`;
   panel.style.display = "";
 
   try {
-    const cut = rshCurrentUV.cut_comuna;
-    const uv  = rshCurrentUV.cod_uv_bidat;
+    let totalPersonas = 0, totalHogares = 0;
+    let hasPer = false, hasHog = false;
+    let periodoGlobal = "";
+    let vcomPer = null, vcomHog = null;
 
-    const [rPer, rHog] = await Promise.all([
-      sb("rsh_personas", `select=*&cut_comuna=eq.${cut}&cod_uv=eq.${uv}&limit=1`),
-      sb("rsh_hogares",  `select=*&cut_comuna=eq.${cut}&cod_uv=eq.${uv}&limit=1`),
-    ]);
+    // Acumuladores por tramo para las barras sumadas
+    const tramosKeys = ["tramo_0_40","tramo_41_50","tramo_51_60","tramo_61_70","tramo_71_80","tramo_81_90","tramo_91_100"];
+    const sumaTramosPer = Object.fromEntries(tramosKeys.map(k=>[k,0]));
+    const sumaTramoHog  = Object.fromEntries(tramosKeys.map(k=>[k,0]));
 
-    if((!rPer||!rPer.length) && (!rHog||!rHog.length)){
+    for(const u of uvsAMostrar){
+      const bidat = u.cod_uv_bidat;
+      if(!bidat) continue;
+      const [rPer, rHog] = await Promise.all([
+        sb("rsh_personas", `select=*&cut_comuna=eq.${u.cut_comuna}&cod_uv=eq.${bidat}&limit=1`),
+        sb("rsh_hogares",  `select=*&cut_comuna=eq.${u.cut_comuna}&cod_uv=eq.${bidat}&limit=1`),
+      ]);
+      if(!periodoGlobal) periodoGlobal = (rPer?.[0]||rHog?.[0])?.periodo || "";
+      if(rPer?.[0]){
+        hasPer = true;
+        totalPersonas += Number(rPer[0].total||0);
+        if(!vcomPer) vcomPer = rPer[0].total_comuna;
+        tramosKeys.forEach(k=>{ sumaTramosPer[k] += Number(rPer[0][k]||0); });
+      }
+      if(rHog?.[0]){
+        hasHog = true;
+        totalHogares += Number(rHog[0].total||0);
+        if(!vcomHog) vcomHog = rHog[0].total_comuna;
+        tramosKeys.forEach(k=>{ sumaTramoHog[k]  += Number(rHog[0][k]||0); });
+      }
+    }
+
+    if(!hasPer && !hasHog){
       panel.innerHTML = `<div class="panels single"><div>
-        <div class="panel-title" style="border-color:#e6007e;">RSH — UV ${rshCurrentUV.num} ${rshCurrentUV.nom}</div>
-        <div class="card span2"><p style="font-size:13px;color:var(--muted);padding:8px 0;">Sin datos RSH para esta UV.</p></div>
+        <div class="panel-title" style="border-color:#e6007e;">RSH</div>
+        <div class="card span2"><p style="font-size:13px;color:var(--muted);padding:8px 0;">Sin datos RSH para las UVs seleccionadas.</p></div>
       </div></div>`;
       return;
     }
 
-    const periodo = (rPer?.[0] || rHog?.[0])?.periodo || "";
-    let cardsHTML = "";
+    // Título con nombres de UVs
+    const uvNombres = uvsAMostrar.map(u =>
+      `<span style="display:inline-flex;align-items:center;gap:4px;">${u.color ? `<span style="width:8px;height:8px;border-radius:50%;background:${u.color};display:inline-block;"></span>` : ""}UV ${u.cod_uv}</span>`
+    ).join(" · ");
 
-    const makeCard = (r, titulo) => {
-      if(!r) return "";
-      const total = r.total != null ? Number(r.total) : null;
-      const vcom  = r.total_comuna != null ? Number(r.total_comuna) : null;
-      const pct   = (total != null && vcom != null && vcom > 0) ? (total/vcom*100).toFixed(1) : null;
-      return `
-        <div class="card pink" style="align-self:start;">
-          <div class="ctitle">${titulo} · Total</div>
-          <div class="cvalue">${total != null ? total.toLocaleString("es-CL") : "—"}</div>
-          ${pct ? `<div style="font-size:11px;opacity:.8;margin-top:4px;">${pct}% del total comunal</div>` : ""}
-        </div>
-        <div class="card span2" style="border-top:3px solid var(--blue);">
-          <div class="ctitle">Distribución por tramo CSE</div>
-          <div class="bars">${rshBarsHTML(r, titulo)}</div>
+    // Función para generar barras desde objeto de tramos sumados
+    const makeSumaBars = (sumaTramos) => {
+      const tramosLbl = [
+        {k:"tramo_0_40",  l:"0%-40%"},
+        {k:"tramo_41_50", l:"41%-50%"},
+        {k:"tramo_51_60", l:"51%-60%"},
+        {k:"tramo_61_70", l:"61%-70%"},
+        {k:"tramo_71_80", l:"71%-80%"},
+        {k:"tramo_81_90", l:"81%-90%"},
+        {k:"tramo_91_100",l:"91%-100%"},
+      ].filter(t => sumaTramos[t.k] > 0);
+      const maxV = Math.max(...tramosLbl.map(t=>sumaTramos[t.k]), 1);
+      const sumTotal = tramosLbl.reduce((a,t)=>a+sumaTramos[t.k],0);
+      return tramosLbl.map(t => {
+        const v = sumaTramos[t.k];
+        const barPct = (v/maxV*100).toFixed(1);
+        const totalPct = sumTotal > 0 ? fmtPct(v/sumTotal*100) : "0,0%";
+        return `<div class="bar-row">
+          <div class="label">${t.l}</div>
+          <div class="bar-track"><div class="bar-fill" style="width:${barPct}%;background:var(--blue);"></div></div>
+          <div class="num">${v.toLocaleString("es-CL")}</div>
+          <div class="pct">${totalPct}</div>
         </div>`;
+      }).join("");
     };
 
-    if(rPer && rPer.length) cardsHTML += makeCard(rPer[0], "Personas con RSH");
-    if(rHog && rHog.length) cardsHTML += makeCard(rHog[0], "Hogares con RSH");
+    const pctPer = (vcomPer && vcomPer > 0) ? fmtPct(totalPersonas/vcomPer*100) : null;
+    const pctHog = (vcomHog && vcomHog > 0) ? fmtPct(totalHogares/vcomHog*100) : null;
+
+    let cardsHTML = "";
+    cardsHTML += `<div class="dash-grid" style="margin-bottom:0;">`;
+    if(hasPer) cardsHTML += `
+      <div class="card pink" style="align-self:start;">
+        <div class="ctitle">Personas con RSH · Total</div>
+        <div class="cvalue">${totalPersonas.toLocaleString("es-CL")}</div>
+        ${pctPer ? `<div style="font-size:11px;opacity:.8;margin-top:4px;">${pctPer} del total comunal</div>` : ""}
+      </div>`;
+    if(hasHog) cardsHTML += `
+      <div class="card navy" style="align-self:start;">
+        <div class="ctitle">Hogares con RSH · Total</div>
+        <div class="cvalue">${totalHogares.toLocaleString("es-CL")}</div>
+        ${pctHog ? `<div style="font-size:11px;opacity:.8;margin-top:4px;">${pctHog} del total comunal</div>` : ""}
+      </div>`;
+    cardsHTML += `</div>`;
+    if(hasPer) cardsHTML += `
+      <div class="card span2" style="border-top:3px solid var(--blue);margin-top:12px;">
+        <div class="ctitle">Distribución por tramo CSE · Personas</div>
+        <div class="bars">${makeSumaBars(sumaTramosPer)}</div>
+      </div>`;
 
     panel.innerHTML = `<div class="panels single"><div>
-      <div class="panel-title" style="border-color:#e6007e;">RSH — UV ${rshCurrentUV.num} ${rshCurrentUV.nom} <span style="font-weight:400;font-size:12px;opacity:.7;">· Período ${periodo}</span></div>
-      <div class="dash-grid">${cardsHTML}</div>
+      <div class="panel-title" style="border-color:#e6007e;">
+        RSH · ${uvNombres}
+        <span style="font-weight:400;font-size:12px;opacity:.7;"> · Período ${periodoGlobal}</span>
+      </div>
+      ${cardsHTML}
       <p style="font-size:11px;color:var(--muted);margin-top:8px;font-style:italic;padding:0 2px;">Fuente: Registro Social de Hogares · BIDAT, Ministerio de Desarrollo Social y Familia</p>
     </div></div>`;
 
@@ -2510,7 +2677,13 @@ document.getElementById("man-anio-base").addEventListener("input", function(){
 // =====================================================================
 // UNIDADES VECINALES (desde Supabase)
 // =====================================================================
-let uvLayer = null;
+let uvLayer = null;   // capa de la UV actualmente seleccionada en el combo
+let uvLayersMap = {}; // { id: leafletLayer } — todas las UVs agregadas
+const UV_COLORS = [
+  "#e6007e","#0ea5e9","#f97316","#8b5cf6","#22c55e",
+  "#eab308","#ec4899","#06b6d4","#f43f5e","#10b981"
+];
+let uvColorIdx = 0;
 
 async function uv_load(cut_comuna){
   const sel = document.getElementById("sel-uv");
@@ -2558,27 +2731,18 @@ async function uv_load(cut_comuna){
 }
 
 async function uv_select(id){
-  const clearBtn = document.getElementById("btn-clear-uv");
   if(uvLayer){ map.removeLayer(uvLayer); uvLayer = null; }
-  if(!id){ clearBtn.style.display = "none"; rsh_hide(); return; }
+  if(!id){ rsh_hide(); return; }
 
-  clearBtn.style.display = "";
-
-  // Obtener geometría desde Supabase usando PostGIS
   try {
     const opt = document.querySelector(`#sel-uv option[value="${id}"]`);
-    const cod_uv = opt?.dataset?.cod;
-    const nom_uv = opt?.dataset?.nom || "";
+    const cod_uv    = opt?.dataset?.cod;
+    const nom_uv    = opt?.dataset?.nom || "";
     const cut_comuna = els.comuna.value;
 
-    // Consultar geometría como GeoJSON via RPC
     const rpcRes = await fetch(`https://dsrvxgpdxzjcpqtopfrk.supabase.co/rest/v1/rpc/get_uv_geojson`, {
       method: "POST",
-      headers: {
-        "apikey": SUPABASE_KEY,
-        "Authorization": `Bearer ${SUPABASE_KEY}`,
-        "Content-Type": "application/json"
-      },
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({ uv_id: parseInt(id) })
     });
 
@@ -2588,22 +2752,55 @@ async function uv_select(id){
         uvLayer = L.geoJSON(geojson, {
           style:{ color:"#0f766e", weight:2.5, fillColor:"#0f766e", fillOpacity:0.12, dashArray:"6,4" }
         }).addTo(map);
-        uvLayer.bindPopup(`<b>UV ${cod_uv} — ${nom_uv}</b>`).openPopup();
         map.fitBounds(uvLayer.getBounds(), {maxZoom:14, padding:[20,20]});
       }
     }
 
     await rsh_show(id, nom_uv, parseInt(cod_uv), parseInt(cut_comuna));
+    document.getElementById("add-uv").disabled = false;
 
   } catch(e){
     console.warn("Error cargando geometría UV:", e);
   }
 }
 
+// Agrega la UV al mapa de forma permanente (hasta cambio de comuna)
+async function uv_addToMap(id, cod_uv, nom_uv, color){
+  if(uvLayersMap[id]) return;
+  const c = color || "#e6007e";
+  try {
+    const rpcRes = await fetch(`https://dsrvxgpdxzjcpqtopfrk.supabase.co/rest/v1/rpc/get_uv_geojson`, {
+      method: "POST",
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ uv_id: parseInt(id) })
+    });
+    if(rpcRes.ok){
+      const geojson = await rpcRes.json();
+      if(geojson && geojson.type){
+        const layer = L.geoJSON(geojson, {
+          style:{ color: c, weight:2.5, fillColor: c, fillOpacity:0.18, dashArray:"6,4" }
+        }).addTo(map);
+        uvLayersMap[id] = layer;
+      }
+    }
+  } catch(e){ console.warn("Error agregando UV al mapa:", e); }
+}
+
+// Quita una UV del mapa
+function uv_removeFromMap(id){
+  if(uvLayersMap[id]){ map.removeLayer(uvLayersMap[id]); delete uvLayersMap[id]; }
+}
+
+// Limpia todas las UVs del mapa
+function uv_clearAllFromMap(){
+  Object.keys(uvLayersMap).forEach(id => {
+    if(uvLayersMap[id]) map.removeLayer(uvLayersMap[id]);
+  });
+  uvLayersMap = {};
+}
+
 function uv_clear(resetCombo = true){
   if(uvLayer){ map.removeLayer(uvLayer); uvLayer = null; }
-  const clearBtn = document.getElementById("btn-clear-uv");
-  if(clearBtn) clearBtn.style.display = "none";
   if(resetCombo){
     const sel = document.getElementById("sel-uv");
     if(sel) sel.value = "";
