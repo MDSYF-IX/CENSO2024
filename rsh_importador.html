@@ -52,12 +52,10 @@
   <!-- Contenido principal -->
   <div id="main-content">
 
-    <div class="card">
-      <h2>Configuración Supabase</h2>
-      <label>URL</label>
-      <input type="text" id="inp-url" value="https://dsrvxgpdxzjcpqtopfrk.supabase.co/rest/v1">
-      <label>API Key (anon key)</label>
-      <input type="text" id="inp-key" placeholder="eyJ...">
+    <div class="card" id="card-conexion">
+      <h2>Conexión Supabase</h2>
+      <p id="conexion-ok" style="font-size:13px;color:#16a34a;display:none;">✅ Conectado a Supabase correctamente.</p>
+      <p id="conexion-err" style="font-size:13px;color:#c0392b;display:none;">⚠️ No se pudo obtener la clave de acceso. Abre esta página desde el botón en la aplicación principal.</p>
     </div>
 
     <div class="card">
@@ -163,10 +161,10 @@ function handleFile(file){
 
 // ── Importar ─────────────────────────────────────────────
 async function importar(){
-  const sbUrl = document.getElementById("inp-url").value.trim();
-  const sbKey = document.getElementById("inp-key").value.trim();
+  const sbUrl = window._sbUrl;
+  const sbKey = window._sbKey;
   const periodo = document.getElementById("sel-periodo").value;
-  if(!sbUrl||!sbKey){alert("Completa la URL y API Key de Supabase.");return;}
+  if(!sbUrl||!sbKey){alert("Sin acceso a Supabase. Abre esta página desde el botón en la aplicación principal.");return;}
   if(!archivoCSV){alert("Selecciona un archivo CSV.");return;}
   if(!periodo){alert("Selecciona el período.");return;}
 
