@@ -2161,19 +2161,30 @@ async function rsh_loadIndicadores(cut_comuna, cod_uv){
   lbl.style.display = "none";
 
   try {
+    // Traducir cod_uv del shapefile al cod_uv de BIDAT via tabla de equivalencia
+    const codUvInt = parseInt(cod_uv);
+    const equiv = await sb("uv_equivalencia",
+      `select=cod_uv_bidat&cut_comuna=eq.${cut_comuna}&cod_uv_shapefile=eq.${codUvInt}&limit=1`
+    );
+    if(!equiv || !equiv.length){
+      sel.innerHTML = '<option value="">Sin datos RSH para esta UV</option>';
+      sel.style.display = ""; lbl.style.display = "";
+      return;
+    }
+    const cod_uv_bidat = equiv[0].cod_uv_bidat;
+    rshCurrentUV.cod_uv_bidat = cod_uv_bidat;
+
     const rows = await sb("rsh_indicadores",
-      `select=indicador,nombre_archivo,periodo&cut_comuna=eq.${cut_comuna}&cod_uv=eq.${cod_uv}&order=nombre_archivo,indicador`
+      `select=indicador,nombre_archivo,periodo&cut_comuna=eq.${cut_comuna}&cod_uv=eq.${cod_uv_bidat}&order=nombre_archivo,indicador`
     );
 
     if(!rows || !rows.length){
       sel.innerHTML = '<option value="">Sin datos RSH para esta UV</option>';
-      sel.style.display = "";
-      lbl.style.display = "";
+      sel.style.display = ""; lbl.style.display = "";
       return;
     }
 
     rshIndicadoresDisponibles = rows;
-
     const grupos = {};
     rows.forEach(r => {
       if(!grupos[r.nombre_archivo]) grupos[r.nombre_archivo] = [];
@@ -2194,15 +2205,13 @@ async function rsh_loadIndicadores(cut_comuna, cod_uv){
       sel.appendChild(grp);
     });
     sel.disabled = false;
-    sel.style.display = "";
-    lbl.style.display = "";
+    sel.style.display = ""; lbl.style.display = "";
     forceRepaint(sel);
 
   } catch(e){
     console.error("Error cargando indicadores RSH:", e);
     sel.innerHTML = '<option value="">Error al cargar indicadores</option>';
-    sel.style.display = "";
-    lbl.style.display = "";
+    sel.style.display = ""; lbl.style.display = "";
   }
 }
 
@@ -2216,11 +2225,12 @@ async function rsh_renderIndicador(){
   }
 
   const [nombre_archivo, indicador] = val.split("||");
+  const cod_uv_bidat = rshCurrentUV.cod_uv_bidat;
   resultEl.innerHTML = '<div class="proj-empty">Cargando…</div>';
 
   try {
     const rows = await sb("rsh_indicadores",
-      `select=*&cut_comuna=eq.${rshCurrentUV.cut_comuna}&cod_uv=eq.${rshCurrentUV.num}&nombre_archivo=eq.${encodeURIComponent(nombre_archivo)}&indicador=eq.${encodeURIComponent(indicador)}&order=periodo.desc&limit=1`
+      `select=*&cut_comuna=eq.${rshCurrentUV.cut_comuna}&cod_uv=eq.${cod_uv_bidat}&nombre_archivo=eq.${encodeURIComponent(nombre_archivo)}&indicador=eq.${encodeURIComponent(indicador)}&order=periodo.desc&limit=1`
     );
 
     if(!rows || !rows.length){
@@ -2232,10 +2242,7 @@ async function rsh_renderIndicador(){
     const vuv = r.valor_uv != null ? Number(r.valor_uv) : null;
     const vcom = r.valor_comuna != null ? Number(r.valor_comuna) : null;
     const vreg = r.valor_region != null ? Number(r.valor_region) : null;
-
-    // Calcular % UV vs comuna
-    const pct = (vuv != null && vcom != null && vcom > 0)
-      ? (vuv/vcom*100).toFixed(1) : null;
+    const pct = (vuv != null && vcom != null && vcom > 0) ? (vuv/vcom*100).toFixed(1) : null;
 
     resultEl.innerHTML = `
       <div class="rsh-kpi-grid">
@@ -2248,13 +2255,13 @@ async function rsh_renderIndicador(){
         <div class="rsh-card">
           <div class="rsh-card-title">En la comuna</div>
           <div class="rsh-card-value">${vcom.toLocaleString("es-CL")}</div>
-          <div class="rsh-card-sub">${r.comuna}</div>
+          <div class="rsh-card-sub">${r.comuna || ""}</div>
         </div>` : ""}
         ${vreg != null ? `
         <div class="rsh-card">
           <div class="rsh-card-title">En la región</div>
           <div class="rsh-card-value">${vreg.toLocaleString("es-CL")}</div>
-          <div class="rsh-card-sub">${r.region}</div>
+          <div class="rsh-card-sub">${r.region || ""}</div>
         </div>` : ""}
       </div>
       ${vcom != null && vuv != null && vcom > 0 ? `
@@ -2266,9 +2273,7 @@ async function rsh_renderIndicador(){
         <div style="font-size:11px;color:var(--muted);margin-top:4px;">${pct}% de ${vcom.toLocaleString("es-CL")}</div>
       </div>` : ""}
       <p class="rsh-note">
-        Indicador: <b>${indicador}</b> · 
-        Fuente: ${nombre_archivo.replace(/_/g," ")} · 
-        Período: ${r.periodo}
+        Indicador: <b>${indicador}</b> · Período: ${r.periodo}
       </p>
     `;
   } catch(e){
@@ -2276,6 +2281,7 @@ async function rsh_renderIndicador(){
     resultEl.innerHTML = '<div class="proj-empty">Error al cargar datos RSH.</div>';
   }
 }
+
 
 document.getElementById("sel-rsh-indicador").addEventListener("change", rsh_renderIndicador);
 rsh_loadMeta();
@@ -2397,7 +2403,7 @@ async function uv_select(id){
       }
     }
 
-    await rsh_show(id, nom_uv, cod_uv, cut_comuna);
+    await rsh_show(id, nom_uv, parseInt(cod_uv), parseInt(cut_comuna));
 
   } catch(e){
     console.warn("Error cargando geometría UV:", e);
