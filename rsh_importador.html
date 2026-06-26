@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Importar RSH → Supabase · MDS Araucanía</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f4f8;color:#1e293b;min-height:100vh;}
+  header{background:#1e3a5f;color:#fff;padding:18px 32px;}
+  header h1{font-size:16px;font-weight:700;}
+  header p{font-size:12px;opacity:.6;margin-top:2px;}
+  main{max-width:780px;margin:32px auto;padding:0 24px;}
+  .card{background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:24px 28px;margin-bottom:20px;}
+  .card h2{font-size:13px;font-weight:700;color:#1e3a5f;text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #e2e8f0;}
+  label{display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:5px;}
+  input[type=text],input[type=password]{width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:7px;color:#1e293b;margin-bottom:14px;}
+  input:focus{outline:none;border-color:#1e3a5f;}
+  .tabs{display:flex;gap:10px;margin-bottom:20px;}
+  .tab{flex:1;padding:12px;border:2px solid #e2e8f0;border-radius:8px;cursor:pointer;text-align:center;font-size:13px;font-weight:600;color:#64748b;background:#fff;transition:all .15s;}
+  .tab.active{border-color:#1e3a5f;background:#1e3a5f;color:#fff;}
+  .drop-zone{border:2px dashed #94a3b8;border-radius:10px;padding:36px 24px;text-align:center;cursor:pointer;transition:all .2s;background:#f8fafc;}
+  .drop-zone:hover,.drop-zone.drag-over{border-color:#1e3a5f;background:#eff6ff;}
+  .drop-zone.has-file{border-color:#22c55e;background:#f0fdf4;}
+  .drop-icon{font-size:32px;margin-bottom:8px;}
+  .drop-label{font-size:14px;font-weight:600;color:#475569;}
+  .drop-sub{font-size:12px;color:#94a3b8;margin-top:4px;}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;font-size:14px;font-weight:600;border:none;border-radius:8px;cursor:pointer;transition:all .15s;}
+  .btn-primary{background:#1e3a5f;color:#fff;}
+  .btn-primary:disabled{background:#94a3b8;cursor:not-allowed;}
+  .bar-wrap{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin:6px 0 4px;}
+  .bar-fill{height:100%;background:#1e3a5f;border-radius:4px;transition:width .3s;}
+  .progress{display:none;margin-top:16px;}
+  .ptext{font-size:12px;color:#64748b;}
+  .result{display:none;margin-top:14px;padding:14px 16px;border-radius:8px;font-size:13px;line-height:1.6;}
+  .result.ok{background:#f0fdf4;border:1px solid #86efac;color:#15803d;}
+  .result.err{background:#fef2f2;border:1px solid #fca5a5;color:#b91c1c;}
+  .meta-row{display:flex;gap:12px;align-items:flex-end;margin-top:12px;}
+  .meta-row>div{flex:1;}
+  code{background:#f1f5f9;padding:2px 6px;border-radius:4px;font-size:12px;}
+  .pwd-section{display:none;}
+  .pwd-section.visible{display:block;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Importar RSH → Supabase</h1>
+  <p>Araucanía · Herramientas de Formulación · SNI</p>
+</header>
+<main>
+
+  <!-- Contraseña -->
+  <div class="card" id="card-pwd">
+    <h2>Acceso de administrador</h2>
+    <label>Contraseña</label>
+    <input type="password" id="inp-pwd" placeholder="Contraseña de administrador">
+    <button class="btn btn-primary" onclick="verificarPwd()">Ingresar</button>
+    <p id="pwd-error" style="font-size:12px;color:#c0392b;margin-top:8px;display:none;">Contraseña incorrecta.</p>
+  </div>
+
+  <!-- Contenido principal (oculto hasta autenticación) -->
+  <div id="main-content" style="display:none;">
+
+    <div class="card">
+      <h2>Configuración Supabase</h2>
+      <label>URL</label>
+      <input type="text" id="inp-url" value="https://dsrvxgpdxzjcpqtopfrk.supabase.co/rest/v1">
+      <label>API Key (anon key)</label>
+      <input type="text" id="inp-key" placeholder="eyJ...">
+    </div>
+
+    <div class="card">
+      <h2>Seleccionar tipo de indicador</h2>
+      <div class="tabs">
+        <button class="tab active" id="tab-personas" onclick="setTab('personas')">👤 Personas con RSH</button>
+        <button class="tab" id="tab-hogares" onclick="setTab('hogares')">🏠 Hogares con RSH</button>
+      </div>
+      <p style="font-size:12px;color:#64748b;">
+        Al importar se <strong>borrarán todos los datos anteriores</strong> de la tabla seleccionada y se reemplazarán con los nuevos.
+      </p>
+    </div>
+
+    <div class="card">
+      <h2>Seleccionar archivo CSV de BIDAT</h2>
+      <div class="drop-zone" id="dz" onclick="document.getElementById('fi').click()">
+        <div class="drop-icon">📂</div>
+        <div class="drop-label" id="dz-label">Arrastra el CSV aquí o haz clic para seleccionar</div>
+        <div class="drop-sub">Archivo descargado directamente de BIDAT</div>
+      </div>
+      <input type="file" id="fi" accept=".csv,.txt" style="display:none;">
+      <div class="meta-row" id="meta-row" style="display:none;">
+        <div>
+          <label>Período detectado</label>
+          <select id="sel-periodo" style="width:100%;padding:9px 12px;font-size:13px;border:1.5px solid #e2e8f0;border-radius:7px;"></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Importar</h2>
+      <button class="btn btn-primary" id="btn-import" disabled onclick="importar()">
+        🚀 Procesar e importar a Supabase
+      </button>
+      <div class="progress" id="prog">
+        <div class="bar-wrap"><div class="bar-fill" id="bar" style="width:0%"></div></div>
+        <div class="ptext" id="ptext">Procesando…</div>
+      </div>
+      <div class="result" id="result"></div>
+    </div>
+
+  </div>
+</main>
+<script>
+// ── Config ──────────────────────────────────────────────
+const SUPABASE_URL_DEFAULT = "https://dsrvxgpdxzjcpqtopfrk.supabase.co/rest/v1";
+let currentTab = "personas";
+let archivoCSV = null;
+
+// ── Contraseña ───────────────────────────────────────────
+async function sha256(msg){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+async function verificarPwd(){
+  const pwd = document.getElementById("inp-pwd").value;
+  const hash = await sha256(pwd);
+  // Verificar contra Supabase
+  const url = document.getElementById("inp-url")?.value || SUPABASE_URL_DEFAULT;
+  const key = document.getElementById("inp-key")?.value || "";
+  // Por ahora verificamos contra rsh_config
+  try {
+    const res = await fetch(`${SUPABASE_URL_DEFAULT}/rsh_config?clave=eq.admin_hash&select=valor`, {
+      headers:{"apikey": key || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", "Authorization": `Bearer ${key || ""}`}
+    });
+    const data = await res.json();
+    if(data && data[0]?.valor === hash){
+      document.getElementById("card-pwd").style.display = "none";
+      document.getElementById("main-content").style.display = "";
+      document.getElementById("inp-key").focus();
+    } else {
+      document.getElementById("pwd-error").style.display = "";
+      document.getElementById("inp-pwd").value = "";
+    }
+  } catch(e){
+    // Si no puede verificar, usar hash hardcodeado temporal
+    document.getElementById("pwd-error").style.display = "";
+  }
+}
+document.getElementById("inp-pwd").addEventListener("keydown", e => { if(e.key==="Enter") verificarPwd(); });
+
+// ── Tabs ─────────────────────────────────────────────────
+function setTab(t){
+  currentTab = t;
+  document.getElementById("tab-personas").classList.toggle("active", t==="personas");
+  document.getElementById("tab-hogares").classList.toggle("active", t==="hogares");
+}
+
+// ── Drag & Drop ──────────────────────────────────────────
+const dz = document.getElementById("dz");
+dz.addEventListener("dragover", e=>{e.preventDefault();dz.classList.add("drag-over");});
+dz.addEventListener("dragleave", ()=>dz.classList.remove("drag-over"));
+dz.addEventListener("drop", e=>{e.preventDefault();dz.classList.remove("drag-over");handleFile(e.dataTransfer.files[0]);});
+document.getElementById("fi").addEventListener("change", e=>handleFile(e.target.files[0]));
+
+function handleFile(file){
+  if(!file) return;
+  archivoCSV = file;
+  document.getElementById("dz-label").textContent = `⏳ Leyendo ${file.name}…`;
+  const reader = new FileReader();
+  reader.onload = e => {
+    let txt;
+    const buf = e.target.result;
+    let t8 = new TextDecoder("utf-8").decode(buf);
+    txt = t8.includes("\uFFFD") ? new TextDecoder("windows-1252").decode(buf) : t8;
+
+    const lines = txt.split("\n").slice(0,500);
+    const sep = lines[0].includes("\t") ? "\t" : ";";
+    const headers = lines[0].split(sep).map(h=>h.trim().replace(/^"|"$/g,"").toLowerCase());
+    const periIdx = headers.findIndex(h=>h==="periodo");
+    const periodos = new Set();
+    for(let i=1;i<lines.length;i++){
+      const cols = lines[i].split(sep);
+      if(cols[periIdx]) periodos.add(cols[periIdx].trim());
+    }
+    const sel = document.getElementById("sel-periodo");
+    sel.innerHTML = "";
+    [...periodos].sort().reverse().forEach(p=>{
+      const opt = document.createElement("option");
+      opt.value = p;
+      const a = p.substring(0,4), m = parseInt(p.substring(4,6)||0);
+      const ms = ["","Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+      opt.textContent = `${p} (${ms[m]||""} ${a})`;
+      sel.appendChild(opt);
+    });
+    document.getElementById("meta-row").style.display = "";
+    document.getElementById("dz-label").textContent = `✓ ${file.name} (${(file.size/1024/1024).toFixed(1)} MB)`;
+    dz.classList.add("has-file");
+    document.getElementById("btn-import").disabled = false;
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── Importar ─────────────────────────────────────────────
+async function importar(){
+  const sbUrl = document.getElementById("inp-url").value.trim();
+  const sbKey = document.getElementById("inp-key").value.trim();
+  const periodo = document.getElementById("sel-periodo").value;
+  if(!sbUrl||!sbKey){alert("Completa la URL y API Key de Supabase.");return;}
+  if(!archivoCSV){alert("Selecciona un archivo CSV.");return;}
+  if(!periodo){alert("Selecciona el período.");return;}
+
+  const tabla = currentTab==="personas" ? "rsh_personas" : "rsh_hogares";
+  const btn = document.getElementById("btn-import");
+  btn.disabled = true; btn.textContent = "⏳ Procesando…";
+  const prog = document.getElementById("prog");
+  const bar = document.getElementById("bar");
+  const ptext = document.getElementById("ptext");
+  const result = document.getElementById("result");
+  prog.style.display = ""; result.style.display = "none";
+
+  try {
+    // Leer archivo
+    ptext.textContent = "Leyendo archivo…"; bar.style.width = "5%";
+    const buf = await archivoCSV.arrayBuffer();
+    let txt = new TextDecoder("utf-8").decode(buf);
+    if(txt.includes("\uFFFD")) txt = new TextDecoder("windows-1252").decode(buf);
+
+    const lines = txt.split("\n").filter(l=>l.trim());
+    const sep = lines[0].includes("\t") ? "\t" : ";";
+    const headers = lines[0].split(sep).map(h=>h.trim().replace(/^"|"$/g,"").toLowerCase());
+
+    const iPerio  = headers.findIndex(h=>h==="periodo");
+    const iRegion = headers.findIndex(h=>h==="región"||h==="region");
+    const iComuna = headers.findIndex(h=>h==="comuna");
+    const iUV     = headers.findIndex(h=>h==="unidad vecinal");
+
+    // Mapeo de regiones
+    const regCod = {
+      "arica y parinacota":15,"tarapacá":1,"tarapaca":1,"antofagasta":2,"atacama":3,
+      "coquimbo":4,"valparaíso":5,"valparaiso":5,"metropolitana de santiago":13,"metropolitana":13,
+      "o'higgins":6,"maule":7,"ñuble":16,"nuble":16,"biobío":8,"biobio":8,
+      "la araucanía":9,"la araucania":9,"los ríos":14,"los rios":14,
+      "los lagos":10,"aysén":11,"aysen":11,"magallanes":12
+    };
+
+    // Columnas de tramos
+    const getCol = (keyword) => headers.findIndex(h=>h.includes(keyword)&&h.endsWith("- uv"));
+    const colTot   = headers.findIndex(h=>h==="total - uv"||(h.startsWith("total")&&h.endsWith("- uv")));
+    const colCom   = headers.findIndex(h=>h==="total - comuna"||(h.startsWith("total")&&h.endsWith("- comuna")));
+    const colReg   = headers.findIndex(h=>h==="total - región"||h==="total - region"||(h.startsWith("total")&&h.endsWith("- región")));
+
+    const tramoCols = [
+      { key:"tramo_0_40",   kw:"0% - 40%" },
+      { key:"tramo_41_50",  kw:"41% - 50%" },
+      { key:"tramo_51_60",  kw:"51% - 60%" },
+      { key:"tramo_61_70",  kw:"61% - 70%" },
+      { key:"tramo_71_80",  kw:"71% - 80%" },
+      { key:"tramo_81_90",  kw:"81% - 90%" },
+      { key:"tramo_91_100", kw:"91% - 100%" },
+    ].map(t=>({...t, idx: headers.findIndex(h=>h.includes(t.kw)&&h.endsWith("- uv"))}));
+
+    ptext.textContent = "Procesando filas…"; bar.style.width = "20%";
+    await new Promise(r=>setTimeout(r,50));
+
+    // Procesar filas
+    const filas = [];
+    for(let i=1;i<lines.length;i++){
+      const cols = lines[i].split(sep).map(c=>c.trim().replace(/^"|"$/g,""));
+      const per = (cols[iPerio]||"").trim();
+      if(per !== periodo) continue;
+
+      const regRaw = (cols[iRegion]||"").trim();
+      const numReg = parseInt(regRaw);
+      const codReg = !isNaN(numReg) ? numReg : (regCod[regRaw.toLowerCase()]||null);
+
+      const uvRaw = (cols[iUV]||"").trim();
+      let cut_comuna = null, cod_uv = null;
+      if(uvRaw && uvRaw!=="S/N" && !isNaN(parseFloat(uvRaw))){
+        const uvNum = Math.round(parseFloat(uvRaw));
+        if(uvNum>9999){
+          cut_comuna = parseInt(String(uvNum).slice(0,4));
+          cod_uv = parseInt(String(uvNum).slice(4));
+        } else { cod_uv = uvNum; }
+      }
+      if(!cod_uv) continue; // saltar filas sin UV
+
+      const row = { periodo:per, cut_comuna, cod_uv };
+      tramoCols.forEach(t=>{ if(t.idx>=0) row[t.key]=parseFloat(cols[t.idx])||null; });
+      row.total = colTot>=0 ? (parseFloat(cols[colTot])||null) : null;
+      row.total_comuna = colCom>=0 ? (parseFloat(cols[colCom])||null) : null;
+      row.total_region = colReg>=0 ? (parseFloat(cols[colReg])||null) : null;
+      filas.push(row);
+
+      if(i%1000===0){
+        bar.style.width = `${20+(i/lines.length*40)}%`;
+        ptext.textContent = `Procesando fila ${i.toLocaleString("es-CL")} de ${(lines.length-1).toLocaleString("es-CL")}…`;
+        await new Promise(r=>setTimeout(r,0));
+      }
+    }
+
+    ptext.textContent = `${filas.length.toLocaleString("es-CL")} UVs procesadas · Borrando datos anteriores…`;
+    bar.style.width = "60%";
+    await new Promise(r=>setTimeout(r,50));
+
+    // Borrar datos anteriores
+    await fetch(`${sbUrl}/${tabla}?id=gt.0`, {
+      method:"DELETE",
+      headers:{"apikey":sbKey,"Authorization":`Bearer ${sbKey}`}
+    });
+
+    ptext.textContent = "Subiendo datos nuevos…"; bar.style.width = "65%";
+    await new Promise(r=>setTimeout(r,50));
+
+    // Subir en lotes de 200
+    const BATCH = 200;
+    let ok = 0;
+    for(let i=0;i<filas.length;i+=BATCH){
+      const lote = filas.slice(i,i+BATCH);
+      const res = await fetch(`${sbUrl}/${tabla}`, {
+        method:"POST",
+        headers:{"apikey":sbKey,"Authorization":`Bearer ${sbKey}`,"Content-Type":"application/json","Prefer":"return=minimal"},
+        body:JSON.stringify(lote)
+      });
+      if(res.ok) ok+=lote.length;
+      bar.style.width = `${65+(i/filas.length*30)}%`;
+      ptext.textContent = `Subiendo… ${ok.toLocaleString("es-CL")} / ${filas.length.toLocaleString("es-CL")} UVs`;
+      await new Promise(r=>setTimeout(r,0));
+    }
+
+    // Registrar período en rsh_meta
+    const mesN = parseInt(periodo.substring(4,6)||0);
+    const anioN = periodo.substring(0,4);
+    const msN = ["","Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+    const desc = `${currentTab==="personas"?"Personas":"Hogares"} con RSH · ${msN[mesN]||mesN} ${anioN}`;
+    await fetch(`${sbUrl}/rsh_meta`, {
+      method:"POST",
+      headers:{"apikey":sbKey,"Authorization":`Bearer ${sbKey}`,"Content-Type":"application/json","Prefer":"resolution=merge-duplicates"},
+      body:JSON.stringify({nombre_archivo: currentTab==="personas"?"Personas_RSH":"Hogares_RSH", descripcion:desc, periodo})
+    });
+
+    bar.style.width = "100%";
+    ptext.textContent = "¡Completado!";
+    result.className = "result ok";
+    result.innerHTML = `✅ <strong>Importación exitosa</strong><br>
+      ${ok.toLocaleString("es-CL")} unidades vecinales importadas a <code>${tabla}</code><br>
+      Período <strong>${periodo}</strong> registrado en <code>rsh_meta</code>.`;
+    result.style.display = "";
+
+  } catch(e){
+    console.error(e);
+    result.className = "result err";
+    result.innerHTML = `❌ <strong>Error:</strong> ${e.message}`;
+    result.style.display = "";
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "🚀 Procesar e importar a Supabase";
+    prog.style.display = "none";
+  }
+}
+</script>
+</body>
+</html>
