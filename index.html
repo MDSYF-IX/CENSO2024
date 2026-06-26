@@ -2371,7 +2371,9 @@ function rsh_adminImport(e){
       const rows = await sb("rsh_config", `select=valor&clave=eq.admin_hash&limit=1`);
       if(rows && rows.length && rows[0].valor === hash){
         modal.remove();
-        window.open("rsh_importador.html", "_blank");
+        // Pasar key al importador via sessionStorage (no queda en URL ni en código)
+      sessionStorage.setItem("rsh_admin_key", SUPABASE_KEY);
+      window.open("rsh_importador.html", "_blank");
       } else {
         errEl.style.display = "";
         input.value = "";
