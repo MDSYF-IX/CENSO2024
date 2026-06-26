@@ -49,17 +49,8 @@
 </header>
 <main>
 
-  <!-- Contraseña -->
-  <div class="card" id="card-pwd">
-    <h2>Acceso de administrador</h2>
-    <label>Contraseña</label>
-    <input type="password" id="inp-pwd" placeholder="Contraseña de administrador">
-    <button class="btn btn-primary" onclick="verificarPwd()">Ingresar</button>
-    <p id="pwd-error" style="font-size:12px;color:#c0392b;margin-top:8px;display:none;">Contraseña incorrecta.</p>
-  </div>
-
-  <!-- Contenido principal (oculto hasta autenticación) -->
-  <div id="main-content" style="display:none;">
+  <!-- Contenido principal -->
+  <div id="main-content">
 
     <div class="card">
       <h2>Configuración Supabase</h2>
@@ -116,38 +107,7 @@ const SUPABASE_URL_DEFAULT = "https://dsrvxgpdxzjcpqtopfrk.supabase.co/rest/v1";
 let currentTab = "personas";
 let archivoCSV = null;
 
-// ── Contraseña ───────────────────────────────────────────
-async function sha256(msg){
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(msg));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
-}
-
-async function verificarPwd(){
-  const pwd = document.getElementById("inp-pwd").value;
-  const hash = await sha256(pwd);
-  // Verificar contra Supabase
-  const url = document.getElementById("inp-url")?.value || SUPABASE_URL_DEFAULT;
-  const key = document.getElementById("inp-key")?.value || "";
-  // Por ahora verificamos contra rsh_config
-  try {
-    const res = await fetch(`${SUPABASE_URL_DEFAULT}/rsh_config?clave=eq.admin_hash&select=valor`, {
-      headers:{"apikey": key || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", "Authorization": `Bearer ${key || ""}`}
-    });
-    const data = await res.json();
-    if(data && data[0]?.valor === hash){
-      document.getElementById("card-pwd").style.display = "none";
-      document.getElementById("main-content").style.display = "";
-      document.getElementById("inp-key").focus();
-    } else {
-      document.getElementById("pwd-error").style.display = "";
-      document.getElementById("inp-pwd").value = "";
-    }
-  } catch(e){
-    // Si no puede verificar, usar hash hardcodeado temporal
-    document.getElementById("pwd-error").style.display = "";
-  }
-}
-document.getElementById("inp-pwd").addEventListener("keydown", e => { if(e.key==="Enter") verificarPwd(); });
+// ── Sin autenticación propia — acceso controlado desde index.html ──
 
 // ── Tabs ─────────────────────────────────────────────────
 function setTab(t){
