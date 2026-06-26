@@ -645,17 +645,32 @@
     visibility:visible;
     opacity:1;
   }
+  .b-pill{background:#f1f5f9;border:1px solid #e2e8f0;border-radius:20px;padding:3px 12px;font-size:11px;color:#64748b;cursor:pointer;font-family:inherit;}
+  .b-pill-active{background:#1e3a5f;color:#fff;border-color:#1e3a5f;}
+  .b-result{padding:10px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #f1f5f9;cursor:pointer;transition:background .1s;}
+  .b-result:hover,.b-result.b-focused{background:#f0f7ff;}
+  .b-result-icon{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;}
+  .b-group-label{padding:7px 16px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#94a3b8;background:#f8fafc;}
 </style>
 </head>
 <body>
 
 <header>
   <div class="eyebrow">Araucanía - Herramientas de Formulación - Sistema Nacional de Inversiones</div>
-  <h1>Población, Vivienda y Hogares<span style="display:block;font-size:13px;font-weight:400;opacity:.7;margin-top:2px;letter-spacing:.03em;">CENSO y Registro Social de Hogares</span></h1>
+  <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+    <h1>Población, Vivienda y Hogares<span style="display:block;font-size:13px;font-weight:400;opacity:.7;margin-top:2px;letter-spacing:.03em;">CENSO y Registro Social de Hogares</span></h1>
+    <button id="btn-buscador" style="display:flex;align-items:center;gap:8px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;color:rgba(255,255,255,0.9);font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;margin-top:6px;flex-shrink:0;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      Buscar área…
+      <span style="background:rgba(255,255,255,0.15);border-radius:4px;padding:1px 6px;font-size:10px;letter-spacing:.03em;opacity:.8;">⌘K</span>
+    </button>
+  </div>
   <p>Consulta los datos del CENSO 2024 por región, provincia, comuna, distrito, zona censal (urbano) o localidad/entidad (rural). Selecciona un nivel para ver los resultados urbano y rural.<br>
   Permite visualizar el o las áreas seleccionadas en el Mapa.<br>
   Incorpora una herramienta para el cálculo de Proyección de Población de forma automática o con ingreso manual de datos.</p>
 </header>
+
+<!-- MODAL BUSCADOR -->
 
 <main>
 
@@ -2947,7 +2962,263 @@ document.getElementById("add-uv").addEventListener("click", () => {
   if(rshCurrentUV) uv_addSelected();
 });
 document.getElementById("clear-uvs").addEventListener("click", uv_clearSelected);
-async function sha256(msg){
+// =====================================================================
+// MÓDULO: Buscador territorial (modal spotlight)
+// =====================================================================
+let _buscadorTipo = "";
+let _buscadorTimer = null;
+let _buscadorFocusIdx = -1;
+let _buscadorItems = [];
+
+function buscador_open(){
+  // Eliminar overlay anterior si existe
+  const old = document.getElementById("buscador-overlay");
+  if(old) old.remove();
+
+  const overlay = document.createElement("div");
+  overlay.id = "buscador-overlay";
+  overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding-top:80px;";
+  overlay.onclick = (e) => { if(e.target === overlay) buscador_close(); };
+
+  overlay.innerHTML = `
+    <div style="background:#fff;border-radius:12px;width:100%;max-width:580px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden;margin:0 16px;">
+      <div style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #e2e8f0;flex-shrink:0;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input id="buscador-input" type="text" placeholder="Buscar distrito, UV, localidad, entidad…"
+          style="flex:1;border:none;outline:none;font-size:14px;color:#1e293b;background:transparent;font-family:inherit;">
+        <button onclick="buscador_close()" style="background:none;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-size:11px;color:#94a3b8;cursor:pointer;font-family:inherit;">Esc</button>
+      </div>
+      <div style="display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid #e2e8f0;flex-wrap:wrap;flex-shrink:0;" id="buscador-pills">
+        <button class="b-pill b-pill-active" onclick="buscador_setTipo('')">Todos</button>
+        <button class="b-pill" onclick="buscador_setTipo('distrito')">Distrito</button>
+        <button class="b-pill" onclick="buscador_setTipo('uv')">UV</button>
+        <button class="b-pill" onclick="buscador_setTipo('localidad')">Localidad</button>
+        <button class="b-pill" onclick="buscador_setTipo('entidad')">Entidad</button>
+      </div>
+      <div id="buscador-results" style="overflow-y:auto;flex:1;">
+        <div style="padding:32px 16px;text-align:center;color:#94a3b8;font-size:13px;">Escribe para buscar…</div>
+      </div>
+      <div style="padding:8px 16px;border-top:1px solid #e2e8f0;background:#f8fafc;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+        <span style="font-size:11px;color:#94a3b8;">↑↓ navegar · ↵ seleccionar · Esc cerrar</span>
+        <span id="buscador-count" style="font-size:11px;color:#94a3b8;"></span>
+      </div>
+    </div>`;
+
+  document.body.appendChild(overlay);
+
+  const inp = document.getElementById("buscador-input");
+  inp.addEventListener("input", e => buscador_search(e.target.value));
+  inp.addEventListener("keydown", buscador_keydown);
+  setTimeout(() => inp.focus(), 50);
+}
+
+function buscador_close(){
+  const overlay = document.getElementById("buscador-overlay");
+  if(overlay) overlay.remove();
+  clearTimeout(_buscadorTimer);
+  _buscadorFocusIdx = -1;
+  _buscadorItems = [];
+}
+
+function buscador_setTipo(tipo){
+  _buscadorTipo = tipo;
+  document.querySelectorAll(".b-pill").forEach(p => p.classList.remove("b-pill-active"));
+  event.target.classList.add("b-pill-active");
+  const q = document.getElementById("buscador-input").value;
+  if(q.length >= 2) buscador_search(q);
+}
+
+function buscador_keydown(e){
+  const items = document.querySelectorAll(".b-result");
+  if(e.key==="ArrowDown"){ e.preventDefault(); _buscadorFocusIdx=Math.min(_buscadorFocusIdx+1,items.length-1); buscador_updateFocus(items); }
+  else if(e.key==="ArrowUp"){ e.preventDefault(); _buscadorFocusIdx=Math.max(_buscadorFocusIdx-1,0); buscador_updateFocus(items); }
+  else if(e.key==="Enter"){ if(_buscadorFocusIdx>=0&&items[_buscadorFocusIdx]) items[_buscadorFocusIdx].click(); }
+  else if(e.key==="Escape"){ document.getElementById("buscador-overlay").style.visibility="hidden";document.getElementById("buscador-overlay").style.pointerEvents="none"; }
+}
+
+function buscador_updateFocus(items){
+  items.forEach((el,i)=>el.classList.toggle("b-focused",i===_buscadorFocusIdx));
+  if(items[_buscadorFocusIdx]) items[_buscadorFocusIdx].scrollIntoView({block:"nearest"});
+}
+
+function buscador_search(q){
+  clearTimeout(_buscadorTimer);
+  if(q.length<2){
+    document.getElementById("buscador-results").innerHTML=
+      '<div style="padding:32px 16px;text-align:center;color:#94a3b8;font-size:13px;">Escribe al menos 2 caracteres…</div>';
+    document.getElementById("buscador-count").textContent="";
+    return;
+  }
+  document.getElementById("buscador-results").innerHTML=
+    '<div style="padding:24px 16px;text-align:center;color:#94a3b8;font-size:13px;">Buscando…</div>';
+  _buscadorTimer=setTimeout(()=>_buscador_fetch(q),300);
+}
+
+async function _buscador_fetch(q){
+  const enc=encodeURIComponent(q);
+  const tipos=_buscadorTipo?[_buscadorTipo]:["distrito","uv","localidad","entidad"];
+  const MAX=4;
+
+  const queries=[];
+  if(tipos.includes("distrito"))  queries.push(sb("vw_distrito",`select=id_distrito,cod_distrito,distrito,cut_comuna&distrito=ilike.*${enc}*&limit=${MAX}`).then(r=>r.map(d=>({tipo:"distrito",id:d.id_distrito,nombre:`Dist.${d.cod_distrito} ${d.distrito||""}`.trim(),cut_comuna:d.cut_comuna}))));
+  if(tipos.includes("uv"))        queries.push(sb("uv_chile",`select=id,cod_uv,nom_uv,cut&nom_uv=ilike.*${enc}*&limit=${MAX}`).then(r=>r.map(d=>({tipo:"uv",id:d.id,cod_uv:d.cod_uv,nombre:`UV ${d.cod_uv} — ${d.nom_uv}`,cut_comuna:d.cut}))));
+  if(tipos.includes("localidad")) queries.push(sb("vw_localidad",`select=id_localidad,localidad,id_distrito&localidad=ilike.*${enc}*&area=eq.RURAL&limit=${MAX}`).then(r=>r.map(d=>({tipo:"localidad",id:d.id_localidad,nombre:d.localidad,id_distrito:d.id_distrito}))));
+  if(tipos.includes("entidad"))   queries.push(sb("vw_entidad",`select=id_entidad,entidad,id_localidad&entidad=ilike.*${enc}*&limit=${MAX}`).then(r=>r.map(d=>({tipo:"entidad",id:d.id_entidad,nombre:d.entidad,id_localidad:d.id_localidad}))));
+
+  const grupos=await Promise.all(queries);
+  const items=grupos.flat();
+
+  // Enriquecer con jerarquía
+  await Promise.all(items.map(async it=>{
+    const getComunaInfo=async(cut)=>{
+      const[c]=await sb("vw_comuna",`select=comuna,provincia,cod_region&cut_comuna=eq.${cut}&limit=1`);
+      if(c){it.comuna=c.comuna;it.provincia=c.provincia;it.cod_region=c.cod_region;}
+      const[r]=await sb("vw_region",`select=region&cod_region=eq.${it.cod_region}&limit=1`);
+      if(r)it.region=r.region;
+    };
+    const getDistInfo=async(id_dist)=>{
+      const[d]=await sb("vw_distrito",`select=cod_distrito,distrito,cut_comuna&id_distrito=eq.${id_dist}&limit=1`);
+      if(d){it.id_distrito=id_dist;it.cut_comuna=d.cut_comuna;it.dist_label=`Dist.${d.cod_distrito} ${d.distrito||""}`.trim();}
+      if(it.cut_comuna) await getComunaInfo(it.cut_comuna);
+    };
+    if(it.cut_comuna) await getComunaInfo(it.cut_comuna);
+    else if(it.id_distrito) await getDistInfo(it.id_distrito);
+    else if(it.id_localidad){
+      const[l]=await sb("vw_localidad",`select=id_distrito&id_localidad=eq.${it.id_localidad}&area=eq.RURAL&limit=1`);
+      if(l) await getDistInfo(l.id_distrito);
+    }
+  }));
+
+  _buscadorItems=items;
+  _buscador_render(items);
+}
+
+function _buscador_render(items){
+  const res=document.getElementById("buscador-results");
+  document.getElementById("buscador-count").textContent=`${items.length} resultado${items.length!==1?"s":""}`;
+  if(!items.length){res.innerHTML='<div style="padding:32px 16px;text-align:center;color:#94a3b8;font-size:13px;">Sin resultados.</div>';return;}
+  const TIPOS=[
+    {key:"distrito",label:"Distritos",bg:"#E6F1FB",col:"#185FA5",ico:"📍"},
+    {key:"uv",label:"Unidades vecinales",bg:"#FBEAF0",col:"#993556",ico:"👥"},
+    {key:"localidad",label:"Localidades",bg:"#EAF3DE",col:"#3B6D11",ico:"🏘"},
+    {key:"entidad",label:"Entidades",bg:"#FAEEDA",col:"#854F0B",ico:"🏢"},
+  ];
+  let html="";
+  TIPOS.forEach(t=>{
+    const grupo=items.filter(i=>i.tipo===t.key);
+    if(!grupo.length)return;
+    html+=`<div class="b-group-label">${t.label}</div>`;
+    grupo.forEach(it=>{
+      const jer=[it.region,it.provincia,it.comuna,it.dist_label].filter(Boolean).join(" › ");
+      const data=JSON.stringify(it).replace(/"/g,"&quot;");
+      html+=`<div class="b-result" onclick="buscador_select(JSON.parse(this.dataset.item))" data-item="${data}">
+        <div class="b-result-icon" style="background:${t.bg};">${t.ico}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${it.nombre}</div>
+          <div style="font-size:11px;color:#94a3b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${jer}</div>
+        </div>
+        <span style="font-size:11px;color:#94a3b8;">↵</span>
+      </div>`;
+    });
+  });
+  res.innerHTML=html;
+  _buscadorFocusIdx=-1;
+}
+
+async function buscador_select(it){
+  document.getElementById("buscador-overlay").style.visibility="hidden";document.getElementById("buscador-overlay").style.pointerEvents="none";
+  document.getElementById("buscador-input").value="";
+
+  // Limpiar todo
+  selectedAreas=[];areaDataCache=[];combinedSums=null;
+  if(boundaryLayer){map.removeLayer(boundaryLayer);boundaryLayer=null;}
+  uv_resetAll();renderSelectedList();
+
+  // Cargar región
+  if(it.cod_region){
+    await loadRegiones();
+    els.region.value=it.cod_region;
+    const provs=await sb("vw_provincia",`select=provincia&cod_region=eq.${it.cod_region}&order=provincia`);
+    fillSelect(els.provincia,provs,d=>d.provincia,d=>d.provincia);
+    if(it.provincia) els.provincia.value=it.provincia;
+    const comunas=await sb("vw_comuna",`select=cut_comuna,comuna&provincia=eq.${encodeURIComponent(it.provincia)}&order=comuna`);
+    fillSelect(els.comuna,comunas,d=>d.cut_comuna,d=>d.comuna);
+    if(it.cut_comuna) els.comuna.value=it.cut_comuna;
+  }
+
+  // Cargar distritos de la comuna
+  if(it.cut_comuna){
+    const distritos=await sb("vw_distrito",`select=id_distrito,cod_distrito,distrito&cut_comuna=eq.${it.cut_comuna}&order=cod_distrito`);
+    resetSelect(els.distrito);
+    distritos.forEach(d=>{
+      const opt=document.createElement("option");
+      opt.value=d.id_distrito;
+      opt.textContent=`Dist.${d.cod_distrito}${d.distrito?' '+d.distrito:''}`;
+      els.distrito.appendChild(opt);
+    });
+    els.distrito.disabled=false;
+  }
+
+  if(it.tipo==="distrito"){
+    els.distrito.value=it.id;
+    currentNavLevel="distrito";
+    const data=await sb("vw_distrito",`select=*&id_distrito=eq.${it.id}`);
+    await showAreaPanels("vw_distrito","vw_area",`id_distrito=eq.${it.id}`,`Distrito ${data[0]?.cod_distrito}${data[0]?.distrito?' · '+data[0].distrito:''}`);
+    await fillSelectMultiParent(els.zona,"distrito","id_distrito",id=>resolveDistritoLabel(id),async id=>sb("vw_zona",`select=id_zona,cod_zona&id_distrito=eq.${id}&order=cod_zona`),d=>d.id_zona,d=>`Zona censal ${d.cod_zona}`);
+    await fillSelectMultiParent(els.localidad,"distrito","id_distrito",id=>resolveDistritoLabel(id),async id=>sb("vw_localidad",`select=id_localidad,localidad&id_distrito=eq.${id}&area=eq.RURAL&order=localidad`),d=>d.id_localidad,d=>d.localidad);
+    uv_load(it.cut_comuna);
+  }
+  else if(it.tipo==="uv"){
+    currentNavLevel="comuna";
+    const data=await sb("vw_comuna",`select=*&cut_comuna=eq.${it.cut_comuna}`);
+    await showAreaPanels("vw_comuna","vw_comuna_area",`cut_comuna=eq.${it.cut_comuna}`,`Comuna de ${data[0]?.comuna}`);
+    await fillSelectMultiParent(els.distrito,"comuna","cut_comuna",id=>resolveComunaLabel(id),async id=>sb("vw_distrito",`select=id_distrito,cod_distrito,distrito&cut_comuna=eq.${id}&order=cod_distrito`),d=>d.id_distrito,d=>`Dist.${d.cod_distrito}${d.distrito?' '+d.distrito:''}`);
+    await uv_load(it.cut_comuna);
+    const selUV=document.getElementById("sel-uv");
+    if(selUV){selUV.value=it.id;await uv_select(it.id);}
+  }
+  else if(it.tipo==="localidad"){
+    if(it.id_distrito) els.distrito.value=it.id_distrito;
+    const data=await sb("vw_distrito",`select=*&id_distrito=eq.${it.id_distrito}`);
+    await showAreaPanels("vw_distrito","vw_area",`id_distrito=eq.${it.id_distrito}`,`Distrito ${data[0]?.cod_distrito}${data[0]?.distrito?' · '+data[0].distrito:''}`);
+    await fillSelectMultiParent(els.zona,"distrito","id_distrito",id=>resolveDistritoLabel(id),async id=>sb("vw_zona",`select=id_zona,cod_zona&id_distrito=eq.${id}&order=cod_zona`),d=>d.id_zona,d=>`Zona censal ${d.cod_zona}`);
+    await fillSelectMultiParent(els.localidad,"distrito","id_distrito",id=>resolveDistritoLabel(id),async id=>sb("vw_localidad",`select=id_localidad,localidad&id_distrito=eq.${id}&area=eq.RURAL&order=localidad`),d=>d.id_localidad,d=>d.localidad);
+    els.localidad.value=it.id;
+    if(typeof onLocalidadChange==="function") await onLocalidadChange();
+    currentNavLevel="localidad";
+  }
+  else if(it.tipo==="entidad"){
+    const[ent]=await sb("vw_entidad",`select=*&id_entidad=eq.${it.id}&limit=1`);
+    if(ent){
+      els.distrito.value=ent.id_distrito;
+      const data=await sb("vw_distrito",`select=*&id_distrito=eq.${ent.id_distrito}`);
+      await showAreaPanels("vw_distrito","vw_area",`id_distrito=eq.${ent.id_distrito}`,`Distrito ${data[0]?.cod_distrito}${data[0]?.distrito?' · '+data[0].distrito:''}`);
+      await fillSelectMultiParent(els.localidad,"distrito","id_distrito",id=>resolveDistritoLabel(id),async id=>sb("vw_localidad",`select=id_localidad,localidad&id_distrito=eq.${id}&area=eq.RURAL&order=localidad`),d=>d.id_localidad,d=>d.localidad);
+      els.localidad.value=ent.id_localidad;
+      const entidades=await sb("vw_entidad",`select=id_entidad,entidad&id_localidad=eq.${ent.id_localidad}&order=entidad`);
+      resetSelect(els.entidad);
+      entidades.forEach(e2=>{const opt=document.createElement("option");opt.value=e2.id_entidad;opt.textContent=e2.entidad;els.entidad.appendChild(opt);});
+      els.entidad.disabled=false;
+      els.entidad.value=it.id;
+      if(typeof onEntidadChange==="function") await onEntidadChange();
+      currentNavLevel="entidad";
+    }
+  }
+
+  updateBreadcrumb();
+  await refresh();
+}
+
+// Atajo Cmd+K / Ctrl+K y botón buscador
+document.getElementById("btn-buscador").addEventListener("click", buscador_open);
+document.addEventListener("keydown",e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key==="k"){e.preventDefault();buscador_open();}
+  if(e.key==="Escape"&&document.getElementById("buscador-overlay")) buscador_close();
+});
+
+// =====================================================================
+// ADMIN: Importar datos RSH con contraseña
+// =====================================================================
   const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(msg));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
 }
