@@ -672,10 +672,10 @@
     <label><input type="checkbox" id="chk-rsh"> RSH</label>
   </div>
 
-  <div class="uv-row" id="uv-row" style="display:none;">
+  <div class="uv-row" id="uv-row">
     <label class="uv-label" for="sel-uv">Unidad Vecinal Comuna</label>
-    <select id="sel-uv">
-      <option value="">— Seleccione una unidad vecinal —</option>
+    <select id="sel-uv" disabled style="opacity:.4;">
+      <option value="">— Seleccione una comuna primero —</option>
     </select>
     <button id="btn-clear-uv" class="uv-clear" title="Quitar selección UV" style="display:none;">✕</button>
     <label class="uv-label" for="sel-rsh-indicador" id="rsh-inline-label" style="white-space:nowrap;opacity:.4;">
@@ -2514,16 +2514,19 @@ let uvLayer = null;
 
 async function uv_load(cut_comuna){
   const sel = document.getElementById("sel-uv");
-  const row = document.getElementById("uv-row");
   const clearBtn = document.getElementById("btn-clear-uv");
 
   uv_clear(false);
-  sel.innerHTML = '<option value="">— Seleccione una unidad vecinal —</option>';
 
-  if(!cut_comuna){ row.style.display = "none"; return; }
+  if(!cut_comuna){
+    sel.innerHTML = '<option value="">— Seleccione una comuna primero —</option>';
+    sel.disabled = true;
+    sel.style.opacity = ".4";
+    return;
+  }
 
-  row.style.display = "flex";
   sel.disabled = true;
+  sel.style.opacity = ".4";
   sel.innerHTML = '<option value="">Cargando unidades vecinales…</option>';
 
   try {
@@ -2533,7 +2536,6 @@ async function uv_load(cut_comuna){
 
     if(!uvs || !uvs.length){
       sel.innerHTML = '<option value="">Sin unidades vecinales para esta comuna</option>';
-      sel.disabled = true;
       return;
     }
 
@@ -2547,11 +2549,11 @@ async function uv_load(cut_comuna){
       sel.appendChild(opt);
     });
     sel.disabled = false;
+    sel.style.opacity = "1";
     forceRepaint(sel);
   } catch(e){
     console.warn("Error cargando UVs:", e);
     sel.innerHTML = '<option value="">Error al cargar las unidades vecinales</option>';
-    sel.disabled = true;
   }
 }
 
