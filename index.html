@@ -678,14 +678,14 @@
       <option value="">— Seleccione una unidad vecinal —</option>
     </select>
     <button id="btn-clear-uv" class="uv-clear" title="Quitar selección UV" style="display:none;">✕</button>
-    <label class="uv-label" for="sel-rsh-indicador" id="rsh-inline-label" style="display:none;white-space:nowrap;">
+    <label class="uv-label" for="sel-rsh-indicador" id="rsh-inline-label" style="white-space:nowrap;opacity:.4;">
       Información RSH
       <button onclick="rsh_adminImport(event)" title="Importar datos RSH" style="display:block;margin-top:4px;background:none;border:1px solid var(--line);border-radius:4px;font-size:9px;padding:2px 6px;color:var(--muted);cursor:pointer;font-weight:400;letter-spacing:.03em;text-transform:uppercase;">
         ⬆ Actualizar datos
       </button>
     </label>
-    <select id="sel-rsh-indicador" style="flex:1;min-width:180px;padding:8px 12px;font-size:13px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);display:none;" disabled>
-      <option value="">— Seleccione indicador —</option>
+    <select id="sel-rsh-indicador" style="flex:1;min-width:180px;padding:8px 12px;font-size:13px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);opacity:.4;" disabled>
+      <option value="">— Seleccione una UV primero —</option>
     </select>
   </div>
 
@@ -2172,8 +2172,12 @@ function rsh_hide(){
     '<div class="proj-empty">Selecciona una Unidad Vecinal para ver los datos del RSH.</div>';
   const sel = document.getElementById("sel-rsh-indicador");
   const lbl = document.getElementById("rsh-inline-label");
-  if(sel){ sel.style.display = "none"; sel.innerHTML = '<option value="">— Seleccione indicador —</option>'; }
-  if(lbl) lbl.style.display = "none";
+  if(sel){
+    sel.innerHTML = '<option value="">— Seleccione una UV primero —</option>';
+    sel.disabled = true;
+    sel.style.opacity = "0.4";
+  }
+  if(lbl) lbl.style.opacity = "0.4";
 }
 
 async function rsh_loadIndicadores(cut_comuna, cod_uv){
@@ -2192,7 +2196,7 @@ async function rsh_loadIndicadores(cut_comuna, cod_uv){
     );
     if(!equiv || !equiv.length){
       sel.innerHTML = '<option value="">Sin datos RSH para esta UV</option>';
-      sel.style.display = ""; lbl.style.display = "";
+      sel.style.opacity = "0.4"; lbl.style.opacity = "0.4";
       return;
     }
     const cod_uv_bidat = equiv[0].cod_uv_bidat;
@@ -2210,7 +2214,7 @@ async function rsh_loadIndicadores(cut_comuna, cod_uv){
 
     if(!opciones.length){
       sel.innerHTML = '<option value="">Sin datos RSH para esta UV</option>';
-      sel.style.display = ""; lbl.style.display = "";
+      sel.style.opacity = "0.4"; lbl.style.opacity = "0.4";
       return;
     }
 
@@ -2222,13 +2226,14 @@ async function rsh_loadIndicadores(cut_comuna, cod_uv){
       sel.appendChild(opt);
     });
     sel.disabled = false;
-    sel.style.display = ""; lbl.style.display = "";
+    sel.style.opacity = "1";
+    lbl.style.opacity = "1";
     forceRepaint(sel);
 
   } catch(e){
     console.error("Error cargando indicadores RSH:", e);
     sel.innerHTML = '<option value="">Error al cargar indicadores</option>';
-    sel.style.display = ""; lbl.style.display = "";
+    sel.style.opacity = "0.4"; lbl.style.opacity = "0.4"; sel.innerHTML = '<option value="">Sin datos RSH para esta UV</option>';
   }
 }
 
