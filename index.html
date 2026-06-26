@@ -678,7 +678,12 @@
       <option value="">— Seleccione una unidad vecinal —</option>
     </select>
     <button id="btn-clear-uv" class="uv-clear" title="Quitar selección UV" style="display:none;">✕</button>
-    <label class="uv-label" for="sel-rsh-indicador" id="rsh-inline-label" style="display:none;white-space:nowrap;">Información RSH</label>
+    <label class="uv-label" for="sel-rsh-indicador" id="rsh-inline-label" style="display:none;white-space:nowrap;">
+      Información RSH
+      <button onclick="rsh_adminImport(event)" title="Importar datos RSH" style="display:block;margin-top:4px;background:none;border:1px solid var(--line);border-radius:4px;font-size:9px;padding:2px 6px;color:var(--muted);cursor:pointer;font-weight:400;letter-spacing:.03em;text-transform:uppercase;">
+        ⬆ Actualizar datos
+      </button>
+    </label>
     <select id="sel-rsh-indicador" style="flex:1;min-width:180px;padding:8px 12px;font-size:13px;border:1.5px solid var(--line);border-radius:6px;color:var(--ink);display:none;" disabled>
       <option value="">— Seleccione indicador —</option>
     </select>
@@ -2128,16 +2133,19 @@ let rshIndicadoresDisponibles = []; // lista de indicadores en la base para esta
 
 async function rsh_loadMeta(){
   try {
-    const rows = await sb("rsh_meta", "select=periodo,fecha_carga&order=fecha_carga.desc&limit=1");
-    if(rows && rows.length){
-      const r = rows[0];
-      const p = r.periodo;
-      const anio = p.substring(0,4);
-      const mes = parseInt(p.substring(4,6));
-      const meses = ["","Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
-      const el = document.getElementById("rsh-footer-meta");
-      if(el) el.textContent = `RSH (Registro Social de Hogares) · Período: ${meses[mes]} ${anio} · Fuente: BIDAT, Ministerio de Desarrollo Social y Familia`;
-    }
+    const rows = await sb("rsh_meta", "select=nombre_archivo,periodo&order=fecha_carga.desc&limit=10");
+    if(!rows || !rows.length) return;
+    const el = document.getElementById("rsh-footer-meta");
+    if(!el) return;
+    const meses = ["","Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+    const fmt = p => { const a=p.substring(0,4),m=parseInt(p.substring(4,6)||0); return `${meses[m]||m} ${a}`; };
+    const per = {};
+    rows.forEach(r => { if(!per[r.nombre_archivo]) per[r.nombre_archivo]=r.periodo; });
+    const partes = [];
+    if(per["Personas_RSH"]) partes.push(`Personas: ${fmt(per["Personas_RSH"])}`);
+    if(per["Hogares_RSH"])  partes.push(`Hogares: ${fmt(per["Hogares_RSH"])}`);
+    if(partes.length)
+      el.textContent = `RSH · ${partes.join(" · ")} · Fuente: BIDAT, Ministerio de Desarrollo Social y Familia`;
   } catch(e){ console.warn("No meta RSH:", e); }
 }
 
@@ -2177,7 +2185,7 @@ async function rsh_loadIndicadores(cut_comuna, cod_uv){
   lbl.style.display = "none";
 
   try {
-    // Traducir cod_uv del shapefile al cod_uv de BIDAT via tabla de equivalencia
+    // Traducir cod_uv del shapefile al cod_uv de BIDAT
     const codUvInt = parseInt(cod_uv);
     const equiv = await sb("uv_equivalencia",
       `select=cod_uv_bidat&cut_comuna=eq.${cut_comuna}&cod_uv_shapefile=eq.${codUvInt}&limit=1`
@@ -2190,39 +2198,27 @@ async function rsh_loadIndicadores(cut_comuna, cod_uv){
     const cod_uv_bidat = equiv[0].cod_uv_bidat;
     rshCurrentUV.cod_uv_bidat = cod_uv_bidat;
 
-    const rows = await sb("rsh_indicadores",
-      `select=indicador,nombre_archivo,periodo&cut_comuna=eq.${cut_comuna}&cod_uv=eq.${cod_uv_bidat}&order=nombre_archivo,indicador`
-    );
+    // Verificar qué tablas tienen datos para esta UV
+    const [rPer, rHog] = await Promise.all([
+      sb("rsh_personas", `select=total&cut_comuna=eq.${cut_comuna}&cod_uv=eq.${cod_uv_bidat}&limit=1`),
+      sb("rsh_hogares",  `select=total&cut_comuna=eq.${cut_comuna}&cod_uv=eq.${cod_uv_bidat}&limit=1`),
+    ]);
 
-    if(!rows || !rows.length){
+    const opciones = [];
+    if(rPer && rPer.length) opciones.push({value:"personas", label:"Personas con RSH"});
+    if(rHog && rHog.length) opciones.push({value:"hogares",  label:"Hogares con RSH"});
+
+    if(!opciones.length){
       sel.innerHTML = '<option value="">Sin datos RSH para esta UV</option>';
       sel.style.display = ""; lbl.style.display = "";
       return;
     }
 
-    rshIndicadoresDisponibles = rows;
-    const grupos = {};
-    rows.forEach(r => {
-      if(!grupos[r.nombre_archivo]) grupos[r.nombre_archivo] = [];
-      if(!grupos[r.nombre_archivo].find(x => x.indicador === r.indicador))
-        grupos[r.nombre_archivo].push(r);
-    });
-
     sel.innerHTML = '<option value="">— Seleccione indicador —</option>';
-    Object.entries(grupos).forEach(([archivo, items]) => {
-      // Mostrar solo el total de cada archivo como una opción
-      const totalItem = items.find(r => r.indicador.toLowerCase() === 'total') || items[items.length-1];
+    opciones.forEach(o => {
       const opt = document.createElement("option");
-      opt.value = `${archivo}||${totalItem.indicador}`;
-      // Nombre limpio: quitar sufijos técnicos
-      const nombre = archivo
-        .replace(/_RSH$/i, '')
-        .replace(/_/g, ' ')
-        .replace(/\b\w/g, l => l.toUpperCase())
-        .trim();
-      opt.textContent = `${nombre} con RSH`;
-      // Guardar referencia al archivo para renderizar todas las barras
-      opt.dataset.archivo = archivo;
+      opt.value = o.value;
+      opt.textContent = o.label;
       sel.appendChild(opt);
     });
     sel.disabled = false;
@@ -2236,60 +2232,62 @@ async function rsh_loadIndicadores(cut_comuna, cod_uv){
   }
 }
 
+// Helper: genera HTML de barras desde fila de rsh_personas/rsh_hogares
+function rshBarsHTML(r, tipo){
+  const tramos = [
+    {key:"tramo_0_40",  lbl:"0% - 40%"},
+    {key:"tramo_41_50", lbl:"41% - 50%"},
+    {key:"tramo_51_60", lbl:"51% - 60%"},
+    {key:"tramo_61_70", lbl:"61% - 70%"},
+    {key:"tramo_71_80", lbl:"71% - 80%"},
+    {key:"tramo_81_90", lbl:"81% - 90%"},
+    {key:"tramo_91_100",lbl:"91% - 100%"},
+  ].filter(t => r[t.key] != null);
+  const maxV = Math.max(...tramos.map(t=>Number(r[t.key]||0)),1);
+  return tramos.map(t => {
+    const v = Number(r[t.key]||0);
+    const p = (v/maxV*100).toFixed(1);
+    return `<div class="bar-row">
+      <div class="label">${t.lbl}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${p}%;background:var(--blue);"></div></div>
+      <div class="num">${v.toLocaleString("es-CL")}</div>
+    </div>`;
+  }).join("");
+}
+
 async function rsh_renderIndicador(){
   if(!rshCurrentUV) return;
   const selEl = document.getElementById("sel-rsh-indicador");
-  const val = selEl.value;
+  const tipo = selEl.value; // "personas" o "hogares"
   const resultEl = document.getElementById("rsh-result");
-  if(!val){
+  if(!tipo){
     resultEl.innerHTML = '<div class="proj-empty">Selecciona un indicador para ver los datos.</div>';
     return;
   }
 
-  const selectedOpt = selEl.options[selEl.selectedIndex];
-  const nombre_archivo = selectedOpt?.dataset?.archivo || val.split("||")[0];
+  const tabla = tipo === "personas" ? "rsh_personas" : "rsh_hogares";
   const cod_uv_bidat = rshCurrentUV.cod_uv_bidat;
   resultEl.innerHTML = '<div class="proj-empty">Cargando…</div>';
 
   try {
-    // Cargar todos los indicadores del archivo seleccionado
-    const rows = await sb("rsh_indicadores",
-      `select=*&cut_comuna=eq.${rshCurrentUV.cut_comuna}&cod_uv=eq.${cod_uv_bidat}&nombre_archivo=eq.${encodeURIComponent(nombre_archivo)}&order=indicador`
+    const rows = await sb(tabla,
+      `select=*&cut_comuna=eq.${rshCurrentUV.cut_comuna}&cod_uv=eq.${cod_uv_bidat}&limit=1`
     );
-
     if(!rows || !rows.length){
       resultEl.innerHTML = '<div class="proj-empty">Sin datos para este indicador.</div>';
       return;
     }
-
-    const r0 = rows[0];
-    const totalRow = rows.find(r => r.indicador.toLowerCase() === 'total') || rows[rows.length-1];
-    const totalVal = totalRow ? Number(totalRow.valor_uv||0) : null;
-    const vcom = totalRow?.valor_comuna != null ? Number(totalRow.valor_comuna) : null;
-    const vreg = totalRow?.valor_region != null ? Number(totalRow.valor_region) : null;
+    const r = rows[0];
+    const totalVal = r.total != null ? Number(r.total) : null;
+    const vcom = r.total_comuna != null ? Number(r.total_comuna) : null;
+    const vreg = r.total_region != null ? Number(r.total_region) : null;
     const pct = (totalVal != null && vcom != null && vcom > 0) ? (totalVal/vcom*100).toFixed(1) : null;
-
-    // Barras por tramo
-    const barItems = rows.filter(r => r.indicador.toLowerCase() !== 'total');
-    const maxVal = Math.max(...barItems.map(r => Number(r.valor_uv||0)), 1);
-    const barsHTML = barItems.map(r => {
-      const v = Number(r.valor_uv||0);
-      const p = (v/maxVal*100).toFixed(1);
-      const lbl = r.indicador
-        .replace(/número de personas en tramo\s*/i,'')
-        .replace(/número de hogares en tramo\s*/i,'')
-        .replace(/\s*-\s*$/, '').trim();
-      return `<div class="bar-row">
-        <div class="label">${lbl}</div>
-        <div class="bar-track"><div class="bar-fill" style="width:${p}%;background:var(--blue);"></div></div>
-        <div class="num">${v.toLocaleString("es-CL")}</div>
-      </div>`;
-    }).join("");
+    const titulo = tipo === "personas" ? "Personas con RSH" : "Hogares con RSH";
 
     resultEl.innerHTML = `
       <div class="rsh-kpi-grid">
         <div class="rsh-card" style="border-top:3px solid #e6007e;">
-          <div class="rsh-card-title">En esta UV</div>
+          <div class="rsh-card-title">${titulo} en esta UV</div>
           <div class="rsh-card-value" style="color:#e6007e;">${totalVal != null ? totalVal.toLocaleString("es-CL") : "—"}</div>
           ${pct ? `<div class="rsh-card-sub">${pct}% del total comunal</div>` : ""}
         </div>
@@ -2297,20 +2295,17 @@ async function rsh_renderIndicador(){
         <div class="rsh-card">
           <div class="rsh-card-title">En la comuna</div>
           <div class="rsh-card-value">${vcom.toLocaleString("es-CL")}</div>
-          <div class="rsh-card-sub">${r0.comuna || ""}</div>
         </div>` : ""}
         ${vreg != null ? `
         <div class="rsh-card">
           <div class="rsh-card-title">En la región</div>
           <div class="rsh-card-value">${vreg.toLocaleString("es-CL")}</div>
-          <div class="rsh-card-sub">${r0.region || ""}</div>
         </div>` : ""}
       </div>
-      ${barItems.length ? `
       <div class="card span2" style="margin-top:14px;border-top:3px solid var(--blue);">
         <div class="ctitle">Distribución por tramo CSE</div>
-        <div class="bars">${barsHTML}</div>
-      </div>` : ""}
+        <div class="bars">${rshBarsHTML(r, tipo)}</div>
+      </div>
       ${vcom != null && totalVal != null && vcom > 0 ? `
       <div style="margin-top:12px;">
         <div style="font-size:11px;color:var(--muted);margin-bottom:4px;">Participación de la UV en la comuna</div>
@@ -2319,7 +2314,7 @@ async function rsh_renderIndicador(){
         </div>
         <div style="font-size:11px;color:var(--muted);margin-top:4px;">${pct}% de ${vcom.toLocaleString("es-CL")}</div>
       </div>` : ""}
-      <p class="rsh-note">Período: ${r0.periodo}</p>
+      <p class="rsh-note">Período: ${r.periodo}</p>
     `;
   } catch(e){
     console.error("Error RSH:", e);
@@ -2327,9 +2322,75 @@ async function rsh_renderIndicador(){
   }
 }
 
-
 document.getElementById("sel-rsh-indicador").addEventListener("change", rsh_renderIndicador);
 rsh_loadMeta();
+
+// =====================================================================
+// ADMIN: Importar datos RSH con contraseña
+// =====================================================================
+async function sha256(msg){
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(msg));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+}
+
+function rsh_adminImport(e){
+  e.stopPropagation();
+
+  const modal = document.createElement("div");
+  modal.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;";
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;padding:28px 32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <h3 style="font-size:15px;font-weight:700;color:#1e3a5f;margin-bottom:6px;">Actualizar datos RSH</h3>
+      <p style="font-size:12px;color:#64748b;margin-bottom:16px;">Ingresa la contraseña de administrador para continuar.</p>
+      <input type="password" id="admin-pwd" placeholder="Contraseña" autofocus
+        style="width:100%;padding:10px 12px;font-size:14px;border:1.5px solid #e2e8f0;border-radius:7px;margin-bottom:12px;outline:none;">
+      <p id="admin-error" style="font-size:12px;color:#c0392b;display:none;margin-bottom:10px;">Contraseña incorrecta.</p>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button onclick="this.closest('[style*=fixed]').remove()"
+          style="padding:8px 16px;font-size:13px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;">
+          Cancelar
+        </button>
+        <button id="admin-ok"
+          style="padding:8px 16px;font-size:13px;background:#1e3a5f;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;">
+          Continuar
+        </button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  const input = modal.querySelector("#admin-pwd");
+  const errEl = modal.querySelector("#admin-error");
+  const okBtn = modal.querySelector("#admin-ok");
+
+  const verificar = async () => {
+    okBtn.textContent = "Verificando…";
+    okBtn.disabled = true;
+    try {
+      const hash = await sha256(input.value);
+      // Verificar contra Supabase
+      const rows = await sb("rsh_config", `select=valor&clave=eq.admin_hash&limit=1`);
+      if(rows && rows.length && rows[0].valor === hash){
+        modal.remove();
+        window.open("rsh_importador.html", "_blank");
+      } else {
+        errEl.style.display = "";
+        input.value = "";
+        input.focus();
+        okBtn.textContent = "Continuar";
+        okBtn.disabled = false;
+      }
+    } catch(e){
+      errEl.textContent = "Error al verificar. Intenta nuevamente.";
+      errEl.style.display = "";
+      okBtn.textContent = "Continuar";
+      okBtn.disabled = false;
+    }
+  };
+
+  okBtn.addEventListener("click", verificar);
+  input.addEventListener("keydown", e => { if(e.key === "Enter") verificar(); });
+  input.focus();
+}
 
 // Panel RSH inline en resultados (cuando checkbox RSH está marcado)
 async function renderRSHPanel(){
@@ -2348,104 +2409,54 @@ async function renderRSHPanel(){
   }
 
   panel.innerHTML = `<div class="panels single"><div>
-    <div class="panel-title">RSH — UV ${rshCurrentUV.num} ${rshCurrentUV.nom}</div>
+    <div class="panel-title" style="border-color:#e6007e;">RSH — UV ${rshCurrentUV.num} ${rshCurrentUV.nom}</div>
     <div class="card span2"><p style="font-size:13px;color:var(--muted);padding:8px 0;">Cargando datos RSH…</p></div>
   </div></div>`;
   panel.style.display = "";
 
   try {
-    const rows = await sb("rsh_indicadores",
-      `select=indicador,nombre_archivo,valor_uv,valor_comuna,periodo&cut_comuna=eq.${rshCurrentUV.cut_comuna}&cod_uv=eq.${rshCurrentUV.cod_uv_bidat}&order=nombre_archivo,indicador`
-    );
+    const cut = rshCurrentUV.cut_comuna;
+    const uv  = rshCurrentUV.cod_uv_bidat;
 
-    if(!rows || !rows.length){
+    const [rPer, rHog] = await Promise.all([
+      sb("rsh_personas", `select=*&cut_comuna=eq.${cut}&cod_uv=eq.${uv}&limit=1`),
+      sb("rsh_hogares",  `select=*&cut_comuna=eq.${cut}&cod_uv=eq.${uv}&limit=1`),
+    ]);
+
+    if((!rPer||!rPer.length) && (!rHog||!rHog.length)){
       panel.innerHTML = `<div class="panels single"><div>
-        <div class="panel-title">RSH — UV ${rshCurrentUV.num} ${rshCurrentUV.nom}</div>
+        <div class="panel-title" style="border-color:#e6007e;">RSH — UV ${rshCurrentUV.num} ${rshCurrentUV.nom}</div>
         <div class="card span2"><p style="font-size:13px;color:var(--muted);padding:8px 0;">Sin datos RSH para esta UV.</p></div>
       </div></div>`;
       return;
     }
 
-    const periodo = rows[0].periodo;
-
-    // Agrupar por nombre_archivo
-    const grupos = {};
-    rows.forEach(r => {
-      if(!grupos[r.nombre_archivo]) grupos[r.nombre_archivo] = [];
-      grupos[r.nombre_archivo].push(r);
-    });
-
+    const periodo = (rPer?.[0] || rHog?.[0])?.periodo || "";
     let cardsHTML = "";
 
-    Object.entries(grupos).forEach(([archivo, items]) => {
-      // Buscar fila "total" para el título del card
-      const totalRow = items.find(r => r.indicador.toLowerCase() === 'total') || items[items.length-1];
-      const totalVal = totalRow ? Number(totalRow.valor_uv||0) : null;
-      const tituloArchivo = archivo.replace(/_/g," ").replace(/\b\w/g, l=>l.toUpperCase());
-
-      // Filas sin el total para las barras
-      const barItems = items.filter(r => r.indicador.toLowerCase() !== 'total');
-      const maxVal = Math.max(...barItems.map(r => Number(r.valor_uv||0)), 1);
-
-      const barsHTML = barItems.map(r => {
-        const v = Number(r.valor_uv||0);
-        const pct = (v/maxVal*100).toFixed(1);
-        // Limpiar etiqueta: quitar "número de personas en tramo" etc.
-        const lbl = r.indicador
-          .replace(/número de personas en tramo\s*/i,'')
-          .replace(/número de hogares en tramo\s*/i,'')
-          .replace(/\s*-\s*$/, '')
-          .trim();
-        return `<div class="bar-row">
-          <div class="label">${lbl}</div>
-          <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--blue);"></div></div>
-          <div class="num">${v.toLocaleString("es-CL")}</div>
-        </div>`;
-      }).join("");
-
-      cardsHTML += `
+    const makeCard = (r, titulo) => {
+      if(!r) return "";
+      const total = r.total != null ? Number(r.total) : null;
+      const vcom  = r.total_comuna != null ? Number(r.total_comuna) : null;
+      const pct   = (total != null && vcom != null && vcom > 0) ? (total/vcom*100).toFixed(1) : null;
+      return `
+        <div class="card pink" style="align-self:start;">
+          <div class="ctitle">${titulo} · Total</div>
+          <div class="cvalue">${total != null ? total.toLocaleString("es-CL") : "—"}</div>
+          ${pct ? `<div style="font-size:11px;opacity:.8;margin-top:4px;">${pct}% del total comunal</div>` : ""}
+        </div>
         <div class="card span2" style="border-top:3px solid var(--blue);">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;">
-            <div class="ctitle">${tituloArchivo}</div>
-            ${totalVal != null ? `<div style="font-size:22px;font-weight:800;color:#e6007e;">${totalVal.toLocaleString("es-CL")}</div>` : ""}
-          </div>
-          <div class="bars">${barsHTML}</div>
+          <div class="ctitle">Distribución por tramo CSE</div>
+          <div class="bars">${rshBarsHTML(r, titulo)}</div>
         </div>`;
-    });
+    };
+
+    if(rPer && rPer.length) cardsHTML += makeCard(rPer[0], "Personas con RSH");
+    if(rHog && rHog.length) cardsHTML += makeCard(rHog[0], "Hogares con RSH");
 
     panel.innerHTML = `<div class="panels single"><div>
       <div class="panel-title" style="border-color:#e6007e;">RSH — UV ${rshCurrentUV.num} ${rshCurrentUV.nom} <span style="font-weight:400;font-size:12px;opacity:.7;">· Período ${periodo}</span></div>
-      <div class="dash-grid">
-        ${Object.entries(grupos).map(([archivo, items]) => {
-          const totalRow = items.find(r => r.indicador.toLowerCase() === 'total') || items[items.length-1];
-          const totalVal = totalRow ? Number(totalRow.valor_uv||0) : null;
-          const tituloArchivo = archivo.replace(/_/g," ").replace(/\b\w/g, l=>l.toUpperCase());
-          const barItems = items.filter(r => r.indicador.toLowerCase() !== 'total');
-          const maxVal = Math.max(...barItems.map(r => Number(r.valor_uv||0)), 1);
-          const barsHTML = barItems.map(r => {
-            const v = Number(r.valor_uv||0);
-            const pct = (v/maxVal*100).toFixed(1);
-            const lbl = r.indicador
-              .replace(/número de personas en tramo\s*/i,'')
-              .replace(/número de hogares en tramo\s*/i,'')
-              .replace(/\s*-\s*$/, '').trim();
-            return `<div class="bar-row">
-              <div class="label">${lbl}</div>
-              <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:var(--blue);"></div></div>
-              <div class="num">${v.toLocaleString("es-CL")}</div>
-            </div>`;
-          }).join("");
-          return `
-            <div class="card pink" style="align-self:start;">
-              <div class="ctitle">${tituloArchivo} · Total</div>
-              <div class="cvalue">${totalVal != null ? totalVal.toLocaleString("es-CL") : "—"}</div>
-            </div>
-            <div class="card span2" style="border-top:3px solid var(--blue);">
-              <div class="ctitle">Distribución por tramo CSE</div>
-              <div class="bars">${barsHTML}</div>
-            </div>`;
-        }).join("")}
-      </div>
+      <div class="dash-grid">${cardsHTML}</div>
       <p style="font-size:11px;color:var(--muted);margin-top:8px;font-style:italic;padding:0 2px;">Fuente: Registro Social de Hogares · BIDAT, Ministerio de Desarrollo Social y Familia</p>
     </div></div>`;
 
