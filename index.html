@@ -1268,7 +1268,11 @@ function renderPanelArray(panels){
 // panels: array of {key:'total'|'urbano'|'rural', title, row, cls}
 function renderFromState(){
   const checks = {total: els.chkTotal.checked, urbano: els.chkUrbano.checked, rural: els.chkRural.checked};
-  const visible = currentPanels.filter(p => checks[p.key] && hasData(p.row));
+  let visible = currentPanels.filter(p => checks[p.key] && hasData(p.row));
+  // Si ningún panel coincide con los checkboxes pero hay datos, mostrar todos los disponibles
+  if(!visible.length && currentPanels.length > 0){
+    visible = currentPanels.filter(p => hasData(p.row));
+  }
   renderPanelArray(visible);
 }
 
@@ -1378,15 +1382,47 @@ function covers(broad, specific){
 
 function addArea(entry){
   // Ya existe exactamente
-  if(selectedAreas.some(e => e.key === entry.key)){
-    return;
-  }
-  // Ya hay un área más amplia que la cubre
+  if(selectedAreas.some(e => e.key === entry.key)) return;
+
+  // Verificar si hay áreas más amplias que cubren la nueva entrada
   const broader = selectedAreas.find(e => covers(e, entry));
+
   if(broader){
+    const tipoNuevo  = {zona:"zona censal", localidad:"localidad", entidad:"entidad"}[entry.type]  || entry.type;
+    const tipoActual = {region:"región", provincia:"provincia", comuna:"comuna", distrito:"distrito censal"}[broader.type] || broader.type;
+
+    const modal = document.createElement("div");
+    modal.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:center;justify-content:center;";
+    modal.innerHTML = `
+      <div style="background:#fff;border-radius:12px;padding:24px 28px;max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+        <div style="font-size:22px;margin-bottom:8px;">⚠️</div>
+        <h3 style="font-size:15px;font-weight:700;color:#1e3a5f;margin-bottom:12px;">Cambio de nivel territorial</h3>
+        <p style="font-size:13px;color:#475569;line-height:1.8;margin-bottom:16px;">
+          La ${tipoNuevo}:<br>
+          <strong style="color:#1e3a5f;">${entry.label}</strong><br><br>
+          Se encuentra contenida en el ${tipoActual}:<br>
+          <strong style="color:#1e3a5f;">${broader.label}</strong><br><br>
+          Al seleccionar la ${tipoNuevo} mostrará la información solo de las ${tipoNuevo}s seleccionadas y no del ${tipoActual}.<br><br>
+          <strong>¿Desea continuar?</strong>
+        </p>
+        <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
+          <button id="modal-cancel" style="padding:8px 16px;font-size:13px;border:1px solid #e2e8f0;border-radius:6px;background:#fff;cursor:pointer;">No, cancelar</button>
+          <button id="modal-confirm" style="padding:8px 16px;font-size:13px;background:#1e3a5f;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Sí, continuar</button>
+        </div>
+      </div>`;
+    document.body.appendChild(modal);
+    modal.querySelector("#modal-cancel").onclick = () => modal.remove();
+    modal.querySelector("#modal-confirm").onclick = () => {
+      modal.remove();
+      // Quitar solo el área superior específica que cubre esta entrada (no todas del mismo tipo)
+      selectedAreas = selectedAreas.filter(e => e.key !== broader.key);
+      selectedAreas.push(entry);
+      onSelectionChanged();
+    };
     return;
   }
-  // Eliminar áreas más específicas que quedan cubiertas por la nueva
+
+  // Eliminar áreas más específicas cubiertas por la nueva
   selectedAreas = selectedAreas.filter(e => !covers(entry, e));
   selectedAreas.push(entry);
   onSelectionChanged();
@@ -1394,6 +1430,8 @@ function addArea(entry){
 
 function removeArea(key){
   selectedAreas = selectedAreas.filter(e => e.key !== key);
+  // Limpiar mapa inmediatamente antes de recalcular
+  if(boundaryLayer){ map.removeLayer(boundaryLayer); boundaryLayer = null; }
   onSelectionChanged();
 }
 
@@ -1413,8 +1451,9 @@ function renderSelectedList(){
 }
 
 async function onSelectionChanged(){
-  currentNavLevel = null; // al agregar/quitar áreas, mostrar suma combinada
+  currentNavLevel = null;
   renderSelectedList();
+  updateBreadcrumb();
 
 
   // Guardar TODOS los valores antes de cualquier re-poblado
@@ -1696,6 +1735,34 @@ function updateAddButtons(){
     if(!entry) return false;
     if(selectedAreas.some(e => e.key === entry.key)) return false; // ya está
     if(selectedAreas.some(e => covers(e, entry))) return false; // cubierto por algo más amplio
+
+    const tieneRegion    = selectedAreas.some(e => e.type === "region");
+    const tieneProvincia = selectedAreas.some(e => e.type === "provincia");
+    const tieneComuna    = selectedAreas.some(e => e.type === "comuna");
+    const tieneDistrito  = selectedAreas.some(e => e.type === "distrito");
+    const tieneZona      = selectedAreas.some(e => e.type === "zona");
+
+    // Si hay cualquier selección activa, solo se pueden agregar del mismo nivel o más específico
+    // dentro de la misma jerarquía
+    if(selectedAreas.length > 0){
+      // No se puede agregar región si ya hay cualquier selección
+      if(entry.type === "region") return false;
+      // No se puede agregar provincia si ya hay provincia, comuna o más específico
+      if(entry.type === "provincia" && (tieneProvincia || tieneComuna || tieneDistrito || tieneZona)) return false;
+      // No se puede agregar comuna si ya hay comuna o más específico
+      if(entry.type === "comuna" && (tieneComuna || tieneDistrito || tieneZona)) return false;
+      // No se puede agregar distrito si hay multiselección de comunas
+      if(entry.type === "distrito" && tieneComuna) return false;
+      // No se puede agregar zona/localidad/entidad si hay multiselección de comunas o distritos de distintas comunas
+      if(["zona","localidad","entidad"].includes(entry.type)){
+        if(tieneComuna) return false;
+        const distritosSelec = selectedAreas.filter(e => e.type === "distrito");
+        if(distritosSelec.length > 1){
+          const comunasDeDistritos = new Set(distritosSelec.map(e => e.filters.cut_comuna));
+          if(comunasDeDistritos.size > 1) return false;
+        }
+      }
+    }
     return true;
   }
 
@@ -1706,6 +1773,34 @@ function updateAddButtons(){
   els.addZona.disabled      = !canAdd(zonaEntry);
   els.addLocalidad.disabled = !canAdd(localidadEntry);
   els.addEntidad.disabled   = !canAdd(entidadEntry);
+
+  // Deshabilitar combos según jerarquía de selección
+  const tieneRegionSel    = selectedAreas.some(e => e.type === "region");
+  const tieneProvinciaSel = selectedAreas.some(e => e.type === "provincia");
+  const tieneComunaSel    = selectedAreas.some(e => e.type === "comuna");
+  const haySeleccion      = selectedAreas.length > 0;
+
+  // Región: no se puede agregar otra si ya hay cualquier selección
+  if(haySeleccion) els.addRegion.disabled = true;
+
+  if(tieneRegionSel){
+    els.provincia.disabled = true;
+    els.addProvincia.disabled = true;
+  }
+  if(tieneRegionSel || tieneProvinciaSel){
+    els.comuna.disabled = true;
+    els.addComuna.disabled = true;
+  }
+  if(tieneRegionSel || tieneProvinciaSel || tieneComunaSel){
+    els.distrito.disabled = true;
+    els.addDistrito.disabled = true;
+    els.zona.disabled = true;
+    els.addZona.disabled = true;
+    els.localidad.disabled = true;
+    els.addLocalidad.disabled = true;
+    els.entidad.disabled = true;
+    els.addEntidad.disabled = true;
+  }
 }
 
 els.addRegion.addEventListener("click", () => {
@@ -1713,12 +1808,16 @@ els.addRegion.addEventListener("click", () => {
   if(!f.cod_region) return;
   const label = els.region.options[els.region.selectedIndex].textContent;
   addArea({type:"region", label: `Región: ${label}`, filters:{cod_region:f.cod_region}, key: keyFor("region",{cod_region:f.cod_region})});
+  // Deshabilitar niveles inferiores
+  disableChildLevel("region");
 });
 els.addProvincia.addEventListener("click", () => {
   const f = currentFilters();
   if(!f.provincia) return;
   const fl = {cod_region:f.cod_region, provincia:f.provincia};
   addArea({type:"provincia", label: `Provincia: ${f.provincia}`, filters: fl, key: keyFor("provincia", fl)});
+  // Deshabilitar niveles inferiores
+  disableChildLevel("provincia");
 });
 els.addComuna.addEventListener("click", () => {
   const f = currentFilters();
@@ -1726,7 +1825,25 @@ els.addComuna.addEventListener("click", () => {
   const label = els.comuna.options[els.comuna.selectedIndex].textContent;
   const fl = {cod_region:f.cod_region, provincia:f.provincia, cut_comuna:f.cut_comuna};
   addArea({type:"comuna", label: `Comuna: ${label}`, filters: fl, key: keyFor("comuna", fl)});
+  // Deshabilitar niveles inferiores
+  disableChildLevel("comuna");
 });
+
+function disableChildLevel(type){
+  const toDisable = {
+    "region":   [els.provincia, els.addProvincia],
+    "provincia":[els.comuna,    els.addComuna],
+    "comuna":   [els.distrito,  els.addDistrito, els.zona, els.addZona, els.localidad, els.addLocalidad, els.entidad, els.addEntidad],
+  }[type] || [];
+  toDisable.forEach(el => {
+    if(!el) return;
+    el.disabled = true;
+    // Si es un select, resetear
+    if(el.tagName === "SELECT"){
+      el.value = "";
+    }
+  });
+}
 els.addDistrito.addEventListener("click", () => {
   const f = currentFilters();
   if(!f.id_distrito) return;
@@ -1995,8 +2112,28 @@ function updateBreadcrumb(){
     if(sel.value) parts.push(`<b>${opt.textContent}</b>`);
   };
   add(els.region); add(els.provincia); add(els.comuna);
-  add(els.distrito); add(els.zona); add(els.localidad); add(els.entidad);
-  els.breadcrumb.innerHTML = parts.length ? parts.join(" › ") : "";
+
+  if(selectedAreas.length > 0){
+    // Mostrar todas las áreas seleccionadas con "+" entre ellas
+    const areaLabels = selectedAreas.map(e => `<b>${e.label}</b>`)
+      .join(` <span style='color:#94a3b8;font-weight:400;'>+</span> `);
+    parts.push(areaLabels);
+
+    // Si además hay un nivel más específico en el combo (navegando sin agregar aún)
+    if(els.zona.value && !selectedAreas.some(e => e.type === "zona")){
+      parts.push(`<b>${els.zona.options[els.zona.selectedIndex].textContent}</b>`);
+    } else if(els.localidad.value && !selectedAreas.some(e => e.type === "localidad")){
+      parts.push(`<b>${els.localidad.options[els.localidad.selectedIndex].textContent}</b>`);
+    } else if(els.entidad.value && !selectedAreas.some(e => e.type === "entidad")){
+      parts.push(`<b>${els.entidad.options[els.entidad.selectedIndex].textContent}</b>`);
+    }
+  } else {
+    add(els.distrito); add(els.zona); add(els.localidad); add(els.entidad);
+  }
+
+  els.breadcrumb.innerHTML = parts.length
+    ? parts.join(` <span style='color:#94a3b8;'>›</span> `)
+    : "";
 }
 
 
