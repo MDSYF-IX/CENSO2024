@@ -10,8 +10,9 @@
   body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;}
   /* Header BIP */
   .bip-header{background:linear-gradient(135deg,var(--navy-d) 0%,var(--navy) 40%,var(--navy-m) 70%,var(--navy-l) 100%);position:relative;overflow:hidden;}
+  .bip-logo{height:110px;width:auto;flex-shrink:0;}
   .bip-poly{position:absolute;inset:0;z-index:0;overflow:hidden;}
-  .bip-inner{position:relative;z-index:1;padding:20px 26px 18px;max-width:1080px;margin:0 auto;display:flex;align-items:flex-start;gap:18px;}
+  .bip-inner{position:relative;z-index:1;padding:10px 26px 10px;max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:18px;}
   .bip-stripe{width:7px;flex-shrink:0;margin-top:2px;display:flex;flex-direction:column;height:66px;}
   .bip-stripe .sr{flex:0 0 26px;background:#c0392b;}
   .bip-stripe .sb{flex:1;background:#2d5fa7;}
@@ -88,21 +89,12 @@
 <body>
 
 <div class="bip-header">
-  <div class="bip-poly">
-    <svg viewBox="0 0 1200 160" preserveAspectRatio="xMaxYMid slice" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;top:0;left:0;">
-      <polygon points="750,0 1200,0 1200,160 950,160" fill="rgba(255,255,255,.03)"/>
-      <polygon points="900,0 1200,0 1200,110" fill="rgba(255,255,255,.05)"/>
-      <polygon points="1000,55 1200,0 1200,160 1080,160" fill="rgba(45,95,167,.09)"/>
-      <polygon points="1100,0 1200,0 1200,75" fill="rgba(255,255,255,.07)"/>
-      <polygon points="0,160 240,0 420,160" fill="rgba(255,255,255,.02)"/>
-    </svg>
-  </div>
   <div class="bip-inner">
-    <div class="bip-stripe"><div class="sr"></div><div class="sb"></div></div>
+    <img src="Head Pat-A.png" class="bip-logo" alt="PAT-A">
     <div>
       <a href="index.html" class="back-bip">← Herramientas de Formulación</a>
       <div class="eyebrow-bip">Araucanía · Sistema Nacional de Inversiones</div>
-      <div class="bip-h1">Ajuste de Moneda BIP</div>
+      <div class="bip-h1">Convertidor de Moneda BIP</div>
     </div>
   </div>
 </div>

@@ -11,7 +11,8 @@
 
   .bip-header{background:linear-gradient(135deg,var(--navy-d) 0%,var(--navy) 40%,var(--navy-m) 70%,var(--navy-l) 100%);position:relative;overflow:hidden;}
   .bip-poly{position:absolute;inset:0;z-index:0;overflow:hidden;}
-  .bip-top{position:relative;z-index:1;padding:28px 28px 26px;max-width:1080px;margin:0 auto;display:flex;align-items:flex-start;gap:20px;}
+  .bip-top{position:relative;z-index:1;padding:16px 28px 16px;max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:20px;}
+  .bip-logo{height:130px;width:auto;flex-shrink:0;}
   .bip-stripe{width:8px;height:78px;flex-shrink:0;margin-top:2px;display:flex;flex-direction:column;}
   .bip-stripe .sr{flex:0 0 30px;background:#c0392b;}
   .bip-stripe .sb{flex:1;background:var(--blue-bip);}
@@ -21,13 +22,16 @@
   .bip-desc{font-size:13.5px;color:rgba(255,255,255,.82);margin-top:12px;max-width:640px;line-height:1.55;}
 
   main{max-width:1080px;margin:0 auto;padding:32px 20px 70px;}
-  .tools-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:22px;}
+  .tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  @media(max-width:900px){.tools-grid{grid-template-columns:repeat(2,1fr);}}
+  @media(max-width:560px){.tools-grid{grid-template-columns:1fr;}}
   .tool-card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;text-decoration:none;color:inherit;box-shadow:0 3px 12px rgba(0,0,0,.06);transition:transform .18s,box-shadow .18s;display:flex;flex-direction:column;}
   .tool-card:hover{transform:translateY(-4px);box-shadow:0 10px 26px rgba(0,0,0,.11);}
   .tc-banner{height:86px;display:flex;align-items:center;padding:0 24px;position:relative;overflow:hidden;}
   .tc-banner.censo{background:linear-gradient(120deg,#1a2d5a 0%,#2b4590 100%);}
   .tc-banner.bip{background:linear-gradient(120deg,#b45309 0%,#c4963a 100%);}
   .tc-banner.obras{background:linear-gradient(120deg,#14532d 0%,#16a34a 100%);}
+  .tc-banner.reev{background:linear-gradient(120deg,#581c87 0%,#9333ea 100%);}
   .tc-banner svg.deco{position:absolute;right:16px;opacity:.2;}
   .tc-icon{width:44px;height:44px;background:rgba(255,255,255,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.25);}
   .tc-body{padding:20px 24px 24px;flex:1;display:flex;flex-direction:column;}
@@ -39,10 +43,12 @@
   .censo .tc-features li::before{background:#2d5fa7;}
   .bip-card .tc-features li::before{background:#c4963a;}
   .obras .tc-features li::before{background:#16a34a;}
+  .reev .tc-features li::before{background:#9333ea;}
   .tc-cta{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;align-self:flex-start;padding:8px 18px;border-radius:7px;color:#fff;}
   .censo .tc-cta{background:var(--navy);}
   .bip-card .tc-cta{background:#b45309;}
   .obras .tc-cta{background:#16a34a;}
+  .reev .tc-cta{background:#9333ea;}
   footer{max-width:1080px;margin:0 auto;padding:0 20px 48px;}
   .footer-inner{border-top:1px solid var(--line);padding-top:20px;font-size:12.5px;color:var(--muted);}
   .footer-inner strong{color:var(--navy);}
@@ -52,28 +58,59 @@
 <body>
 
 <div class="bip-header">
-  <div class="bip-poly">
-    <svg viewBox="0 0 1200 220" preserveAspectRatio="xMaxYMid slice" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;top:0;left:0;">
-      <polygon points="700,0 1200,0 1200,220 900,220" fill="rgba(255,255,255,.03)"/>
-      <polygon points="860,0 1200,0 1200,130" fill="rgba(255,255,255,.05)"/>
-      <polygon points="950,70 1200,0 1200,220 1060,220" fill="rgba(45,95,167,.1)"/>
-      <polygon points="1100,0 1200,0 1200,90" fill="rgba(255,255,255,.07)"/>
-      <polygon points="0,220 270,0 480,220" fill="rgba(255,255,255,.02)"/>
-    </svg>
-  </div>
   <div class="bip-top">
-    <div class="bip-stripe"><div class="sr"></div><div class="sb"></div></div>
+    <img src="Head Pat-A.png" class="bip-logo" alt="PAT-A">
     <div>
-      <div class="bip-eyebrow">Araucanía · Herramientas de Formulación · Sistema Nacional de Inversiones</div>
-      <h1 class="bip-h1">Herramientas de Formulación</h1>
-      <div class="bip-sub">Ministerio de Desarrollo Social y Familia</div>
-      <p class="bip-desc">Plataforma de apoyo técnico para el análisis territorial y la formulación de iniciativas de inversión pública.</p>
+      <div class="bip-eyebrow">Araucanía · Sistema Nacional de Inversiones</div>
+      <h1 class="bip-h1">Herramientas para Formuladores</h1>
+      <div class="bip-sub">de Iniciativas en el Sistema Nacional de Inversiones</div>
+      <p class="bip-desc" style="margin-top:22px;">Plataforma de Apoyo Técnico de La Araucanía</p>
     </div>
   </div>
 </div>
 
 <main>
   <div class="tools-grid">
+
+    <a href="asistente_reevaluaciones.html" class="tool-card reev">
+      <div class="tc-banner reev">
+        <div class="tc-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+        </div>
+        <svg class="deco" width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1"><path d="M9 17H7a5 5 0 010-10h1m6 0h1a5 5 0 010 10h-1M9 12h6"/></svg>
+      </div>
+      <div class="tc-body">
+        <h2 class="tc-title">Asistente de Reevaluaciones</h2>
+        <p class="tc-desc">Responde un breve cuestionario sobre el estado de tu iniciativa de inversión y determina si corresponde solicitar una Reevaluación ante el SNI, según el Módulo Ex Dure de las NIP 2026.</p>
+        <ul class="tc-features">
+          <li>Basado en las causales del punto 3.2 de las NIP 2026</li>
+          <li>Detecta causales de exclusión (cambio de naturaleza)</li>
+          <li>Identifica la causal aplicable y sus antecedentes mínimos</li>
+          <li>Formato de preguntas paso a paso, tipo tarjetas</li>
+        </ul>
+        <span class="tc-cta">Abrir asistente →</span>
+      </div>
+    </a>
+
+    <a href="moneda_bip.html" class="tool-card bip-card">
+      <div class="tc-banner bip">
+        <div class="tc-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+        </div>
+        <svg class="deco" width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>
+      </div>
+      <div class="tc-body">
+        <h2 class="tc-title">Convertidor de Moneda BIP</h2>
+        <p class="tc-desc">Actualiza montos en pesos chilenos entre distintas fechas según el IPC INE. Conversión individual o masiva de múltiples ítems de distintos años a una fecha destino común.</p>
+        <ul class="tc-features">
+          <li>IPC INE histórico (1928–2017)</li>
+          <li>Conversión individual o masiva de ítems</li>
+          <li>Distintas fechas de origen → una fecha destino</li>
+          <li>Exportar resultados a CSV</li>
+        </ul>
+        <span class="tc-cta">Abrir herramienta →</span>
+      </div>
+    </a>
 
     <a href="censo2024_consulta.html" class="tool-card censo">
       <div class="tc-banner censo">
@@ -90,26 +127,6 @@
           <li>RSH por tramos CSE (región, provincia, comuna)</li>
           <li>Proyección de población automática</li>
           <li>Buscador territorial y exportación Excel/PDF</li>
-        </ul>
-        <span class="tc-cta">Abrir herramienta →</span>
-      </div>
-    </a>
-
-    <a href="moneda_bip.html" class="tool-card bip-card">
-      <div class="tc-banner bip">
-        <div class="tc-icon">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
-        </div>
-        <svg class="deco" width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>
-      </div>
-      <div class="tc-body">
-        <h2 class="tc-title">Ajuste de Moneda BIP</h2>
-        <p class="tc-desc">Actualiza montos en pesos chilenos entre distintas fechas según el IPC INE. Conversión individual o masiva de múltiples ítems de distintos años a una fecha destino común.</p>
-        <ul class="tc-features">
-          <li>IPC INE histórico (1928–2017)</li>
-          <li>Conversión individual o masiva de ítems</li>
-          <li>Distintas fechas de origen → una fecha destino</li>
-          <li>Exportar resultados a CSV</li>
         </ul>
         <span class="tc-cta">Abrir herramienta →</span>
       </div>

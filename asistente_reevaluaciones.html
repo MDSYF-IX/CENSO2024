@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asistente de Reevaluaciones - Sistema Nacional de Inversiones</title>
+<style>
+  :root{
+    --navy:#1a2d5a;--navy-d:#0f1e3d;--navy-m:#223570;--navy-l:#2b4590;
+    --purple:#9333ea;--purple-d:#581c87;--purple-l:#a855f7;
+    --bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--ink:#1e293b;--muted:#64748b;
+    --ok:#16a34a;--ok-bg:#f0fdf4;--ok-line:#bbf7d0;
+    --no:#dc2626;--no-bg:#fef2f2;--no-line:#fecaca;
+    --warn:#b45309;--warn-bg:#fffbeb;--warn-line:#fde68a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;min-height:100vh;}
+
+  .bip-header{background:linear-gradient(135deg,var(--navy-d) 0%,var(--navy) 40%,var(--purple-d) 100%);position:relative;overflow:hidden;}
+  .bip-poly{position:absolute;inset:0;z-index:0;overflow:hidden;}
+  .bip-top{position:relative;z-index:1;padding:10px 28px 10px;max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:20px;}
+  .bip-logo{height:110px;width:auto;flex-shrink:0;}
+  .bip-stripe{width:8px;height:64px;flex-shrink:0;margin-top:2px;display:flex;flex-direction:column;}
+  .bip-stripe .sr{flex:0 0 26px;background:#c0392b;}
+  .bip-stripe .sb{flex:1;background:var(--purple-l);}
+  .back-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,.7);text-decoration:none;margin-bottom:8px;}
+  .back-link:hover{color:#fff;}
+  .bip-eyebrow{font-size:10.5px;color:rgba(255,255,255,.62);letter-spacing:.07em;text-transform:uppercase;margin-bottom:6px;font-weight:600;}
+  .bip-h1{font-size:25px;font-weight:700;color:#fff;line-height:1.2;letter-spacing:-.01em;margin:0;}
+  .bip-sub{font-size:13px;color:rgba(255,255,255,.8);margin-top:5px;max-width:560px;}
+
+  main{max-width:880px;margin:0 auto;padding:28px 20px 70px;}
+
+  /* progress */
+  .progress-wrap{margin-bottom:22px;}
+  .progress-track{height:6px;background:var(--line);border-radius:99px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--navy-l),var(--purple));border-radius:99px;transition:width .35s ease;}
+  .progress-label{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:7px;font-weight:600;letter-spacing:.02em;}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 3px 14px rgba(15,30,61,.06);padding:30px 32px;animation:fadein .25s ease;}
+  @keyframes fadein{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+  .step-kicker{font-size:11px;font-weight:700;color:var(--purple);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+  .step-q{font-size:19px;font-weight:700;color:var(--navy);line-height:1.35;margin-bottom:6px;}
+  .step-help{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.55;}
+  .step-help b{color:var(--ink);}
+
+  .opt-list{display:flex;flex-direction:column;gap:10px;margin-bottom:8px;}
+  .opt{display:flex;align-items:flex-start;gap:12px;border:1.5px solid var(--line);border-radius:10px;padding:13px 16px;cursor:pointer;transition:border-color .15s,background .15s;background:#fff;}
+  .opt:hover{border-color:var(--purple-l);background:#faf5ff;}
+  .opt.selected{border-color:var(--purple);background:#f5ebff;}
+  .opt .bullet{width:18px;height:18px;border-radius:50%;border:2px solid #cbd5e1;flex-shrink:0;margin-top:2px;position:relative;}
+  .opt.selected .bullet{border-color:var(--purple);}
+  .opt.selected .bullet::after{content:"";position:absolute;inset:3px;border-radius:50%;background:var(--purple);}
+  .opt-text{font-size:14px;color:var(--ink);}
+  .opt-text strong{display:block;font-size:14.5px;margin-bottom:2px;color:var(--navy);}
+  .opt-text span.tag{display:inline-block;margin-top:6px;font-size:10.5px;color:var(--muted);background:var(--bg);border-radius:5px;padding:2px 7px;font-weight:600;}
+
+  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:26px;}
+  .btn{font-size:13.5px;font-weight:700;border-radius:8px;padding:10px 22px;cursor:pointer;border:none;transition:opacity .15s, transform .1s;}
+  .btn:active{transform:scale(.98);}
+  .btn-primary{background:var(--purple);color:#fff;}
+  .btn-primary:disabled{background:#d8b4fe;cursor:not-allowed;}
+  .btn-ghost{background:transparent;color:var(--muted);}
+  .btn-ghost:hover{color:var(--ink);}
+  .btn-restart{background:var(--navy);color:#fff;}
+
+  /* result */
+  .result-badge{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;border-radius:99px;padding:7px 16px;margin-bottom:16px;}
+  .badge-ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line);}
+  .badge-no{background:var(--no-bg);color:var(--no);border:1px solid var(--no-line);}
+  .badge-warn{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-line);}
+  .result-title{font-size:21px;font-weight:700;color:var(--navy);margin-bottom:10px;line-height:1.3;}
+  .result-text{font-size:14px;color:var(--ink);margin-bottom:18px;line-height:1.6;}
+  .result-text b{color:var(--navy);}
+
+  .box{border-radius:10px;padding:16px 18px;margin-bottom:16px;border:1px solid var(--line);background:#fafbfc;}
+  .box h4{font-size:12.5px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:700;margin-bottom:10px;}
+  .box ul{padding-left:18px;}
+  .box li{font-size:13.5px;color:var(--ink);margin-bottom:6px;line-height:1.5;}
+
+  .footnote{font-size:11.5px;color:var(--muted);margin-top:22px;line-height:1.6;border-top:1px dashed var(--line);padding-top:14px;}
+
+  /* ejemplos dentro de opciones y ayudas */
+  .opt-text em.ej{display:block;font-style:normal;font-size:12px;color:var(--purple);margin-top:6px;line-height:1.45;}
+  .opt-text em.ej b{color:var(--purple-d);}
+
+  /* callout explicativo (azul) */
+  .callout{border:1px solid #c7d7f0;background:#f0f5fc;border-left:3px solid var(--navy-l);border-radius:9px;padding:14px 16px;margin-bottom:18px;}
+  .callout h4{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--navy-l);font-weight:700;margin-bottom:8px;}
+  .callout p{font-size:13px;color:var(--ink);line-height:1.55;margin-bottom:8px;}
+  .callout p:last-child{margin-bottom:0;}
+  .ej-line{font-size:12.5px;color:var(--navy);background:#fff;border:1px solid #d6e2f4;border-radius:7px;padding:9px 12px;margin:8px 0;line-height:1.5;}
+  .ej-line b{color:var(--purple-d);}
+
+  /* disclosure ¿qué significa? */
+  details.disc{border:1px dashed #cbd5e1;border-radius:9px;padding:0;margin-bottom:16px;background:#fafbfc;overflow:hidden;}
+  details.disc summary{cursor:pointer;list-style:none;padding:11px 15px;font-size:12.5px;font-weight:700;color:var(--navy);display:flex;align-items:center;gap:8px;}
+  details.disc summary::-webkit-details-marker{display:none;}
+  details.disc summary::before{content:"?";display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;background:var(--navy-l);color:#fff;font-size:11px;flex-shrink:0;}
+  details.disc[open] summary{border-bottom:1px dashed #e2e8f0;}
+  details.disc .disc-body{padding:13px 15px 15px;font-size:13px;color:var(--ink);line-height:1.6;}
+  details.disc .disc-body b{color:var(--navy);}
+
+  /* calculadora */
+  .calc-grid{display:flex;flex-direction:column;gap:14px;margin-bottom:6px;}
+  .field label{display:block;font-size:12.5px;font-weight:700;color:var(--navy);margin-bottom:5px;}
+  .field .hint{font-size:11.5px;font-weight:400;color:var(--muted);display:block;margin-top:1px;margin-bottom:6px;line-height:1.4;}
+  .field input{width:100%;font-family:inherit;font-size:15px;color:var(--ink);border:1.5px solid var(--line);border-radius:9px;padding:11px 13px;outline:none;transition:border-color .15s;}
+  .field input:focus{border-color:var(--purple);}
+  .field .prefix-wrap{position:relative;}
+  .field .prefix-wrap .pfx{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:15px;color:var(--muted);pointer-events:none;}
+  .field .prefix-wrap input{padding-left:28px;}
+  .calc-btn-row{display:flex;gap:10px;margin-top:18px;}
+  .btn-calc{background:var(--navy);color:#fff;}
+
+  /* bloque moneda de igual valor */
+  .moneda-box{margin-top:16px;border:1px solid #c7d7f0;background:#f0f5fc;border-radius:10px;padding:13px 15px;}
+  .moneda-chk{display:flex;align-items:flex-start;gap:9px;cursor:pointer;font-size:13px;color:var(--navy);line-height:1.45;}
+  .moneda-chk input{margin-top:2px;width:16px;height:16px;flex-shrink:0;accent-color:var(--navy-l);cursor:pointer;}
+  .moneda-req{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:#fff;background:var(--navy-l);border-radius:5px;padding:1px 7px;margin-left:4px;vertical-align:middle;}
+  .moneda-fields{margin-top:12px;}
+  .moneda-years{display:flex;gap:12px;}
+  .moneda-years .field{flex:1;}
+  .moneda-years select{width:100%;font-family:inherit;font-size:14px;color:var(--ink);border:1.5px solid #cdd9ec;border-radius:8px;padding:9px 11px;background:#fff;outline:none;cursor:pointer;}
+  .moneda-years select:focus{border-color:var(--navy-l);}
+  @media(max-width:480px){.moneda-years{flex-direction:column;gap:10px;}}
+  .v-moneda-note{margin-top:12px;font-size:12px;color:var(--navy-l);font-weight:600;}
+  .v-nota{margin-top:10px;font-size:12.5px;color:var(--warn);background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:7px;padding:8px 11px;line-height:1.45;}
+
+  /* bloque ficha IDI */
+  .ficha-box{margin:16px 0;border:1px dashed #b9a6e0;background:#faf7ff;border-radius:10px;padding:14px 16px;}
+  .ficha-title{font-size:13px;font-weight:700;color:var(--purple-d);}
+  .ficha-sub{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5;}
+  .ficha-upload{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;cursor:pointer;}
+  .ficha-btn{display:inline-flex;align-items:center;gap:7px;background:var(--purple);color:#fff;font-size:13px;font-weight:700;border-radius:8px;padding:9px 16px;cursor:pointer;}
+  .ficha-btn:hover{background:var(--purple-d);}
+  .ficha-status{font-size:12.5px;color:var(--muted);font-weight:600;}
+  .ficha-status.ok{color:var(--ok);}
+  .ficha-status.err{color:var(--no);}
+  .ficha-pick{margin-top:14px;}
+  .ficha-pick select{width:100%;font-family:inherit;font-size:14px;color:var(--ink);border:1.5px solid #cdd9ec;border-radius:8px;padding:9px 11px;background:#fff;outline:none;cursor:pointer;}
+
+  /* cabecera ficha (causal C) */
+  .ficha-card{margin:14px 0;background:#f6f9fe;border:1px solid #c7d7f0;border-radius:10px;padding:12px 15px;}
+  .fi-name{font-size:14px;font-weight:700;color:var(--navy);line-height:1.35;}
+  .fi-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;}
+  .fi-chip{font-size:11.5px;color:var(--muted);background:#fff;border:1px solid var(--line);border-radius:6px;padding:3px 9px;}
+  .fi-chip.accent{color:var(--purple-d);background:#f3ebff;border-color:#e2d2fb;font-weight:600;}
+
+  /* toolbar unidad */
+  .c-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:16px 0 12px;}
+  .unit-toggle{display:flex;align-items:center;gap:9px;}
+  .unit-label{font-size:12.5px;color:var(--muted);}
+  .seg{display:inline-flex;border:1.5px solid var(--line);border-radius:8px;overflow:hidden;}
+  .seg-btn{border:none;background:#fff;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--ink);padding:7px 13px;cursor:pointer;}
+  .seg-btn.active{background:#f3ebff;color:var(--purple-d);}
+  .c-umbral{font-size:11.5px;color:var(--muted);}
+
+  /* tabla causal C */
+  .c-table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;}
+  .c-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .c-table th{text-align:right;font-weight:600;color:var(--muted);padding:9px 8px;border-bottom:1.5px solid var(--line);white-space:nowrap;font-size:11.5px;}
+  .c-table th.l{text-align:left;} .c-table th.c{text-align:center;} .c-table th.x{width:30px;}
+  .c-table td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:middle;}
+  .c-table td.l{text-align:left;} .c-table td.r{text-align:right;} .c-table td.c{text-align:center;} .c-table td.x{text-align:center;}
+  .c-table tr:last-child td{border-bottom:none;}
+  .c-asg{font-weight:600;color:var(--navy);}
+  .c-info{cursor:help;color:var(--navy-l);font-size:12px;}
+  .c-asgtag{font-size:10px;color:var(--warn);background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:5px;padding:1px 6px;display:inline-block;margin-top:3px;}
+  .c-na{color:#cbd5e1;}
+  .c-tiposel{font-family:inherit;font-size:12.5px;border:1.5px solid var(--line);border-radius:8px;padding:6px 10px;background:#fff;outline:none;cursor:pointer;}
+  .c-tiposel:focus{border-color:var(--purple);}
+  .fases-block{margin-top:16px;}
+  .fases-q{font-size:13.5px;font-weight:700;color:var(--navy);margin-bottom:8px;}
+  .fases-nrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+  .fases-ninput{width:64px;font-family:inherit;font-size:14px;border:1.5px solid var(--line);border-radius:8px;padding:7px 9px;outline:none;text-align:center;}
+  .fases-ninput:focus{border-color:var(--purple);}
+  .fdist-ok{color:var(--ok);font-weight:700;}
+  .fdist-bad{color:var(--warn);font-weight:600;font-size:11px;white-space:nowrap;}
+  .fases-lock{font-size:12.5px;color:var(--warn);background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:8px;padding:11px 14px;line-height:1.5;}
+  .situ-row{display:flex;align-items:center;gap:10px;margin:14px 0 4px;flex-wrap:wrap;}
+  .situ-seg{flex-wrap:wrap;}
+  .situ-seg .seg-btn{font-size:12px;}
+  .c-in{width:88px;font-family:inherit;font-size:12.5px;text-align:right;border:1px solid var(--line);border-radius:6px;padding:6px 8px;outline:none;}
+  .c-in:focus{border-color:var(--purple);}
+  .c-in.c-name{width:130px;text-align:left;}
+  td.r .c-in{display:inline-block;}
+  .c-pend{color:#cbd5e1;}
+  .c-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;white-space:nowrap;}
+  .c-badge.ok{background:var(--ok-bg);color:var(--ok);}
+  .c-badge.warn{background:var(--warn-bg);color:var(--warn);}
+  .c-pct{font-size:10.5px;color:var(--muted);margin-top:3px;}
+  .c-line{display:flex;align-items:center;gap:5px;justify-content:flex-start;margin:2px 0;white-space:nowrap;}
+  .c-tag{font-size:9.5px;color:var(--muted);min-width:42px;text-align:left;}
+  .c-pctin{font-size:10.5px;color:var(--muted);font-weight:600;}
+  .c-naest{font-size:11px;font-weight:700;color:#94a3b8;background:#f1f5f9;border-radius:6px;padding:3px 9px;display:inline-block;}
+  .c-gastoerr{font-size:10.5px;font-weight:700;color:var(--warn);background:var(--warn-bg);border-radius:5px;padding:3px 7px;margin-top:3px;display:inline-block;}
+  .c-in.err{border-color:var(--warn);}
+  .fdist-last{background:#f8fafc!important;color:var(--muted);}
+  .est-split{display:flex;flex-direction:column;}
+  .est-row{display:flex;flex-direction:column;align-items:flex-start;padding:5px 2px;gap:3px;flex:1;}
+  .est-lbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap;}
+  .est-div{height:1px;background:var(--line);margin:0 -4px;}
+  .c-saldo{font-size:10.5px;color:var(--navy-l);margin-top:4px;font-weight:600;}
+  .c-cell{display:flex;flex-direction:column;gap:3px;align-items:flex-end;}
+  .c-yr-row{display:flex;align-items:center;gap:4px;justify-content:flex-end;}
+  .c-yr-lbl{font-size:9px;font-weight:700;color:var(--blue-bip);white-space:nowrap;letter-spacing:.02em;}
+  .c-yr{font-family:inherit;font-size:10.5px;color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:2px 2px;background:#fff;outline:none;cursor:pointer;width:58px;}
+  .c-yr:focus{border-color:var(--purple);}
+  .c-yr-ro{font-size:10.5px;color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:2px 4px;background:#f8fafc;width:58px;text-align:center;display:inline-block;}
+  .c-convbtn{font-family:inherit;font-size:10px;color:var(--purple-d);background:#f3ebff;border:1px solid #e2d2fb;border-radius:5px;padding:2px 6px;cursor:pointer;width:88px;}
+  .c-convbtn:hover{background:#ebddff;}
+  .conv-overlay{position:fixed;inset:0;background:rgba(15,30,61,.45);display:none;align-items:center;justify-content:center;z-index:9999;padding:16px;}
+  .conv-modal{background:#fff;border-radius:14px;max-width:520px;width:100%;max-height:90vh;overflow:auto;padding:20px 22px;box-shadow:0 12px 40px rgba(15,30,61,.3);}
+  .conv-head{display:flex;justify-content:space-between;align-items:center;}
+  .conv-title{font-size:17px;font-weight:700;color:var(--navy);}
+  .conv-sub{font-size:12.5px;color:var(--muted);margin:6px 0 12px;line-height:1.5;}
+  .conv-tgt{font-size:13px;color:var(--navy);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+  .conv-paste{width:100%;min-height:60px;font-family:inherit;font-size:12.5px;border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;outline:none;resize:vertical;}
+  .conv-paste:focus{border-color:var(--purple);}
+  .conv-btns{display:flex;gap:8px;margin:8px 0 12px;}
+  .conv-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  .conv-table th{text-align:left;font-size:11px;color:var(--muted);font-weight:600;padding:5px 6px;border-bottom:1.5px solid var(--line);}
+  .conv-table th.r{text-align:right;}
+  .conv-table td{padding:4px 6px;border-bottom:1px solid var(--line);}
+  .conv-table td.r{text-align:right;}
+  .conv-table .c-in{width:120px;}
+  .conv-eq{font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;}
+  .conv-total{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:2px solid var(--line);font-size:14px;color:var(--navy);}
+  .conv-total b{font-size:16px;}
+  .conv-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;}
+  .c-del{background:none;border:none;color:#cbd5e1;font-size:18px;line-height:1;cursor:pointer;padding:0 2px;}
+  .c-del:hover{color:var(--no);}
+  .c-empty{text-align:center;color:var(--muted);font-size:12.5px;padding:18px 8px;}
+
+  .c-add-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;}
+  .c-addsel{font-family:inherit;font-size:12.5px;border:1.5px solid var(--line);border-radius:8px;padding:7px 10px;background:#fff;outline:none;cursor:pointer;max-width:60%;}
+  .btn-mini{font-family:inherit;font-size:12.5px;font-weight:600;color:var(--purple-d);background:#f3ebff;border:1px solid #e2d2fb;border-radius:8px;padding:7px 13px;cursor:pointer;}
+  .btn-mini:hover{background:#ebddff;}
+  .c-allused,.c-unitnote{font-size:11.5px;color:var(--muted);}
+
+  .c-sumrow{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:18px;}
+  .c-sumbadge{font-size:13px;font-weight:700;padding:7px 14px;border-radius:8px;}
+  .c-sumbadge.ok{background:var(--ok-bg);color:var(--ok);border:1px solid var(--ok-line);}
+  .c-sumbadge.warn{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-line);}
+  .c-sumnote{font-size:11.5px;color:var(--muted);margin-top:8px;line-height:1.5;}
+  .c-sumnote.warn{color:var(--warn);font-weight:600;}
+
+  .verdict{border-radius:11px;padding:18px 20px;margin-top:20px;animation:fadein .2s ease;}
+  .verdict.supera{background:var(--ok-bg);border:1.5px solid var(--ok-line);}
+  .verdict.dentro{background:#eff6ff;border:1.5px solid #bfdbfe;}
+  .verdict .v-tag{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+  .verdict.supera .v-tag{color:var(--ok);}
+  .verdict.dentro .v-tag{color:#1d4ed8;}
+  .verdict .v-main{font-size:15px;font-weight:700;color:var(--navy);line-height:1.4;margin-bottom:12px;}
+  .verdict .v-rows{display:flex;flex-direction:column;gap:7px;}
+  .verdict .v-row{display:flex;justify-content:space-between;gap:14px;font-size:13px;color:var(--ink);border-bottom:1px dotted #d6dde7;padding-bottom:6px;}
+  .verdict .v-row:last-child{border-bottom:none;padding-bottom:0;}
+  .verdict .v-row .v-k{color:var(--muted);}
+  .verdict .v-row .v-v{font-weight:700;color:var(--navy);font-variant-numeric:tabular-nums;}
+  .verdict .v-row .v-v.big{font-size:15px;}
+
+  @media(max-width:560px){
+    .card{padding:22px 18px;}
+    .step-q{font-size:17px;}
+    .bip-h1{font-size:21px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="bip-header">
+  <div class="bip-top">
+    <img src="Head Pat-A.png" class="bip-logo" alt="PAT-A">
+    <div>
+      <a class="back-link" href="index.html">← Herramientas de Formulación</a>
+      <div class="bip-eyebrow">Araucanía · Sistema Nacional de Inversiones</div>
+      <h1 class="bip-h1">Asistente de Reevaluaciones</h1>
+      <p class="bip-sub">Determina si tu iniciativa debe someterse a Reevaluación ante el SNI según el Módulo Ex Dure · NIP 2026.</p>
+    </div>
+  </div>
+</div>
+
+<main>
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:8%"></div></div>
+    <div class="progress-label"><span id="progressText">Inicio</span><span id="progressStep">Paso 1</span></div>
+  </div>
+
+  <div id="cardHost"></div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+/* =========================================================================
+   ASISTENTE DE REEVALUACIONES — basado en NIP 2026 (SNI), punto 3.2
+   Módulo de Evaluación Ex Dure: Reevaluaciones y Ejecución Presupuestaria
+   ========================================================================= */
+
+// Antecedentes mínimos por causal (NIP 2026, 3.2.4.x) — resumidos para la conclusión
+const ANTECEDENTES = {
+  A: [
+    "Informe que justifique la modificación solicitada (o informe de diferencias normativas, si aplica).",
+    "Si solo es actualización de precios: informe con al menos 3 cotizaciones, facturas, OC o licitaciones recientes (últimos 12 meses).",
+    "Cronograma de actividades actualizado y justificación de aumentos de plazo/magnitud.",
+    "Reevaluación económica de la alternativa seleccionada (si corresponde).",
+    "Términos de Referencia y especificaciones técnicas actualizados (si corresponde).",
+    "Propuesta de nueva programación, anualización y solicitud de financiamiento.",
+    "Presupuesto oficial detallado y actualizado."
+  ],
+  B: [
+    "Informe de la Institución Financiera que justifique adjudicar sin nuevo llamado a licitación.",
+    "Informe de la Institución Técnica con análisis comparativo entre presupuesto recomendado y propuesto.",
+    "Reevaluación económica de la alternativa seleccionada, según metodología y precios sociales vigentes.",
+    "Propuesta de nueva programación y solicitud de financiamiento, si procede.",
+    "Presupuesto oficial propuesto en la reevaluación."
+  ],
+  C: [
+    "Informe de la Institución Técnica que justifique que las modificaciones son imprescindibles, con presupuesto detallado.",
+    "Informe de la Institución Financiera sobre la propuesta de cambios y su validez respecto del contrato vigente.",
+    "Informe de avance físico-financiero de la etapa, concordante con el BIP.",
+    "Historial de modificaciones contractuales previas (asignaciones, contratos, estados de pago, etc.).",
+    "Cronograma actualizado y justificación de aumentos de plazo/magnitud.",
+    "Reevaluación económica de la alternativa seleccionada (si corresponde).",
+    "Presupuesto oficial propuesto en la reevaluación."
+  ],
+  D: [
+    "Informe de la institución financiera sobre la(s) causa(s) del término anticipado, con respaldos.",
+    "Copia del acto administrativo que aprueba el término anticipado del contrato (ingresado a Contraloría, si corresponde).",
+    "Cronograma, Términos de Referencia, especificaciones técnicas y presupuesto oficial para terminar la etapa.",
+    "Informe de la Unidad Técnica con el detalle de la situación de cada partida (ejecutada/pagada, ejecutada/no pagada, no ejecutada, etc.)."
+  ],
+  E: [
+    "Informe técnico que justifique la licitación/ejecución por fases constructivas.",
+    "Cronograma actualizado, indicando duración por fase.",
+    "Detalle y justificación de la propuesta de fases constructivas.",
+    "Términos de Referencia y especificaciones técnicas de cada fase.",
+    "Reevaluación económica de la alternativa seleccionada (si corresponde).",
+    "Historial de modificaciones contractuales previas.",
+    "Presupuestos actualizados por tramo o etapa según licitaciones a ejecutar."
+  ],
+  F: [
+    "Informe de la institución financiera que justifique extender la programación más allá de 120 meses.",
+    "Propuesta de nueva programación, anualización y solicitud de financiamiento (\"Planilla dice y debe decir\").",
+    "Cronograma de actividades actualizado."
+  ],
+  G: [
+    "Informe de la institución financiera que justifique incorporar la nueva fuente y/o asignación.",
+    "Antecedentes de respaldo de la nueva asignación (presupuesto, especificaciones técnicas, resoluciones, antecedentes legales, etc.).",
+    "Reevaluación económica de la alternativa seleccionada (si corresponde).",
+    "Propuesta de nueva programación y solicitud de financiamiento (\"Planilla dice y debe decir\").",
+    "Cronograma de actividades actualizado, si procede."
+  ],
+  H: [
+    "Estudio preinversional (o memoria, en conservaciones) actualizado.",
+    "Informe de la institución técnica que justifique la modificación de magnitud respecto del diseño aprobado, con factibilidad técnica/jurídica.",
+    "Reevaluación económica de la alternativa seleccionada (si corresponde).",
+    "Cronograma de actividades actualizado, si procede."
+  ],
+  I: [
+    "Antecedentes que formen parte de la verificación del hito de control, según lo definido en la recomendación original.",
+    "Reevaluación económica de la alternativa seleccionada (si corresponde).",
+    "Propuesta de nueva programación y solicitud de financiamiento (\"Planilla dice y debe decir\"), si procede.",
+    "Cronograma de actividades actualizado, si procede."
+  ],
+  J: [
+    "Documento de respaldo que justifique fundadamente el ajuste a la solicitud de financiamiento.",
+    "Planilla \"dice y debe decir\"."
+  ],
+  K: [
+    "Informe detallado del avance físico-financiero, con análisis comparativo de costos, plazos y recursos entre lo ejecutado y la recomendación original.",
+    "Documentación de respaldo técnico-administrativo (resoluciones o decretos de identificación, licitaciones, contratos, gastos, etc.).",
+    "Otros antecedentes que solicite expresamente el MDSF en el oficio de apertura de la reevaluación."
+  ],
+  L: [
+    "Antecedentes que indique la jefatura de la DESI en su oficio de respuesta a la consulta sobre la causal homologable."
+  ]
+};
+
+const CAUSAL_LABEL = {
+  A: "Modificaciones previas a una licitación (3.2.1.1)",
+  B: "Modificaciones a consecuencia del proceso de licitación (3.2.1.2)",
+  C: "Modificaciones de contratos vigentes (3.2.1.3)",
+  D: "Término anticipado de contratos (3.2.1.4)",
+  E: "Licitación o ejecución por fases constructivas (3.2.1.5)",
+  F: "Programación de inversión superior a 120 meses (3.2.1.6)",
+  G: "Ingreso o modificación de una asignación o fuente financiera (3.2.1.7)",
+  H: "Cambio de magnitud en etapa de Diseño mayor a 20% (3.2.1.8)",
+  I: "Verificación de hito de control (3.2.1.9)",
+  J: "Ajustes a la solicitud de financiamiento (3.2.1.10)",
+  K: "Solicitud expresa del MDSF (3.2.1.11)",
+  L: "Otra situación no tipificada (3.2.1.12)"
+};
+
+// ---- state ----
+let history = ["intro"];
+let answers = {};
+
+function current(){ return history[history.length-1]; }
+function goTo(stepId){ history.push(stepId); render(); }
+function goBack(){ if(history.length>1){ history.pop(); render(); } }
+function restart(){ history=["intro"]; answers={}; FICHA=null; C_ROWS=[]; C_UNIT="miles"; C_TIPO="PROYECTO"; SITU="normal"; C_RESULT=null; render(); }
+
+function setAnswer(key, val){ answers[key]=val; }
+
+// total steps estimate for progress bar (approximate, recalculated dynamically)
+function estimateProgress(){
+  const order = ["intro","q_rate","q_group"];
+  let idx = order.indexOf(current());
+  if(idx>=0) return Math.min(10 + idx*22, 60);
+  const c = current();
+  if(c==="q_exclusion"||c==="q_subsidio") return 70;
+  if(c==="q_causal_tec"||c==="q_causal_adm") return 70;
+  if(c==="calc_presup"||c.startsWith("thresh_")) return 85;
+  if(c.startsWith("end_") || c.startsWith("result_")) return 100;
+  return 50;
+}
+
+function renderProgress(){
+  const fill = document.getElementById("progressFill");
+  const txt = document.getElementById("progressText");
+  const stepTxt = document.getElementById("progressStep");
+  const p = estimateProgress();
+  fill.style.width = p+"%";
+  txt.textContent = (p>=100) ? "Resultado" : "Evaluando antecedentes";
+  stepTxt.textContent = "Paso " + history.length;
+}
+
+// ---- option card builder ----
+function optionCard(value, title, desc, tag){
+  return `<div class="opt" data-value="${value}" onclick="selectOption(this)">
+    <div class="bullet"></div>
+    <div class="opt-text"><strong>${title}</strong>${desc?desc:""}${tag?`<span class="tag">${tag}</span>`:""}</div>
+  </div>`;
+}
+
+let pendingSelection = null;
+function selectOption(el){
+  document.querySelectorAll(".opt").forEach(o=>o.classList.remove("selected"));
+  el.classList.add("selected");
+  pendingSelection = el.getAttribute("data-value");
+  document.getElementById("nextBtn").disabled = false;
+}
+
+function shell(kicker, question, help, bodyHtml, opts){
+  opts = opts || {};
+  const showBack = history.length>1;
+  return `
+    <div class="card">
+      <div class="step-kicker">${kicker}</div>
+      <div class="step-q">${question}</div>
+      ${help?`<div class="step-help">${help}</div>`:""}
+      ${bodyHtml}
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="goBack()" ${showBack?"":"style='visibility:hidden'"}>← Volver</button>
+        ${opts.noNext ? "" : `<button class="btn btn-primary" id="nextBtn" onclick="handleNext()" disabled>Siguiente →</button>`}
+      </div>
+    </div>`;
+}
+
+function handleNext(){
+  if(pendingSelection===null) return;
+  const step = current();
+
+  if(step==="q_rate"){
+    setAnswer("rate", pendingSelection);
+    pendingSelection=null;
+    if(answers.rate==="no") goTo("end_no_rate");
+    else goTo("q_group");
+    return;
+  }
+
+  if(step==="q_group"){
+    setAnswer("group", pendingSelection);
+    pendingSelection=null;
+    if(answers.group==="presup") goTo("calc_presup");
+    else if(answers.group==="tecnica") goTo("q_causal_tec");
+    else if(answers.group==="admin") goTo("q_causal_adm");
+    else goTo("q_exclusion");
+    return;
+  }
+
+  if(step==="q_exclusion"){
+    setAnswer("exclusion", pendingSelection);
+    pendingSelection=null;
+    if(["proceso","uso","separabilidad"].includes(answers.exclusion)) goTo("end_no_naturaleza");
+    else if(answers.exclusion==="subsidio") goTo("q_subsidio");
+    else goTo("q_group");
+    return;
+  }
+
+  if(step==="q_subsidio"){
+    setAnswer("subsidio_ampliacion", pendingSelection);
+    pendingSelection=null;
+    if(answers.subsidio_ampliacion==="no") goTo("end_no_subsidio");
+    else goTo("q_group");
+    return;
+  }
+
+  if(step==="q_causal_tec" || step==="q_causal_adm"){
+    setAnswer("causal", pendingSelection);
+    pendingSelection=null;
+    if(answers.causal==="H") goTo("thresh_H");
+    else goTo("result_procede");
+    return;
+  }
+
+  if(step==="calc_presup"){
+    if(SITU==="normal"){
+      const issues = presupYearIssues();
+      if(issues.length){
+        const sum=document.getElementById("cSummary");
+        if(sum) sum.innerHTML = `<div class="c-sumnote warn">⚠ Antes de continuar, ajusta la <b>moneda de igual valor</b>: en ${issues.join(", ")} el año de la recomendación debe quedar en el mismo año del contrato/gasto que comparas.</div>` + sum.innerHTML;
+        return;
+      }
+    }
+    setAnswer("causal", "PRESUP");
+    const yes = pendingSelection==="yes";
+    pendingSelection=null;
+    goTo(yes ? "result_procede" : "result_no_umbral");
+    return;
+  }
+
+  if(step.startsWith("thresh_")){
+    const causal = step.replace("thresh_","");
+    setAnswer("threshold_"+causal, pendingSelection);
+    pendingSelection=null;
+    if(pendingSelectionWasYes(causal)) goTo("result_procede");
+    else goTo("result_no_umbral");
+    return;
+  }
+}
+
+function pendingSelectionWasYes(causal){
+  return answers["threshold_"+causal]==="yes";
+}
+
+// ---- step renderers ----
+function render(){
+  const host = document.getElementById("cardHost");
+  const step = current();
+  pendingSelection = null;
+  host.innerHTML = renderStep(step);
+  if(step==="calc_presup") initC();
+  renderProgress();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function renderStep(step){
+
+  if(step==="intro"){
+    return `
+    <div class="card">
+      <div class="step-kicker">Antes de empezar</div>
+      <div class="step-q">¿Tu iniciativa necesita una Reevaluación en el SNI?</div>
+      <div class="step-help">
+        Este asistente aplica los criterios del punto <b>3.2 "Reevaluación de Iniciativas de Inversión"</b> de las
+        Normas, Instrucciones y Procedimientos (NIP) 2026 del Sistema Nacional de Inversiones, correspondiente al
+        <b>Módulo de Evaluación Ex Dure</b>. Te haremos algunas preguntas sobre el estado de tu iniciativa y la
+        modificación que necesitas, y al final te indicaremos si corresponde solicitar una Reevaluación, bajo qué
+        causal, y qué antecedentes mínimos debes preparar.
+        <br><br>
+        Ten a la mano: el último RATE (RS o CF) vigente, los montos recomendados por asignación y el motivo concreto
+        del cambio que estás evaluando.
+      </div>
+      <div class="nav-row">
+        <span></span>
+        <button class="btn btn-primary" onclick="goTo('q_rate')">Comenzar →</button>
+      </div>
+    </div>`;
+  }
+
+  if(step==="q_rate"){
+    return shell("Paso 1",
+      "¿Tu iniciativa cuenta con RATE RS o CF vigente para el año presupuestario en curso?",
+      "La Reevaluación solo aplica a iniciativas <b>nuevas o de arrastre</b> que ya cuentan con una Recomendación Satisfactoria (RS) o Continuidad Favorable (CF) vigente.",
+      `<div class="opt-list">
+        ${optionCard("si","Sí, tiene RS o CF vigente","")}
+        ${optionCard("no","No, no tiene RS/CF vigente, o no estoy seguro/a","")}
+      </div>`);
+  }
+
+  if(step==="q_group"){
+    return shell("Paso 2",
+      "¿Qué tipo de modificación necesitas?",
+      "Elige el grupo que mejor describa tu caso. Después afinamos la causal y, si corresponde, hacemos el cálculo de umbrales.",
+      `<div class="opt-list">
+        ${optionCard("presup","💰 Presupuestaria — Aumento en el monto de la Programación de la Inversión","<em class='ej'>Para Adjudicar a una Empresa, por requerir Modificar el Contrato con Aumento de Obra, para Adjudicar una iniciativa que tuvo Término Anticipado de Contrato o para aumentar el presupuesto en una de las Fases Constructivas recomendadas. Esto se evalúa con umbrales (20% / 10%) y se calcula en una tabla por asignación.</em>")}
+        ${optionCard("tecnica","🛠️ Técnica — Cambios en el Alcance sin modificación en la Programación de la Inversión","<em class='ej'>Cambio en el alcance de la iniciativa, aumento de la magnitud en Diseño (&gt;20%), por Hito de control.</em>")}
+        ${optionCard("admin","📋 Administrativa — Gestión, Control o Casos Especiales","<em class='ej'>Ingreso o cambio de fuente de financiamiento, ajustes a la solicitud, solicitud del MDSF u otra situación. Reevalúan sin umbral.</em>")}
+        ${optionCard("noaplica","🚫 Ninguna / cambio de naturaleza","<em class='ej'>Cambio de proceso, uso o destino, recinto separable o subsidio a empresa. Revisemos si corresponde una iniciativa nueva en vez de Reevaluación.</em>")}
+      </div>`);
+  }
+
+  if(step==="end_no_rate"){
+    return endCard("warn","No corresponde Reevaluación",
+      "La Reevaluación es un proceso aplicable únicamente a iniciativas con <b>RATE RS o CF vigente</b>.",
+      `<div class="box">
+        <h4>Qué hacer en este caso</h4>
+        <ul>
+          <li>Si la iniciativa nunca fue evaluada o perdió la vigencia de su recomendación manual, debe postularse (o repostularse) al <b>Módulo de Evaluación Ex Ante</b> del SNI, como solicitud nueva.</li>
+          <li>Verifica en el BIP el resultado vigente de tu Ficha IDI antes de continuar.</li>
+        </ul>
+      </div>`);
+  }
+
+  if(step==="q_exclusion"){
+    return shell("No aplica · cambio de naturaleza",
+      "¿La modificación que necesitas implica alguno de estos cambios de naturaleza?",
+      "Hay situaciones que <b>nunca</b> se resuelven vía Reevaluación, porque alteran la <b>naturaleza</b> de la iniciativa ya recomendada (NIP 2026, 3.2.5). En esos casos hay que ingresar una <b>iniciativa nueva</b> al SNI. Selecciona la que mejor describa tu caso.",
+      `<details class="disc">
+        <summary>¿Qué es un cambio de naturaleza y qué es separabilidad?</summary>
+        <div class="disc-body">
+          La <b>naturaleza</b> de una iniciativa es el problema que resuelve, a quién beneficia y para qué sirve. Si la modificación cambia eso, ya no es el mismo proyecto recomendado.<br><br>
+          El <b>principio de separabilidad</b> significa que una obra o recinto que <b>podría existir y justificarse como proyecto por sí solo</b> (tiene su propio problema, beneficiarios y puede funcionar de forma independiente) no puede "colgarse" de otro proyecto ya recomendado a través de una Reevaluación: debe evaluarse como iniciativa separada.<br><br>
+          <b>Ejemplo de separabilidad:</b> tienes recomendada la <i>"Reposición de la Escuela X"</i> y durante la ejecución quieres agregar la construcción de un <b>gimnasio</b> o un <b>CESFAM</b> en el mismo terreno. Ese gimnasio/CESFAM es separable (se justifica solo, atiende su propia necesidad) → no va por Reevaluación, va como proyecto nuevo.<br><br>
+          <b>En cambio NO es separable</b> (sí puede ir por Reevaluación) agregar una sala o un baño que la propia escuela necesita para funcionar: forma parte del mismo proyecto y no tiene sentido por sí solo.
+        </div>
+      </details>
+      <details class="disc">
+        <summary>Cambié la solución (no el problema): ¿es naturaleza o reevaluación?</summary>
+        <div class="disc-body">
+          <b>Cambiar la solución técnica NO es cambiar la naturaleza.</b> La naturaleza es el <b>problema</b> que resuelves, no el <i>cómo</i>. Mientras se mantenga el mismo problema, la misma población objetivo y el mismo uso/destino, corresponde <b>Reevaluación</b> (normalmente causal A, 3.2.1.1), aunque cambie la alternativa, el tamaño o el emplazamiento.<br><br>
+          La regla práctica: pregúntate <b>¿sigue siendo el mismo problema y la misma población?</b> Si la respuesta es sí → es Reevaluación, no naturaleza.<br>
+          <div class="ej-line"><b>APR con pozo que se secó → conexión a empresa sanitaria:</b> mismo problema (agua potable a la misma comunidad). Es Reevaluación (cambio de especificaciones técnicas / alternativa). <i>Ojo:</i> si pasa a financiar la red de la sanitaria como tal, puede caer en la exclusión de subsidio.</div>
+          <div class="ej-line"><b>Cuartel de bomberos tipo 4 → tipo 3:</b> mismo problema y uso, cambia el estándar/magnitud. Es Reevaluación (calidad del servicio; o causal H si estás en Diseño y varía más de 20%).</div>
+          <div class="ej-line"><b>Cambiar el emplazamiento (terreno):</b> modifica el área de influencia, no el problema. Es Reevaluación. Solo sería proyecto nuevo si el nuevo terreno atiende a <b>otra comunidad/población distinta</b>.</div>
+          <b>Cuándo sí se vuelve naturaleza:</b> si el cambio obliga a cambiar el <b>proceso</b> del nombre IDI (Construcción/Reposición/Mejoramiento), el <b>uso o destino</b>, o suma un recinto <b>separable</b>. En esos casos elige la opción correspondiente abajo.<br><br>
+          <i>Recuerda:</i> toda reevaluación que cambia la alternativa debe incluir la <b>reevaluación económica</b> con metodología y <b>precios sociales vigentes</b> (relevante si pasaron varios años desde la recomendación original).
+        </div>
+      </details>
+      <div class="opt-list">
+        ${optionCard("proceso","Cambio del proceso recomendado en el nombre","<em class='ej'><b>Ejemplo:</b> el proyecto recomendado dice \"Reposición\" y ahora quieres que sea \"Construcción\" o \"Ampliación\" (cambia la primera palabra del nombre IDI).</em>")}
+        ${optionCard("uso","Cambio de uso o destino (parcial o total)","<em class='ej'><b>Ejemplo:</b> estaba recomendado como consultorio de salud y ahora se destinará total o parcialmente a oficinas municipales o a otro servicio distinto.</em>")}
+        ${optionCard("separabilidad","Agregar una obra nueva que en realidad es otro proyecto (separabilidad)","<em class='ej'><b>Ejemplo:</b> el proyecto es \"Reposición de la Escuela X\" y quieres aprovechar de construir un <b>gimnasio</b> para el barrio. El gimnasio resuelve <b>otra necesidad</b>, beneficia a <b>otras personas</b> y funcionaría aunque la escuela no existiera → es un proyecto distinto, no parte de este.<br><br><b>Pregúntate:</b> ¿esta obra nueva tendría sentido y se justificaría por sí sola, aunque el proyecto original no existiera? Si la respuesta es <b>sí</b>, es separable y debe ir como iniciativa nueva.</em>")}
+        ${optionCard("subsidio","Es un subsidio a la inversión en servicios básicos entregado a una empresa","<em class='ej'><b>Ejemplo:</b> aporte estatal para que una empresa sanitaria, eléctrica o de gas (pública o privada) realice obras de servicios básicos.</em>")}
+        ${optionCard("ninguna","Ninguna de estas — mi caso sí es reevaluable","<em class='ej'>Es el mismo proyecto recomendado; solo cambian costos, plazos, contratos, magnitud o financiamiento. <b>Te llevamos de vuelta a elegir el grupo correcto.</b></em>")}
+      </div>`);
+  }
+
+  if(step==="end_no_naturaleza"){
+    return endCard("no","No corresponde Reevaluación",
+      "El cambio que describes corresponde a una <b>modificación de naturaleza</b> de la iniciativa, no a una causal de Reevaluación (NIP 2026, punto 3.2.5).",
+      `<div class="box">
+        <h4>Por qué</h4>
+        <ul>
+          <li>Las NIP 2026 (3.2.5) excluyen expresamente de Reevaluación: (1) los cambios al <b>proceso</b> recomendado en el nombre de la iniciativa, (2) los cambios de <b>uso o destino</b> (parciales o totales), y (3) la incorporación de recintos que se acojan al <b>principio de separabilidad</b> de proyectos.</li>
+          <li><b>Separabilidad</b> = una obra o recinto que se justifica y puede funcionar como proyecto independiente (tiene su propio problema y beneficiarios). No puede agregarse a un proyecto ya recomendado vía Reevaluación; debe evaluarse por separado.</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h4>Qué hacer en este caso</h4>
+        <ul>
+          <li>Esta modificación debe tratarse como una <b>nueva iniciativa</b>, ingresada y evaluada en el Módulo de Evaluación Ex Ante del SNI.</li>
+          <li>Si solo una parte del cambio afecta la naturaleza, separa esa parte como proyecto nuevo y mantén el resto (costos/plazos del mismo proyecto) dentro de la iniciativa original.</li>
+        </ul>
+      </div>`);
+  }
+
+  if(step==="q_subsidio"){
+    return shell("Paso 2 de 3",
+      "¿La modificación corresponde a mayores obras u obras extraordinarias por ampliación de redes para atender nuevos beneficiarios?",
+      "Las iniciativas que constituyen subsidios a la inversión en servicios básicos entregados a empresas, públicas o privadas, no son objeto de Reevaluación por variaciones de costo (la empresa debe asumirlas), salvo esta excepción específica.",
+      `<div class="opt-list">
+        ${optionCard("yes","Sí, son mayores obras por ampliación de redes a nuevos beneficiarios","")}
+        ${optionCard("no","No, es otra variación de costos del subsidio","")}
+      </div>`);
+  }
+
+  if(step==="end_no_subsidio"){
+    return endCard("no","No corresponde Reevaluación",
+      "Las iniciativas que constituyen subsidios a la inversión en servicios básicos entregados a empresas (públicas o privadas) <b>no</b> pueden reevaluarse por variaciones de costo.",
+      `<div class="box">
+        <h4>Qué hacer en este caso</h4>
+        <ul>
+          <li>La empresa beneficiaria del subsidio debe asumir las eventuales variaciones de costo.</li>
+          <li>Solo procede Reevaluación si se trata de mayores obras u obras extraordinarias para ampliar redes y atender nuevos beneficiarios, a requerimiento de la institución financiera.</li>
+        </ul>
+      </div>`);
+  }
+
+  if(step==="q_causal_tec"){
+    return shell("Modificación técnica",
+      "¿Cuál de estas situaciones técnicas describe tu caso?",
+      "Estas causales se evalúan por criterio técnico (alcance, magnitud o plazo), no por un umbral de monto.",
+      `<div class="opt-list">
+        ${optionCard("A","Modificar costo o alcance antes de licitar (incluye cambio de solución/alternativa o emplazamiento)","<em class='ej'><b>Ejemplos:</b> actualizar precios; cambiar la solución técnica manteniendo el problema (APR de pozo → conexión a sanitaria); subir el estándar (cuartel tipo 4 → tipo 3); cambiar el emplazamiento; ajustar especificaciones, población objetivo o área de influencia, o cumplir nueva normativa. <b>Siempre que se mantenga el mismo problema a resolver.</b></em>")}
+        ${optionCard("H","Durante el Diseño, la magnitud del proyecto cambió","<em class='ej'><b>Ejemplo:</b> el diseño definitivo arroja 1.500 m² en vez de los 1.200 m² recomendados. <b>(Calcula si supera el 20%.)</b></em>")}
+        ${optionCard("F","La programación total superará los 120 meses","<em class='ej'><b>Ejemplo:</b> al reprogramar plazos, la duración total de la inversión pasa de 10 años, aunque el costo casi no cambie.</em>")}
+        ${optionCard("I","Verificar un hito de control","<em class='ej'><b>Ejemplo:</b> tu RS/CF incluía un hito a verificar (un permiso, un convenio, etc.) antes de seguir avanzando.</em>")}
+      </div>`);
+  }
+
+  if(step==="q_causal_adm"){
+    return shell("Modificación administrativa",
+      "¿Cuál de estas situaciones administrativas describe tu caso?",
+      "Estas causales no tienen umbral de monto: obligan a reevaluar por su naturaleza administrativa o de control.",
+      `<div class="opt-list">
+        ${optionCard("G","Incorporar o cambiar una asignación o fuente de financiamiento","<em class='ej'><b>Ejemplo:</b> sumar un aporte de otra fuente (regional/sectorial/empresa) no considerada, o cambiar de fuente aunque el monto sea el mismo. Siempre reevalúa.</em>")}
+        ${optionCard("J","Ajustar montos de la solicitud de financiamiento","<em class='ej'><b>Ejemplo:</b> el contrato salió más barato que lo recomendado, o debes aplicar reajustes. No le aplican umbrales, pero hay que reevaluar para modificar.</em>")}
+        ${optionCard("K","El MDSF solicitó expresamente la reevaluación","<em class='ej'><b>Ejemplo:</b> recibiste un oficio del MDSF pidiendo reevaluar por seguimiento del avance físico y financiero.</em>")}
+        ${optionCard("L","Otra situación no tipificada","<em class='ej'>Requiere consulta previa por oficio a la jefatura DESI para homologar la causal.</em>")}
+      </div>`);
+  }
+
+  if(step==="calc_presup") return calcStepC();
+  if(step==="thresh_H") return calcStep("H");
+
+  if(step==="result_no_umbral"){
+    const causal = answers.causal;
+    const accion = causal==="H" ? "continuar con el Diseño"
+                 : causal==="PRESUP" ? "adjudicar o modificar el contrato"
+                 : "adjudicar";
+    const importante = causal==="H"
+      ? `<li>Si durante el Diseño la magnitud termina variando más de un 20%, deberás reevaluar antes de cerrar la etapa.</li>
+         <li>Documenta el cálculo de magnitud (memoria, planos, cubicaciones) en la carpeta de la iniciativa.</li>`
+      : `<li>Mantén el respaldo documental del cálculo, ya que ${accion} por sobre el umbral <b>sin</b> haber solicitado Reevaluación da lugar a un RATE de Incumplimiento Normativo (IN).</li>
+         <li>Si más adelante la variación supera el umbral, deberás solicitar la Reevaluación antes de ${accion}.</li>`;
+    return endCard("ok-light","No es obligatorio reevaluar (puedes continuar sin Reevaluación)",
+      `Según el cálculo, la variación <b>está dentro del umbral</b> establecido en la normativa, por lo que puedes ${accion} directamente, sin solicitar una Reevaluación.`,
+      `<div class="box">
+        <h4>Importante</h4>
+        <ul>${importante}</ul>
+      </div>`);
+  }
+
+  if(step==="result_procede"){
+    const causal = answers.causal;
+    let label, antecedentes;
+    if(causal==="PRESUP"){
+      const cs = (C_RESULT && C_RESULT.causales && C_RESULT.causales.length) ? C_RESULT.causales : ["C"];
+      const nm = {B:"Adjudicación · 3.2.1.2", C:"Modificación de contrato · 3.2.1.3", D:"Término anticipado · 3.2.1.4", E:"Fases constructivas · 3.2.1.5"};
+      label = "Reevaluación presupuestaria (" + cs.map(l=>nm[l]||l).join(" · ") + ")";
+      antecedentes = antecedentesUnion(cs);
+    } else {
+      label = CAUSAL_LABEL[causal];
+      antecedentes = ANTECEDENTES[causal];
+    }
+    let extra = "";
+    if(causal==="L"){
+      extra = `<div class="box"><h4>Antes de continuar</h4><ul>
+        <li>Como tu situación no calza con una causal tipificada, debes enviar una <b>consulta previa por oficio</b> a la jefatura de la División de Evaluación Social de Inversiones (DESI), quien indicará a qué causal homologar tu caso y qué antecedentes presentar.</li>
+      </ul></div>`;
+    }
+    if(causal==="K"){
+      extra = `<div class="box"><h4>Diferencia de este caso</h4><ul>
+        <li>Esta Reevaluación es abierta directamente por el MDSF (no por tu institución). Recibirás un oficio que indicará la información mínima a presentar y el plazo para hacerlo.</li>
+      </ul></div>`;
+    }
+    if(causal==="PRESUP" && C_RESULT && C_RESULT.requieren && C_RESULT.requieren.length){
+      extra = `<div class="box"><h4>${esFasesLabel()} que requieren Reevaluación</h4><ul>
+        ${C_RESULT.requieren.map(a=>`<li><b>${a.name}</b>: ${a.motivo} (${a.pct.toLocaleString("es-CL",{minimumFractionDigits:1,maximumFractionDigits:1})}% sobre lo recomendado).</li>`).join("")}
+      </ul></div>` + extra;
+    }
+    return endCard("ok","Corresponde solicitar Reevaluación",
+      `Causal aplicable: <b>${label}</b>.`,
+      `${extra}
+      <div class="box">
+        <h4>Antecedentes mínimos a preparar</h4>
+        <ul>${antecedentes.map(a=>`<li>${a}</li>`).join("")}</ul>
+      </div>
+      <div class="box">
+        <h4>Cómo se tramita</h4>
+        <ul>
+          <li>Carga un <b>oficio de la institución financiera</b> en la subcarpeta "Oficios Reevaluaciones" del Módulo de Reevaluaciones del BIP, señalando expresamente la causal invocada.</li>
+          <li>Selecciona la(s) causal(es) en el mismo módulo del BIP para activar la solicitud; el sistema emitirá automáticamente un RATE RE con el detalle de la documentación a cargar.</li>
+          <li>Tendrás <b>15 días hábiles</b> para cargar los antecedentes en la carpeta digital de Reevaluaciones, contados desde el RATE RE.</li>
+          <li>El MDSF tiene <b>10 días hábiles</b> para emitir un nuevo resultado una vez recibida tu respuesta a observaciones.</li>
+          <li>Si existe cofinanciamiento, se requiere oficio de todas las instituciones financieras involucradas.</li>
+        </ul>
+      </div>
+      <div class="footnote">
+        Resultado de referencia, sujeto a confirmación por el equipo de inversiones del MDSF (nivel nacional o regional, según
+        corresponda) en el respectivo proceso de Reevaluación. Basado en NIP 2026, puntos 3.2.1 a 3.2.4.
+      </div>`);
+  }
+
+  return `<div class="card">Paso no encontrado.</div>`;
+}
+
+// =========================================================================
+//  CALCULADORAS DE UMBRAL
+//  Umbrales según Instrucciones de la Ley de Presupuestos vigente:
+//   · Adjudicación (causales B y E): 20% sobre la recomendación vigente (RS/CF)
+//   · Modificación de contratos (causal C): 10% del valor original del contrato
+//   · Término anticipado (causal D): 10% sobre (recomendado vigente − gasto ejecutado)
+//   · Cambio de magnitud en Diseño (causal H): 20% sobre la magnitud recomendada
+// =========================================================================
+function parseNum(s){
+  if(s===null||s===undefined) return NaN;
+  const clean = String(s).replace(/\./g,"").replace(",",".").replace(/[^\d.\-]/g,"");
+  return clean==="" ? NaN : parseFloat(clean);
+}
+function fmtMoney(n){ return "$" + Math.round(n).toLocaleString("es-CL"); }
+function fmtPct(n){ return n.toLocaleString("es-CL",{minimumFractionDigits:1,maximumFractionDigits:1}) + "%"; }
+function fmtNum(n){ return n.toLocaleString("es-CL",{maximumFractionDigits:2}); }
+
+// formatea miles en pesos mientras se escribe
+function onMoneyInput(el){
+  let v = el.value.replace(/[^\d]/g,"");
+  el.value = v ? parseInt(v,10).toLocaleString("es-CL") : "";
+}
+
+// =========================================================================
+//  MONEDA DE IGUAL VALOR
+//  NIP 2026 (3.2.2) y Ley de Presupuestos (6.9.1) exigen comparar los montos
+//  "en moneda de igual valor". Cuando lo recomendado y lo adjudicado están en
+//  pesos de años distintos, se actualiza lo recomendado a la moneda del año de
+//  comparación (la del momento de la adjudicación/modificación) con la tabla
+//  oficial "Moneda BIP" (índice de diciembre de cada año).
+// =========================================================================
+const MONEDA_BIP={1928:4.84878e-07,1929:5.20745e-07,1930:4.93788e-07,1931:4.93788e-07,1932:6.10524e-07,1933:6.37481e-07,1934:6.64437e-07,1935:6.55414e-07,1936:7.36283e-07,1937:8.0813e-07,1938:8.26063e-07,1939:8.88886e-07,1940:9.69756e-07,1941:1.194205e-06,1942:1.498959e-06,1943:1.616259e-06,1944:1.858755e-06,1945:2.001996e-06,1946:2.604287e-06,1947:3.205449e-06,1948:3.744578e-06,1949:4.516052e-06,1950:5.261584e-06,1951:6.492106e-06,1952:7.272603e-06,1953:1.1357802e-05,1954:1.9433459e-05,1955:3.5720119e-05,1956:4.9187067e-05,1957:5.7668762e-05,1958:7.6414211e-05,1959:0.000101814183,1960:0.000107386,1961:0.000117706,1962:0.000150302,1963:0.000218449,1964:0.000302487,1965:0.000380605,1966:0.000445165,1967:0.000542625,1968:0.000694213,1969:0.000897909,1970:0.001211574,1971:0.001479672,1972:0.003897859,1973:0.02370107,1974:0.1127885,1975:0.497058923,1976:1.363534065,1977:2.229264783,1978:2.905183724,1979:4.035300192,1980:5.29585941,1981:5.80107086,1982:7.003816919,1983:8.621132701,1984:10.60740435,1985:13.409459756,1986:15.736801708,1987:19.112621687,1988:21.536657463,1989:26.147967208,1990:33.294,1991:39.506,1992:44.521,1993:49.968,1994:54.438,1995:58.901,1996:62.807,1997:66.604,1998:69.711,1999:71.321,2000:74.549,2001:76.514,2002:78.675,2003:79.519,2004:81.45,2005:84.434,2006:86.602,2007:93.377,2008:100.0,2009:99.51,2010:102.47,2011:107.02,2012:108.61,2013:111.88,2014:117.027,2015:122.176,2016:124.605,2017:128.343,2018:131.68,2019:135.63,2020:139.156,2021:142.287,2022:148.548,2023:157.906,2024:163.432,2025:170.297,2026:175.576,2027:175.576};
+
+function factorMoneda(aRec, aComp){
+  const r = MONEDA_BIP[aRec], c = MONEDA_BIP[aComp];
+  if(!r || !c) return null;
+  return c / r;
+}
+function fmtFactor(f){ return "× " + f.toLocaleString("es-CL",{minimumFractionDigits:4,maximumFractionDigits:4}); }
+function monedaYearOptions(selected){
+  return Object.keys(MONEDA_BIP).map(Number).sort((a,b)=>b-a)
+    .map(y=>`<option value="${y}"${y===selected?" selected":""}>${y}</option>`).join("");
+}
+const _hoy = new Date().getFullYear();
+const MAX_MONEDA = Math.max.apply(null, Object.keys(MONEDA_BIP).map(Number));
+const COMP_DEF = MONEDA_BIP[_hoy] ? _hoy : MAX_MONEDA;
+const REC_DEF = MONEDA_BIP[COMP_DEF-1] ? COMP_DEF-1 : COMP_DEF;
+
+function toggleMoneda(){
+  const chk = document.getElementById("cf_moneda_chk");
+  const box = document.getElementById("monedaFields");
+  if(box) box.style.display = chk.checked ? "block" : "none";
+}
+
+const CALC = {
+  B: {
+    kicker: "Calculadora · Umbral de adjudicación (20%)",
+    q: "¿El monto de adjudicación supera el umbral del 20% sobre lo recomendado?",
+    help: "Compara el monto que arrojó la licitación con el monto recomendado vigente (RS/CF), <b>por asignación</b> y también para el costo total. Si supera el 20% en cualquiera de los dos, corresponde Reevaluación (NIP 2026, 3.2.1.2; Ley de Presupuestos 6.9.1).",
+    money: true,
+    monedaUpd: { field:"rec", recLabel:"Año de la recomendación (RS/CF)", compLabel:"Año de la adjudicación" },
+    fields: [
+      {id:"rec", label:"Monto recomendado vigente (RS o CF)", hint:"De la asignación que estás analizando, en pesos del año de la recomendación."},
+      {id:"adj", label:"Monto de adjudicación de la licitación", hint:"Suma de todos los contratos a adjudicar en esa asignación, en pesos del año de adjudicación."}
+    ],
+    compute(v){
+      const rec=v.rec, adj=v.adj;
+      const tope = rec*1.20;
+      const supera = adj > tope;
+      const varPct = (adj-rec)/rec*100;
+      return { supera,
+        rows:[
+          ["Recomendado (en moneda de comparación)", fmtMoney(rec)],
+          ["Tope permitido (recomendado + 20%)", fmtMoney(tope)],
+          ["Monto de adjudicación", fmtMoney(adj)],
+          ["Variación sobre lo recomendado", fmtPct(varPct), true]
+        ],
+        msg: supera
+          ? `La adjudicación supera el tope en ${fmtMoney(adj-tope)}. <b>Corresponde solicitar Reevaluación antes de adjudicar.</b>`
+          : `La adjudicación está dentro del 20%. Puedes adjudicar sin Reevaluación, dejando respaldo del cálculo.`
+      };
+    }
+  },
+  D: {
+    kicker: "Calculadora · Término anticipado de contrato (10%)",
+    q: "El costo de completar lo pendiente, ¿supera el umbral de modificación?",
+    help: "Tras un término anticipado, el umbral del 10% se aplica sobre el <b>saldo recomendado</b>: el último monto recomendado vigente (RS/CF) de la asignación, <b>descontando el gasto ya ejecutado</b> (NIP 2026, 3.2.1.4).",
+    money: true,
+    monedaUpd: { field:"rec", recLabel:"Año de la recomendación (RS/CF)", compLabel:"Año de la nueva contratación", soloRec:true },
+    fields: [
+      {id:"rec", label:"Último monto recomendado vigente (asignación)", hint:"RS o CF vigente para la asignación afectada, en pesos del año de la recomendación."},
+      {id:"gasto", label:"Gasto ya ejecutado en la asignación", hint:"Lo efectivamente ejecutado, en pesos del año de comparación."},
+      {id:"pend", label:"Costo para completar las acciones pendientes", hint:"Nueva contratación necesaria para terminar la obra/etapa, en pesos del año de comparación."}
+    ],
+    compute(v){
+      const saldo = v.rec - v.gasto;
+      const tope = saldo*1.10;
+      const supera = v.pend > tope;
+      const varPct = saldo>0 ? (v.pend-saldo)/saldo*100 : 0;
+      return { supera,
+        rows:[
+          ["Recomendado (en moneda de comparación)", fmtMoney(v.rec)],
+          ["(−) Gasto ya ejecutado", fmtMoney(v.gasto)],
+          ["Saldo recomendado disponible", fmtMoney(saldo)],
+          ["Tope permitido (saldo + 10%)", fmtMoney(tope)],
+          ["Costo de lo pendiente", fmtMoney(v.pend)],
+          ["Variación sobre el saldo", fmtPct(varPct), true]
+        ],
+        msg: supera
+          ? `El costo pendiente supera el tope en ${fmtMoney(v.pend-tope)}. <b>Corresponde solicitar Reevaluación.</b>`
+          : `El costo pendiente está dentro del umbral. No es obligatorio reevaluar, con respaldo del cálculo.`
+      };
+    }
+  },
+  H: {
+    kicker: "Calculadora · Cambio de magnitud en Diseño (20%)",
+    q: "¿La magnitud cambió más de un 20% respecto de lo recomendado?",
+    help: "Durante la etapa de Diseño, si la magnitud del proyecto varía en más de un 20% respecto de lo recomendado en la etapa anterior, se debe reevaluar (NIP 2026, 3.2.1.8). Usa la misma unidad en ambos campos (m², n° de salas, km, etc.).",
+    money: false,
+    fields: [
+      {id:"orig", label:"Magnitud recomendada (etapa anterior)", hint:"Ej.: 1.200 (m²), 8 (salas), 5,5 (km)…"},
+      {id:"nueva", label:"Magnitud nueva (resultado del Diseño)", hint:"En la misma unidad que la anterior."}
+    ],
+    compute(v){
+      const varPct = Math.abs(v.nueva-v.orig)/v.orig*100;
+      const supera = varPct > 20;
+      return { supera,
+        rows:[
+          ["Magnitud recomendada", fmtNum(v.orig)],
+          ["Magnitud nueva", fmtNum(v.nueva)],
+          ["Variación absoluta", fmtNum(Math.abs(v.nueva-v.orig))],
+          ["Variación porcentual", fmtPct(varPct), true]
+        ],
+        msg: supera
+          ? `La magnitud varió ${fmtPct(varPct)} (> 20%). <b>Corresponde reevaluar para actualizar los antecedentes preinversionales.</b>`
+          : `La variación es de ${fmtPct(varPct)} (≤ 20%). No se gatilla Reevaluación por esta causal.`
+      };
+    }
+  }
+};
+
+// =========================================================================
+//  LECTURA DE FICHA IDI (PDF) — extrae asignaciones y montos de la sección 16
+// =========================================================================
+if(window.pdfjsLib){
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+}
+let FICHA = null;            // {nombre, codigoBIP, anioSolicitud, etapaPostula, tipologia, year, items:[{name,montoMiles}]}
+let C_ROWS = [];             // [{name, recMiles, contratoMiles, modifMiles}]
+let C_UNIT = "miles";        // "miles" (M$) | "pesos" ($)
+let C_TIPO = "PROYECTO";     // "ESTUDIO BASICO" | "PROYECTO" | "PROGRAMA"
+let SITU = "normal";         // "normal" (B/C) | "termino" (D) | "fases" (E)
+let FASES_N = 2;             // número de fases/etapas constructivas
+let FASES_DIST = {};         // { asignacionName: [montoFase1, montoFase2, ...] }  (en M$)
+let FASES_SEL = 0;           // índice de la fase a evaluar
+let FASES_EVAL = {};         // { faseIdx: { asignacionName: {contrato, modif} } }
+function esFasesLabel(){ return SITU==="fases" ? "Fases" : "Asignaciones"; }
+function antecedentesUnion(causales){
+  const seen=new Set(), out=[];
+  causales.forEach(l=>(ANTECEDENTES[l]||[]).forEach(a=>{ if(!seen.has(a)){ seen.add(a); out.push(a); } }));
+  return out;
+}
+
+// --- Clasificador presupuestario Subtítulo 31 (informativo) ---
+function normName(s){ return (s||"").toUpperCase().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/\(.*?\)/g,"").replace(/\s+/g," ").trim(); }
+function normTipo(s){ const n=normName(s); if(n.indexOf("ESTUDIO")===0) return "ESTUDIO BASICO"; if(n.indexOf("PROGRAMA")===0) return "PROGRAMA"; return "PROYECTO"; }
+// asignaciones sin contrato: se evalúan por el gasto ejecutado (boletas/facturas) vs 20% recomendado
+const GASTO_BASE = ["GASTOS ADMINISTRATIVOS","TERRENOS","EQUIPAMIENTO","EQUIPOS","VEHICULOS","OTROS GASTOS"];
+function esGasto(name){ return GASTO_BASE.includes(normName(name)); }
+const CLASIFICADOR_DESC = {
+  "ESTUDIO BASICO": {
+    "GASTOS ADMINISTRATIVOS":"Gastos en que incurre la institución que efectúa la licitación (publicaciones, impresión, fotocopiado).",
+    "CONSULTORIAS":"Gastos para pagar a la empresa que se adjudique el desarrollo del estudio básico."
+  },
+  "PROYECTO": {
+    "GASTOS ADMINISTRATIVOS":"Gastos de la licitación (publicaciones, impresión, fotocopiado) y los asociados directamente a la ejecución física del proyecto (viáticos, pasajes, peajes, combustibles para inspección fiscal y recepción de obras), cuando el mandatario no cuente con dichos recursos.",
+    "CONSULTORIAS":"Contratación de personas naturales o jurídicas como contraparte técnica, asesorías a la inspección técnica y estudios de especialidades directamente relacionados con el proyecto durante su ejecución.",
+    "TERRENOS":"Gasto por compra o expropiación de terrenos que son parte integrante del proyecto de inversión.",
+    "OBRAS CIVILES":"Gastos directamente relacionados con la ejecución física del proyecto: servidumbres de paso, ornamentos, redes de conexión y las inversiones complementarias necesarias para ejecutarlo.",
+    "EQUIPAMIENTO":"Adquisición de mobiliario cuando forma parte integral del proyecto.",
+    "EQUIPOS":"Adquisición de máquinas, equipos, hardware y software cuando forman parte integral del proyecto.",
+    "VEHICULOS":"Adquisición de vehículos cuando son parte integrante del proyecto de inversión.",
+    "OTROS GASTOS":"Otros gastos asociados directamente al proyecto no contemplados en los ítems anteriores."
+  },
+  "PROGRAMA": {
+    "GASTOS ADMINISTRATIVOS":"Gastos de la licitación y los asociados al programa (control y seguimiento de las actividades de la empresa contratada), cuando el mandatario no cuente con dichos recursos.",
+    "CONSULTORIAS":"Contratación de contraparte técnica del programa cuando la institución no cuenta con personal idóneo.",
+    "CONTRATACION DEL PROGRAMA":"Gastos para pagar a la empresa que se adjudique el desarrollo del programa."
+  }
+};
+function descAsig(name){ const t=CLASIFICADOR_DESC[C_TIPO]||{}; return t[normName(name)]||""; }
+
+// normaliza una palabra en MAYÚSCULAS de etapa a forma con tilde y capitalizada
+const ETAPA_NORM = {
+  "EJECUCION":"Ejecución", "DISENO":"Diseño", "DISEÑO":"Diseño",
+  "PREFACTIBILIDAD":"Prefactibilidad", "FACTIBILIDAD":"Factibilidad",
+  "PERFIL":"Perfil", "EJECUCIÓN":"Ejecución"
+};
+function normEtapa(s){
+  if(!s) return s;
+  const k = s.trim().toUpperCase();
+  if(ETAPA_NORM[k]) return ETAPA_NORM[k];
+  return k.charAt(0) + k.slice(1).toLowerCase();
+}
+
+// reconstruye líneas a partir de la posición Y de cada fragmento de texto
+function pdfPageToLines(items){
+  const byY = {};
+  items.forEach(it=>{
+    const y = Math.round(it.transform[5]);
+    (byY[y] = byY[y] || []).push([it.transform[4], it.str]);
+  });
+  return Object.keys(byY).sort((a,b)=>b-a).map(y=>
+    byY[y].sort((a,b)=>a[0]-b[0]).map(p=>p[1]).join(" ").replace(/\s+/g," ").trim()
+  );
+}
+
+function parseFichaText(text){
+  const lines = text.split("\n");
+  let year = null;
+  const my = text.match(/Moneda Presupuesto\s+(\d{4})/);
+  if(my) year = +my[1];
+
+  // cabecera de la ficha
+  let anioSolicitud=null, codigoBIP=null, etapaPostula=null, nombre=null, etapaActual=null;
+  const ap = text.match(/PROCESO PRESUPUESTARIO\s+(\d{4})/i); if(ap) anioSolicitud=+ap[1];
+  const cb = text.match(/C[ÓO]DIGO BIP\s+([0-9][0-9.\-]*)/i); if(cb) codigoBIP=cb[1].trim();
+  const ep = text.match(/POSTULA A\s+([A-ZÁÉÍÓÚÑ]+(?:\s+[A-ZÁÉÍÓÚÑ]+)*)/); if(ep) etapaPostula=normEtapa(ep[1].trim());
+  const ea = text.match(/ETAPA ACTUAL\s*:?\s*([A-ZÁÉÍÓÚÑ]+)/i); if(ea) etapaActual=ea[1].trim();
+  let tipologia=null;
+  const tp = text.match(/TIPOLOG[ÍI]A\s*:?\s*(ESTUDIOS? B[ÁA]SICOS?|PROYECTO|PROGRAMA)/i);
+  if(tp) tipologia = normTipo(tp[1]);
+  const li = lines.findIndex(l=>/^NOMBRE IDI\b/i.test(l.trim()));
+  if(li>0){ nombre = lines[li-1].trim(); }
+  if(!nombre){ const m2 = text.match(/NOMBRE IDI[:\s]+([^\n]+)/i); if(m2) nombre=m2[1].trim(); }
+
+  let start = -1;
+  lines.forEach((l,i)=>{ if(start<0 && /PROGRAMACI[ÓO]N DE LA INVERSI[ÓO]N/i.test(l)) start = i; });
+  const items = [];
+  if(start>=0){
+    for(let i=start+1;i<lines.length;i++){
+      const l = lines[i];
+      if(/^\s*TOTAL\b/i.test(l)) break;
+      if(/Meses/i.test(l)){
+        const name = l.split(/\s+\d+\s+Meses/)[0].trim();
+        const nums = l.match(/\d[\d.]*/g) || [];
+        const monto = nums.length ? parseInt(nums[nums.length-1].replace(/\./g,""),10) : null;
+        if(name && monto!=null) items.push({ name, montoMiles: monto });
+      }
+    }
+  }
+  return { year, items, anioSolicitud, codigoBIP, etapaPostula, etapaActual, nombre, tipologia };
+}
+
+async function handleFichaUpload(input){
+  const file = input.files[0];
+  if(!file) return;
+  const status = document.getElementById("fichaStatus");
+  status.textContent = "Leyendo ficha…";
+  status.className = "ficha-status";
+  try{
+    if(!window.pdfjsLib) throw new Error("No se pudo cargar el lector de PDF (revisa tu conexión).");
+    const buf = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+    let text = "";
+    for(let i=1;i<=pdf.numPages;i++){
+      const page = await pdf.getPage(i);
+      const tc = await page.getTextContent();
+      text += pdfPageToLines(tc.items).join("\n") + "\n";
+    }
+    const parsed = parseFichaText(text);
+    if(!parsed.items.length) throw new Error("No se encontraron asignaciones en la sección Programación.");
+    FICHA = parsed;
+    if(parsed.tipologia) C_TIPO = parsed.tipologia;
+    const ts = document.getElementById("cTipo"); if(ts) ts.value = C_TIPO;
+    C_ROWS = parsed.items.map(it=>newRow(it.name, it.montoMiles));
+    status.textContent = `✓ ${parsed.items.length} asignaciones leídas`;
+    status.className = "ficha-status ok";
+    renderCHeader();
+    renderCTable();
+    recomputeC();
+  }catch(e){
+    status.textContent = "No se pudo leer: " + e.message;
+    status.className = "ficha-status err";
+  }
+}
+
+// ---------- helpers de unidad / formato para causal C ----------
+function cToDisp(miles){ return C_UNIT==="pesos" ? miles*1000 : miles; }
+function cFromDisp(val){ return C_UNIT==="pesos" ? val/1000 : val; }
+function cUnitLabel(){ return C_UNIT==="pesos" ? "$" : "M$"; }
+function fmtDispC(miles){ return Math.round(cToDisp(miles)).toLocaleString("es-CL"); }
+
+function setUnitC(u){
+  if(u===C_UNIT) return;
+  C_UNIT = u;
+  const p=document.getElementById("seg-pesos"), m=document.getElementById("seg-miles");
+  if(p&&m){ p.classList.toggle("active",u==="pesos"); m.classList.toggle("active",u==="miles"); }
+  renderCTable();
+  recomputeC();
+}
+
+function renderCHeader(){
+  const host = document.getElementById("cHeader");
+  if(!host) return;
+  if(!FICHA){ host.innerHTML=""; return; }
+  const f=FICHA;
+  const chip=(t)=>t?`<span class="fi-chip">${t}</span>`:"";
+  host.innerHTML = `
+    <div class="ficha-card">
+      <div class="fi-name">${f.nombre||"Ficha IDI cargada"}</div>
+      <div class="fi-chips">
+        ${f.codigoBIP?`<span class="fi-chip accent">Código BIP ${f.codigoBIP}</span>`:""}
+        ${chip(f.anioSolicitud?("Año solicitud "+f.anioSolicitud):"")}
+        ${chip(f.etapaPostula?("Etapa: "+f.etapaPostula.toLowerCase()):"")}
+        ${chip(f.year?("Moneda presupuesto "+f.year):"")}
+      </div>
+    </div>`;
+}
+
+function cRowInput(i, field, ph){
+  const r=C_ROWS[i];
+  const val = r[field]!=null ? Math.round(cToDisp(r[field])).toLocaleString("es-CL") : "";
+  return `<input id="cin-${field}-${i}" class="c-in" inputmode="numeric" autocomplete="off" placeholder="${ph||"0"}" value="${val}" oninput="onCInput(${i},'${field}',this)">`;
+}
+
+function cHeadCols(){
+  const u = cUnitLabel();
+  if(SITU==="termino") return [
+    "Asignación",
+    `Monto ${u}<br>Recomendado`,
+    `Monto ${u}<br>Contratado`,
+    `Monto ${u}<br>Gastado`,
+    `Monto ${u}<br>del Término`,
+    "Estado"
+  ];
+  return [
+    "Asignación",
+    `Monto ${u}<br>Recomendado`,
+    `Monto ${u}<br>Contratado`,
+    `Monto ${u}<br>Gastado`,
+    `Monto ${u}<br>a Aumentar`,
+    "Estado"
+  ];
+}
+
+function renderCTable(){
+  const wrap=document.getElementById("cTableWrap"), addBar=document.getElementById("cAddRow"), fasesHost=document.getElementById("cFases");
+  if(SITU==="fases"){
+    if(wrap) wrap.style.display="none";
+    if(addBar) addBar.style.display="none";
+    if(fasesHost) fasesHost.style.display="block";
+    renderFasesUI();
+    return;
+  }
+  if(wrap) wrap.style.display="";
+  if(addBar) addBar.style.display="";
+  if(fasesHost){ fasesHost.style.display="none"; fasesHost.innerHTML=""; }
+  const tbl = document.getElementById("cTable");
+  if(!tbl) return;
+  const cols = cHeadCols();
+  const thead = `<thead><tr>${cols.map((c,k)=>`<th class="${k===0?'l':(k===cols.length-1?'c':'r')}">${c}</th>`).join("")}<th class="x"></th></tr></thead>`;
+  let bodyRows;
+  if(!C_ROWS.length){
+    const msg = SITU==="fases" ? "Agrega las fases/etapas constructivas para comenzar." : "Sube una Ficha IDI o agrega una asignación para comenzar.";
+    bodyRows = `<tr><td colspan="${cols.length+1}" class="c-empty">${msg}</td></tr>`;
+  } else {
+    bodyRows = C_ROWS.map((r,i)=>cRowHtml(r,i)).join("");
+  }
+  tbl.innerHTML = thead + `<tbody>${bodyRows}</tbody>`;
+  // barra de agregar
+  const add = document.getElementById("cAddRow");
+  if(add){
+    if(SITU==="fases"){
+      add.innerHTML = `<button class="btn-mini" onclick="addCManual()">+ Agregar fase</button>
+        <span class="c-unitnote">Montos en ${cUnitLabel()}${C_UNIT==="pesos"?" (pesos)":" (miles de pesos)"}</span>`;
+    } else if(FICHA){
+      const used = new Set(C_ROWS.map(r=>r.name));
+      const opts = FICHA.items.filter(it=>!used.has(it.name));
+      add.innerHTML = opts.length
+        ? `<select id="cAddSel" class="c-addsel">${opts.map(it=>`<option value="${it.name}">${it.name} — ${cUnitLabel()} ${fmtDispC(it.montoMiles)}</option>`).join("")}</select>
+           <button class="btn-mini" onclick="addCFromFicha()">+ Agregar asignación</button>`
+        : `<span class="c-allused">Todas las asignaciones de la ficha ya están en la tabla.</span>`;
+    } else {
+      add.innerHTML = `<button class="btn-mini" onclick="addCManual()">+ Agregar asignación</button>
+        <span class="c-unitnote">Montos en ${cUnitLabel()}${C_UNIT==="pesos"?" (pesos)":" (miles de pesos)"}</span>`;
+    }
+  }
+}
+
+function cRowHtml(r,i){
+  const delC = `<td class="x"><button class="c-del" onclick="delCRow(${i})" aria-label="Quitar">×</button></td>`;
+  const estC = `<td class="c" id="cEst-${i}"><span class="c-pend">—</span></td>`;
+  const editableName = (SITU==="fases") || !FICHA;
+  const isG = esGasto(r.name);
+  const desc = descAsig(r.name);
+  const info = desc ? ` <span class="c-info" title="${desc.replace(/"/g,'&quot;')}">ⓘ</span>` : "";
+  const tag = isG ? `<div class="c-asgtag">gasto (sin contrato)</div>` : "";
+  const nameCell = editableName
+    ? `<input class="c-in c-name" placeholder="Asignación" value="${r.name||""}" oninput="onCName(${i},this)">${info}`
+    : `<span class="c-asg">${r.name||"—"}</span>${info}`;
+  const nameBlock = `${nameCell}${tag}<div class="c-saldo" id="cSaldo-${i}"></div><div id="cWarnGasto-${i}"></div>`;
+
+  // selector de año reutilizado por termino y normal
+  const yrLabels = {rec:"Año RS", contrato:"Año Adj.", gastado:"Año Gasto", modif:"Año Modif.", pend:"Año Term."};
+  const yrSel = (which,val)=>{
+    const lbl=`<span class="c-yr-lbl">${yrLabels[which]||"Año"}</span>`;
+    if(which==="rec") return `<div class="c-yr-row">${lbl}<select class="c-yr" onchange="onYearChange(${i},'${which}',this.value)">${monedaYearOptions(val)}</select></div>`;
+    return `<div class="c-yr-row">${lbl}<span class="c-yr-ro">${val||baseYearC()}</span></div>`;
+  };
+
+  if(SITU==="termino"){
+    const recCellT = `<td class="r"><div class="c-cell">${cRowInput(i,"recMiles")}${yrSel("rec", r.recYear)}</div></td>`;
+    const contCellT = isG
+      ? `<td class="r c-na" title="Sin contrato: las boletas/facturas van en Gastado">—</td>`
+      : `<td class="r"><div class="c-cell">${cRowInput(i,"contratoMiles")}${yrSel("contrato", r.contratoYear)}<button class="c-convbtn" onclick="openConv(${i},'contratoMiles')">⇄ convertir y sumar</button></div></td>`;
+    const gastCellT = `<td class="r"><div class="c-cell">${cRowInput(i,"gastadoMiles")}${yrSel("gastado", r.gastadoYear)}<button class="c-convbtn" onclick="openConv(${i},'gastadoMiles')">⇄ convertir y sumar</button></div></td>`;
+    const pendCellT = isG
+      ? `<td class="r c-na" title="No aplica: sin contrato no hay término anticipado">—</td>`
+      : `<td class="r"><div class="c-cell">${cRowInput(i,"pendMiles")}${yrSel("pend", r.pendYear)}<button class="c-convbtn" onclick="openConv(${i},'pendMiles')">⇄ convertir y sumar</button></div></td>`;
+    return `<tr>
+      <td class="l">${nameBlock}</td>
+      ${recCellT}${contCellT}${gastCellT}${pendCellT}
+      ${estC}${delC}
+    </tr>`;
+  }
+  // normal — cada monto lleva su año debajo (moneda de igual valor)
+  const recCell = `<td class="r"><div class="c-cell">${cRowInput(i,"recMiles")}${yrSel("rec", r.recYear)}</div></td>`;
+  const contratoCell = isG
+    ? `<td class="r c-na" title="Sin contrato: las boletas/facturas van en Gastado">—</td>`
+    : `<td class="r"><div class="c-cell">${cRowInput(i,"contratoMiles")}${yrSel("contrato", r.contratoYear)}<button class="c-convbtn" onclick="openConv(${i},'contratoMiles')">⇄ convertir y sumar</button></div></td>`;
+  const gastadoCell = `<td class="r"><div class="c-cell">${cRowInput(i,"gastadoMiles")}${yrSel("gastado", r.gastadoYear)}<button class="c-convbtn" onclick="openConv(${i},'gastadoMiles')">⇄ convertir y sumar</button></div></td>`;
+  return `<tr>
+    <td class="l">${nameBlock}</td>
+    ${recCell}
+    ${contratoCell}
+    ${gastadoCell}
+    <td class="r"><div class="c-cell">${cRowInput(i,"modifMiles","0")}${yrSel("modif", r.modifYear)}<button class="c-convbtn" onclick="openConv(${i},'modifMiles')">⇄ convertir y sumar</button></div></td>
+    ${estC}${delC}
+  </tr>`;
+}
+
+function onCInput(i, field, el){
+  let v = el.value.replace(/[^\d]/g,"");
+  el.value = v ? parseInt(v,10).toLocaleString("es-CL") : "";
+  const val = v ? cFromDisp(parseInt(v,10)) : null;
+  C_ROWS[i][field] = val;
+  // al editar la recomendación a mano, re-anclar la base al año actual de recomendación
+  if(field==="recMiles"){ C_ROWS[i].recBaseMiles = val; C_ROWS[i].recBaseYear = C_ROWS[i].recYear; }
+  // término: si se ingresa el gasto y el monto del término está vacío, auto-rellenar con contrato - gasto
+  if(SITU==="termino" && field==="gastadoMiles"){
+    const r = C_ROWS[i];
+    if(r.pendMiles == null && r.contratoMiles != null && val != null){
+      r.pendMiles = Math.max(0, r.contratoMiles - val);
+      r.pendYear = r.gastadoYear;
+      const pendInp = document.getElementById("cin-pendMiles-"+i);
+      if(pendInp) pendInp.value = r.pendMiles>0 ? Math.round(cToDisp(r.pendMiles)).toLocaleString("es-CL") : "";
+    }
+  }
+  recomputeC();
+}
+function onCName(i, el){ C_ROWS[i].name = el.value; if(SITU==="normal") renderCTable(); }
+
+const SALDO_YEAR = MONEDA_BIP[_hoy] ? _hoy : MAX_MONEDA;   // moneda del presupuesto vigente (2026)
+function convMiles(val, fromY, toY){ if(val==null) return val; const f=factorMoneda(fromY,toY); return f!=null ? val*f : val; }
+function baseYearC(){ return (FICHA && FICHA.year) ? FICHA.year : SALDO_YEAR; }
+function newRow(name, recMiles){
+  const y = baseYearC();
+  return {name:name||"", recMiles:recMiles!=null?recMiles:null, recBaseMiles:recMiles!=null?recMiles:null, recBaseYear:y, recYear:y,
+    contratoMiles:null, contratoYear:y, gastadoMiles:null, gastadoYear:y, modifMiles:null, modifYear:y, pendMiles:null, pendYear:y, gastoMiles:null};
+}
+function onYearChange(i, which, y){
+  const r=C_ROWS[i]; y=parseInt(y,10);
+  if(which==="rec"){
+    r.recYear=y;
+    if(r.recBaseMiles!=null){
+      r.recMiles = convMiles(r.recBaseMiles, r.recBaseYear, y);
+      const inp=document.getElementById("cin-recMiles-"+i);
+      if(inp) inp.value = r.recMiles!=null ? Math.round(cToDisp(r.recMiles)).toLocaleString("es-CL") : "";
+    }
+  } else if(which==="contrato"){ r.contratoYear=y; }
+  else if(which==="gastado"){ r.gastadoYear=y; }
+  recomputeC();
+}
+function yearSelectC(i, which, sel){
+  return `<select class="c-yr" onchange="onYearChange(${i},'${which}',this.value)">${monedaYearOptions(sel)}</select>`;
+}
+function addCFromFicha(){
+  const sel=document.getElementById("cAddSel"); if(!sel||!sel.value) return;
+  const it=FICHA.items.find(x=>x.name===sel.value);
+  if(it) C_ROWS.push(newRow(it.name, it.montoMiles));
+  renderCTable(); recomputeC();
+}
+function addCManual(){ C_ROWS.push(newRow("", null)); renderCTable(); recomputeC(); }
+function delCRow(i){ C_ROWS.splice(i,1); renderCTable(); recomputeC(); }
+
+function presupYearIssues(){
+  const out=[];
+  C_ROWS.forEach(r=>{
+    if(!(r.recMiles>0)) return;
+    const isG=esGasto(r.name);
+    if(isG){
+      if(r.gastadoMiles!=null && r.recYear!==r.gastadoYear) out.push(r.name||"(sin nombre)");
+    } else {
+      if(r.contratoMiles!=null && r.recYear!==r.contratoYear) out.push(r.name||"(sin nombre)");
+    }
+  });
+  return out;
+}
+function fmtP(pct){ return pct.toLocaleString("es-CL",{minimumFractionDigits:1,maximumFractionDigits:1})+"%"; }
+function estLine(label, supera, pct){
+  return `<div class="c-line"><span class="c-tag">${label}</span><span class="c-badge ${supera?"warn":"ok"}">${supera?"Reevaluar":"Dentro"}</span><span class="c-pctin">${fmtP(pct)}</span></div>`;
+}
+
+let C_RESULT = null;
+function recomputeC(){
+  if(SITU==="fases"){ recomputeFases(); return; }
+  let valid=0, superaMod=0, supera20=0, superaTerm=0; const requieren=[]; const causalesSet={};
+  C_ROWS.forEach((r,i)=>{
+    const estEl=document.getElementById("cEst-"+i);
+    if(!estEl) return;
+    const rec=r.recMiles;
+    let lines="", validRow=false, naFlag=false;
+    const sinContrato = esGasto(r.name);
+
+    if(SITU==="termino"){
+      const saldoEl=document.getElementById("cSaldo-"+i);
+      if(sinContrato){
+        naFlag = true;
+        if(saldoEl) saldoEl.textContent = "";
+      } else {
+        const rec26 = rec!=null ? convMiles(rec, r.recYear, SALDO_YEAR) : null;
+        const gast26 = r.gastadoMiles!=null ? convMiles(r.gastadoMiles, r.gastadoYear, SALDO_YEAR) : 0;
+        const saldo26 = rec26!=null ? rec26 - gast26 : null;
+        if(saldoEl && saldo26!=null){
+          saldoEl.innerHTML = "Saldo pendiente " + SALDO_YEAR + ":<br>" + cUnitLabel() + " " + fmtDispC(saldo26);
+        } else if(saldoEl){ saldoEl.textContent = ""; }
+        const pend26 = r.pendMiles!=null ? convMiles(r.pendMiles, r.pendYear, SALDO_YEAR) : null;
+        let termHtml;
+        if(saldo26!=null && saldo26>0 && pend26!=null){
+          validRow=true;
+          const sup = pend26 > saldo26*1.10;
+          const pct = (pend26/saldo26 - 1)*100;
+          if(sup){ superaTerm++; causalesSet["D"]=1; requieren.push({name:r.name||"(sin nombre)", motivo:"el costo de terminación supera el 10% del saldo pendiente", pct}); }
+          termHtml = `<span class="c-badge ${sup?"warn":"ok"}">${sup?"Reevaluar":"Dentro"}</span><span class="c-pctin">${fmtP(pct)}</span>`;
+        } else {
+          termHtml = `<span class="c-pend">—</span>`;
+        }
+        lines = `<div class="est-split"><div class="est-row"><span class="est-lbl">Umbral 10% Term.</span>${termHtml}</div></div>`;
+      }
+    } else {
+      // NORMAL — Saldo por Invertir + evaluación 20% / 10%
+      const isG = sinContrato;
+      const cont=r.contratoMiles, gast=r.gastadoMiles, aum=r.modifMiles;
+      // saldo por invertir, siempre en moneda del presupuesto vigente (2026)
+      const saldoEl=document.getElementById("cSaldo-"+i);
+      if(saldoEl){
+        if(rec>0){
+          const rec26 = convMiles(rec, r.recYear, SALDO_YEAR);
+          const cont26 = cont!=null ? convMiles(cont, r.contratoYear, SALDO_YEAR) : null;
+          const gast26 = gast!=null ? convMiles(gast, r.gastadoYear, SALDO_YEAR) : 0;
+          const base = (cont26!=null && cont26>rec26) ? cont26 : rec26;
+          const saldo = base - gast26;
+          saldoEl.innerHTML = "Saldo x invertir " + SALDO_YEAR + ":<br>" + cUnitLabel() + " " + fmtDispC(saldo);
+        } else { saldoEl.textContent = ""; }
+      }
+      // 20%: contratación (con contrato) o gasto (sin contrato) vs recomendación
+      const lbl20 = isG ? "Umbral 20% Gasto" : "Umbral 20% Adj.";
+      const monto20 = isG ? gast : cont;
+      let row20html, row10html;
+      if(rec>0 && monto20!=null){
+        validRow=true;
+        const sup = monto20 > rec*1.20;
+        const pct = (monto20/rec-1)*100;
+        if(sup){ supera20++; causalesSet["B"]=1; requieren.push({name:r.name||"(sin nombre)", motivo:(isG?"gasto":"adjudicación")+" supera el 20%", pct}); }
+        row20html = `<span class="c-badge ${sup?"warn":"ok"}">${sup?"Reevaluar":"Dentro"}</span><span class="c-pctin">${fmtP(pct)}</span>`;
+      } else {
+        row20html = `<span class="c-pend">—</span>`;
+      }
+      // 10%: aumento (modificación) vs recomendación
+      if(rec>0 && aum!=null){
+        validRow=true;
+        const sup = aum > rec*0.10;
+        const pct = aum/rec*100;
+        if(sup){ superaMod++; causalesSet["C"]=1; requieren.push({name:r.name||"(sin nombre)", motivo:"el aumento supera el 10%", pct}); }
+        row10html = `<span class="c-badge ${sup?"warn":"ok"}">${sup?"Reevaluar":"Dentro"}</span><span class="c-pctin">${fmtP(pct)}</span>`;
+      } else {
+        row10html = `<span class="c-pend">—</span>`;
+      }
+      lines = `<div class="est-split"><div class="est-row"><span class="est-lbl">${lbl20}</span>${row20html}</div><div class="est-div"></div><div class="est-row"><span class="est-lbl">Umbral 10% Modif.</span>${row10html}</div></div>`;
+    }
+    if(validRow) valid++;
+    estEl.innerHTML = naFlag ? `<span class="c-naest">No aplica</span>` : lines;
+    // validación gasto ≤ contrato (en moneda equivalente)
+    const warnEl = document.getElementById("cWarnGasto-"+i);
+    if(warnEl){
+      const gc = r.gastadoMiles!=null && r.contratoMiles!=null;
+      if(gc){
+        const gEq = convMiles(r.gastadoMiles, r.gastadoYear, SALDO_YEAR);
+        const cEq = convMiles(r.contratoMiles, r.contratoYear, SALDO_YEAR);
+        if(gEq > cEq + 0.001){
+          warnEl.innerHTML = `<span class="c-gastoerr">⚠ Gasto supera el monto contratado</span>`;
+        } else { warnEl.innerHTML = ""; }
+      } else { warnEl.innerHTML = ""; }
+    }
+  });
+  const total = superaMod + supera20 + superaTerm;
+  const causales = Object.keys(causalesSet);
+  C_RESULT = { requieren, valid, superaMod, supera20, superaTerm, total, causales };
+  const sum=document.getElementById("cSummary");
+  if(sum){
+    if(valid===0){ sum.innerHTML=""; }
+    else {
+      const cls = total>0 ? "warn" : "ok";
+      const unidad = SITU==="fases" ? "fase(s)" : "asignación(es)";
+      const txt = total>0 ? `${total} de ${valid} ${unidad} ${total===1?"requiere":"requieren"} Reevaluación`
+                          : `Ninguna de las ${valid} ${unidad} requiere Reevaluación`;
+      let detalle = "";
+      if(total>0){
+        const parts=[];
+        if(superaMod>0) parts.push(`${superaMod} por modificación 10% (causal C)`);
+        if(supera20>0) parts.push(`${supera20} por adjudicación/gasto 20% (causal B${SITU==="fases"?"/E":""})`);
+        if(superaTerm>0) parts.push(`${superaTerm} por término anticipado (causal D)`);
+        detalle = `<div class="c-sumnote warn">${parts.join(" · ")}.</div>`;
+      }
+      sum.innerHTML = `<div class="c-sumrow">
+          <span class="c-sumbadge ${cls}">${total>0?"⚠":"✓"} ${txt}</span>
+          <button class="btn-mini" onclick="exportCReport()">↓ Exportar reporte PDF</button>
+        </div>
+        ${detalle}
+        <div class="c-sumnote">Comparación en moneda del año de adjudicación (sin reajustes).</div>`;
+    }
+  }
+  pendingSelection = valid>0 ? (total>0?"yes":"no") : null;
+  const nb=document.getElementById("nextBtn"); if(nb) nb.disabled = (valid===0);
+}
+
+// =========================================================================
+//  FASES CONSTRUCTIVAS — distribuir el total de cada ítem por fase, validar
+//  contra el total de la ficha y evaluar la fase que se modifica (20%/10%).
+// =========================================================================
+function setFasesN(n){
+  n = Math.max(2, Math.min(8, parseInt(n,10)||2));
+  FASES_N = n;
+  Object.keys(FASES_DIST).forEach(name=>{
+    const arr = FASES_DIST[name];
+    if(arr.length < n){ while(arr.length<n) arr.push(null); }
+    else if(arr.length > n){ arr.length = n; }
+  });
+  if(FASES_SEL >= n) FASES_SEL = n-1;
+  if(FICHA) FICHA.items.forEach(it=>autoLastFase(it.name));
+  renderFasesUI(); recomputeFases();
+}
+function onFaseRecYear(faseIdx, name, newYear){
+  newYear = parseInt(newYear, 10);
+  if(!FASES_EVAL[faseIdx]) FASES_EVAL[faseIdx]={};
+  if(!FASES_EVAL[faseIdx][name]) FASES_EVAL[faseIdx][name]={};
+  FASES_EVAL[faseIdx][name].recYear = newYear;
+  const baseRec = (FASES_DIST[name]||[])[faseIdx];
+  const rec = baseRec!=null ? convMiles(baseRec, baseYearC(), newYear) : null;
+  const valEl = document.getElementById("fev-rec-val-"+name.replace(/\W/g,"_"));
+  if(valEl) valEl.textContent = rec!=null ? fmtDispC(rec) : "—";
+  recomputeFases();
+}
+function autoLastFase(name){
+  if(!FICHA) return;
+  const it = FICHA.items.find(x=>x.name===name);
+  if(!it) return;
+  if(!FASES_DIST[name]) FASES_DIST[name] = new Array(FASES_N).fill(null);
+  let sum = 0;
+  for(let k=0; k<FASES_N-1; k++) sum += FASES_DIST[name][k]||0;
+  const lastVal = it.montoMiles - sum;
+  FASES_DIST[name][FASES_N-1] = lastVal >= 0 ? lastVal : null;
+  const lastInp = document.getElementById("fdist-inp-"+name.replace(/\W/g,"_")+"-"+(FASES_N-1));
+  if(lastInp) lastInp.value = FASES_DIST[name][FASES_N-1] != null
+    ? Math.round(cToDisp(FASES_DIST[name][FASES_N-1])).toLocaleString("es-CL") : "";
+}
+function onFaseDist(name, k, el){
+  let v = el.value.replace(/[^\d]/g,"");
+  el.value = v ? parseInt(v,10).toLocaleString("es-CL") : "";
+  if(!FASES_DIST[name]) FASES_DIST[name] = new Array(FASES_N).fill(null);
+  FASES_DIST[name][k] = v ? cFromDisp(parseInt(v,10)) : null;
+  autoLastFase(name);
+  // actualizar solo sumas/eval sin re-render para no perder foco
+  updateFasesSums(); recomputeFases();
+}
+function setFaseSel(idx){ FASES_SEL = parseInt(idx,10)||0; renderFasesUI(); recomputeFases(); }
+function onFaseEval(name, field, el){
+  let v = el.value.replace(/[^\d]/g,"");
+  el.value = v ? parseInt(v,10).toLocaleString("es-CL") : "";
+  if(!FASES_EVAL[FASES_SEL]) FASES_EVAL[FASES_SEL] = {};
+  if(!FASES_EVAL[FASES_SEL][name]) FASES_EVAL[FASES_SEL][name] = {};
+  FASES_EVAL[FASES_SEL][name][field] = v ? cFromDisp(parseInt(v,10)) : null;
+  recomputeFases();
+}
+function fasesRowSum(name){ return (FASES_DIST[name]||[]).reduce((a,b)=>a+(b||0),0); }
+function fichaTotalOf(name){ const it=(FICHA?FICHA.items:[]).find(x=>x.name===name); return it?it.montoMiles:0; }
+function fasesDistOk(){
+  if(!FICHA) return false;
+  return FICHA.items.every(it=>Math.round(it.montoMiles - fasesRowSum(it.name))===0);
+}
+
+function updateFasesSums(){
+  if(!FICHA) return;
+  FICHA.items.forEach(it=>{
+    const sumEl=document.getElementById("fdist-sum-"+it.name.replace(/\W/g,"_"));
+    const okEl=document.getElementById("fdist-ok-"+it.name.replace(/\W/g,"_"));
+    if(!sumEl) return;
+    const sum=fasesRowSum(it.name), tot=it.montoMiles, diff=tot-sum;
+    sumEl.textContent=fmtDispC(sum);
+    if(okEl){
+      if(Math.round(diff)===0){ okEl.innerHTML=`<span class="fdist-ok">✓</span>`; }
+      else { okEl.innerHTML=`<span class="fdist-bad">${diff>0?"faltan ":"sobran "}${fmtDispC(Math.abs(diff))}</span>`; }
+    }
+  });
+  // bloquear/desbloquear la evaluación de la fase
+  const ok = fasesDistOk();
+  const lock=document.getElementById("fasesLockMsg"), ev=document.getElementById("fasesEvalWrap");
+  if(lock) lock.style.display = ok ? "none" : "block";
+  if(ev) ev.style.display = ok ? "block" : "none";
+  // actualizar $ Rec. (fase) en tabla de evaluación sin re-render
+  if(FICHA) FICHA.items.forEach(it=>{
+    const k=it.name.replace(/\W/g,"_");
+    const valEl=document.getElementById("fev-rec-val-"+k);
+    if(!valEl) return;
+    const baseRec=(FASES_DIST[it.name]||[])[FASES_SEL];
+    const ev=(FASES_EVAL[FASES_SEL]||{})[it.name]||{};
+    const recYear=ev.recYear||baseYearC();
+    const rec=baseRec!=null?convMiles(baseRec,baseYearC(),recYear):null;
+    valEl.textContent=rec!=null?fmtDispC(rec):"—";
+    const saldoEl=valEl.closest("tr")?.querySelector(".c-saldo");
+    if(saldoEl && baseRec!=null) saldoEl.innerHTML="Saldo x inv. "+SALDO_YEAR+":<br>"+cUnitLabel()+" "+fmtDispC(convMiles(baseRec,baseYearC(),SALDO_YEAR));
+    else if(saldoEl) saldoEl.innerHTML="";
+  });
+}
+
+function renderFasesUI(){
+  const host=document.getElementById("cFases");
+  if(!host) return;
+  if(!FICHA){ host.innerHTML=`<div class="c-empty" style="padding:18px;border:1px solid var(--line);border-radius:10px;">Sube la Ficha IDI para distribuir las fases constructivas.</div>`; return; }
+  FICHA.items.forEach(it=>{ if(!FASES_DIST[it.name]) FASES_DIST[it.name]=new Array(FASES_N).fill(null); });
+  // Auto-calcular última fase antes de renderizar
+  FICHA.items.forEach(it=>autoLastFase(it.name));
+  const key=(s)=>s.replace(/\W/g,"_");
+  const u = cUnitLabel();
+  const faseHdr = Array.from({length:FASES_N},(_,k)=>{
+    const isLast = k===FASES_N-1;
+    return `<th class="r">Monto ${u}<br>Fase ${k+1}${isLast?' <span style="font-size:9px;opacity:.6">(auto)</span>':''}`;
+  }).join("");
+  const distRows = FICHA.items.map(it=>{
+    const arr=FASES_DIST[it.name]||[];
+    const esc=it.name.replace(/'/g,"\\'");
+    const inputs=Array.from({length:FASES_N},(_,k)=>{
+      const val = arr[k]!=null ? Math.round(cToDisp(arr[k])).toLocaleString("es-CL") : "";
+      const isLast = k===FASES_N-1;
+      if(isLast){
+        return `<td class="r"><input id="fdist-inp-${key(it.name)}-${k}" class="c-in fdist-last" readonly tabindex="-1" placeholder="auto" value="${val}" title="Calculado automáticamente: Total − suma de fases anteriores"></td>`;
+      }
+      return `<td class="r"><input id="fdist-inp-${key(it.name)}-${k}" class="c-in" inputmode="numeric" autocomplete="off" placeholder="0" value="${val}" oninput="onFaseDist('${esc}',${k},this)"></td>`;
+    }).join("");
+    return `<tr>
+      <td class="l"><span class="c-asg">${it.name}</span></td>
+      <td class="r">${fmtDispC(it.montoMiles)}</td>
+      ${inputs}
+      <td class="r" id="fdist-sum-${key(it.name)}">—</td>
+      <td class="c" id="fdist-ok-${key(it.name)}"></td>
+    </tr>`;
+  }).join("");
+  const faseOpts=Array.from({length:FASES_N},(_,k)=>`<option value="${k}"${k===FASES_SEL?" selected":""}>Fase ${k+1}</option>`).join("");
+
+  // tabla de evaluación — mismo formato que Contrato Normal
+  const evalRows = FICHA.items.map(it=>{
+    const baseRec = (FASES_DIST[it.name]||[])[FASES_SEL];
+    const isG = esGasto(it.name);
+    const ev = (FASES_EVAL[FASES_SEL]||{})[it.name] || {};
+    const esc = it.name.replace(/'/g,"\\'");
+    const recYear = ev.recYear || baseYearC();
+    const rec = baseRec!=null ? convMiles(baseRec, baseYearC(), recYear) : null;
+    const cVal = ev.contrato!=null ? Math.round(cToDisp(ev.contrato)).toLocaleString("es-CL") : "";
+    const gVal = ev.gastado!=null ? Math.round(cToDisp(ev.gastado)).toLocaleString("es-CL") : "";
+    const mVal = ev.modif!=null ? Math.round(cToDisp(ev.modif)).toLocaleString("es-CL") : "";
+    const cYr = ev.contratoYear || baseYearC();
+    const gYr = ev.gastadoYear || baseYearC();
+    const mYr = ev.modifYear || baseYearC();
+    const contratoCell = isG
+      ? `<td class="r c-na" title="Sin contrato: las boletas/facturas van en Gastado">—</td>`
+      : `<td class="r"><div class="c-cell">
+          <input class="c-in" inputmode="numeric" placeholder="0" value="${cVal}" oninput="onFaseEval('${esc}','contrato',this)">
+          <div class="c-yr-row"><span class="c-yr-lbl">Año Adj.</span><span class="c-yr-ro">${cYr}</span></div>
+          <button class="c-convbtn" onclick="openConvFase(${FASES_SEL},'${esc}','contrato')">⇄ convertir y sumar</button>
+        </div></td>`;
+    const gastadoCell = `<td class="r"><div class="c-cell">
+        <input class="c-in" inputmode="numeric" placeholder="0" value="${gVal}" oninput="onFaseEval('${esc}','gastado',this)">
+        <div class="c-yr-row"><span class="c-yr-lbl">Año Gasto</span><span class="c-yr-ro">${gYr}</span></div>
+        <button class="c-convbtn" onclick="openConvFase(${FASES_SEL},'${esc}','gastado')">⇄ convertir y sumar</button>
+      </div></td>`;
+    const modCell = isG
+      ? `<td class="r c-na">—</td>`
+      : `<td class="r"><div class="c-cell">
+          <input class="c-in" inputmode="numeric" placeholder="0" value="${mVal}" oninput="onFaseEval('${esc}','modif',this)">
+          <div class="c-yr-row"><span class="c-yr-lbl">Año Modif.</span><span class="c-yr-ro">${mYr}</span></div>
+          <button class="c-convbtn" onclick="openConvFase(${FASES_SEL},'${esc}','modif')">⇄ convertir y sumar</button>
+        </div></td>`;
+    return `<tr>
+      <td class="l"><span class="c-asg">${it.name}</span>${isG?'<div class="c-asgtag">gasto (sin contrato)</div>':''}
+        <div class="c-saldo" id="fev-saldo-${key(it.name)}"></div>
+        <div id="fev-warn-${key(it.name)}"></div></td>
+      <td class="r"><div class="c-cell"><span id="fev-rec-val-${key(it.name)}" style="font-size:12.5px;font-weight:600;display:block;text-align:right;min-height:20px;">${rec!=null?fmtDispC(rec):"—"}</span><div class="c-yr-row"><span class="c-yr-lbl">Año RS</span><select class="c-yr" onchange="onFaseRecYear(${FASES_SEL},'${esc}',this.value)">${monedaYearOptions(recYear)}</select></div></div></td>
+      ${contratoCell}${gastadoCell}${modCell}
+      <td class="c" id="fev-est-${key(it.name)}"><span class="c-pend">—</span></td>
+    </tr>`;
+  }).join("");
+
+  host.innerHTML = `
+    <div class="fases-block">
+      <div class="fases-q">1 · ¿Cuántas fases o etapas constructivas tiene la iniciativa?</div>
+      <div class="fases-nrow">
+        <input type="number" min="2" max="8" value="${FASES_N}" id="fasesN" class="fases-ninput" onchange="setFasesN(this.value)">
+        <span class="c-unitnote">Distribuye el total de cada ítem entre las fases (la suma debe coincidir con el total de la ficha). Montos en ${u}.</span>
+      </div>
+      <div class="c-table-wrap">
+        <table class="c-table">
+          <thead><tr><th class="l">Asignación</th><th class="r">Monto ${u}<br>Total RS</th>${faseHdr}<th class="r">Σ distribuido</th><th class="c">✓</th></tr></thead>
+          <tbody>${distRows}</tbody>
+        </table>
+      </div>
+    </div>
+    <div class="fases-block">
+      <div class="fases-q">2 · ¿Qué fase requiere modificación presupuestaria?</div>
+      <div id="fasesLockMsg" class="fases-lock" style="display:none">🔒 Ajusta la distribución de cada asignación hasta que cuadre con el presupuesto total de la ficha (columna ✓) para habilitar la evaluación de la fase.</div>
+      <div id="fasesEvalWrap" style="display:none">
+        <select id="faseSel" class="c-tiposel" onchange="setFaseSel(this.value)">${faseOpts}</select>
+        <div class="c-table-wrap" style="margin-top:12px;">
+          <table class="c-table">
+            <thead><tr>
+              <th class="l">Asignación</th>
+              <th class="r">Monto ${u}<br>Recomendado</th>
+              <th class="r">Monto ${u}<br>Contratado</th>
+              <th class="r">Monto ${u}<br>Gastado</th>
+              <th class="r">Monto ${u}<br>a Aumentar</th>
+              <th class="c">Estado</th>
+            </tr></thead>
+            <tbody>${evalRows}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>`;
+  updateFasesSums();
+}
+
+function recomputeFases(){
+  const sum=document.getElementById("cSummary");
+  // validación de distribución
+  let distStarted=false;
+  if(FICHA){ FICHA.items.forEach(it=>{ if(fasesRowSum(it.name)>0) distStarted=true; }); }
+  const distOk = fasesDistOk();
+  // evaluación de la fase seleccionada
+  let valid=0, superaMod=0, supera20=0; const requieren=[];
+  if(FICHA){
+    FICHA.items.forEach(it=>{
+      const k=it.name.replace(/\W/g,"_");
+      const estEl=document.getElementById("fev-est-"+k);
+      if(!estEl) return;
+      const baseRec=(FASES_DIST[it.name]||[])[FASES_SEL];
+      const ev=(FASES_EVAL[FASES_SEL]||{})[it.name]||{};
+      const recYear=ev.recYear||baseYearC();
+      const rec=baseRec!=null?convMiles(baseRec, baseYearC(), recYear):null;
+      const isG=esGasto(it.name);
+      const cont=ev.contrato, gast=ev.gastado, aum=ev.modif;
+      // saldo x invertir (en SALDO_YEAR, para display)
+      const saldoEl=document.getElementById("fev-saldo-"+k);
+      if(saldoEl){
+        if(baseRec!=null && baseRec>0){
+          const rec26=convMiles(baseRec, baseYearC(), SALDO_YEAR);
+          const cont26=cont!=null?convMiles(cont, ev.contratoYear||baseYearC(), SALDO_YEAR):null;
+          const gast26=gast!=null?convMiles(gast, ev.gastadoYear||baseYearC(), SALDO_YEAR):0;
+          const base=(!isG && cont26!=null && cont26>rec26)?cont26:rec26;
+          saldoEl.innerHTML="Saldo x inv. "+SALDO_YEAR+":<br>"+cUnitLabel()+" "+fmtDispC(base-gast26);
+        } else { saldoEl.innerHTML=""; }
+      }
+      // validación gasto > contrato
+      const warnEl=document.getElementById("fev-warn-"+k);
+      if(warnEl){
+        if(!isG && gast!=null && cont!=null){
+          const c26=convMiles(cont, ev.contratoYear||baseYearC(), SALDO_YEAR);
+          const g26=convMiles(gast, ev.gastadoYear||baseYearC(), SALDO_YEAR);
+          warnEl.innerHTML=g26>c26+0.001?`<span class="c-gastoerr">⚠ Gasto supera el monto contratado</span>`:"";
+        } else { warnEl.innerHTML=""; }
+      }
+      let validRow=false;
+      const lbl20=isG?"Umbral 20% Gasto":"Umbral 20% Adj.";
+      let row20html, row10html;
+      const monto20=isG?gast:cont;
+      if(rec!=null && rec>0 && monto20!=null){
+        validRow=true;
+        const sup=monto20>rec*1.20;
+        const pct=(monto20/rec-1)*100;
+        if(sup){ supera20++; requieren.push({name:it.name, motivo:(isG?"gasto":"adjudicación")+" supera el 20% en la fase "+(FASES_SEL+1), pct}); }
+        row20html=`<span class="c-badge ${sup?"warn":"ok"}">${sup?"Reevaluar":"Dentro"}</span><span class="c-pctin">${fmtP(pct)}</span>`;
+      } else { row20html=`<span class="c-pend">—</span>`; }
+      if(!isG && rec!=null && rec>0 && aum!=null){
+        validRow=true;
+        const sup=aum>rec*0.10;
+        const pct=aum/rec*100;
+        if(sup){ superaMod++; requieren.push({name:it.name, motivo:"modificación supera el 10% en la fase "+(FASES_SEL+1), pct}); }
+        row10html=`<span class="c-badge ${sup?"warn":"ok"}">${sup?"Reevaluar":"Dentro"}</span><span class="c-pctin">${fmtP(pct)}</span>`;
+      } else { row10html=`<span class="c-pend">—</span>`; }
+      if(validRow) valid++;
+      estEl.innerHTML=`<div class="est-split"><div class="est-row"><span class="est-lbl">${lbl20}</span>${row20html}</div><div class="est-div"></div><div class="est-row"><span class="est-lbl">Umbral 10% Modif.</span>${row10html}</div></div>`;
+    });
+  }
+  const total = superaMod + supera20;
+  C_RESULT = { requieren, valid, superaMod, supera20, superaTerm:0, total, causales: total>0?["E"]:[] };
+  if(sum){
+    let html="";
+    if(!distOk && distStarted){
+      html += `<div class="c-sumnote warn">⚠ La distribución por fases no cuaja con el total de la ficha en alguna asignación. Revisa la columna “✓”.</div>`;
+    }
+    if(valid>0){
+      const cls=total>0?"warn":"ok";
+      const txt=total>0?`${total} de ${valid} asignación(es) de la Fase ${FASES_SEL+1} requiere(n) Reevaluación`
+                       :`Ninguna asignación de la Fase ${FASES_SEL+1} supera los umbrales`;
+      html += `<div class="c-sumrow"><span class="c-sumbadge ${cls}">${total>0?"⚠":"✓"} ${txt}</span>
+        <button class="btn-mini" onclick="exportCReport()">↓ Exportar reporte PDF</button></div>
+        <div class="c-sumnote">Fase ${FASES_SEL+1} evaluada con los topes 20% / 10% sobre el presupuesto oficial de la fase (causal E · 3.2.1.5).</div>`;
+    }
+    sum.innerHTML = html;
+  }
+  // habilitar Siguiente: distribución correcta y al menos una asignación evaluada
+  pendingSelection = (valid>0 && distOk) ? (total>0?"yes":"no") : null;
+  const nb=document.getElementById("nextBtn"); if(nb) nb.disabled = !(valid>0 && distOk);
+}
+
+function computeRowChecks(r){
+  const checks=[]; const rec=r.recMiles; const sinContrato=esGasto(r.name);
+  if(SITU==="termino"){
+    if(sinContrato) return checks;   // no aplica
+    const saldo = (rec!=null && r.gastoMiles!=null) ? rec - r.gastoMiles : null;
+    if(saldo!=null && saldo>0 && r.pendMiles!=null)
+      checks.push({label:"Término 10%", base:saldo, monto:r.pendMiles, tope:saldo*1.10, pct:(r.pendMiles/saldo-1)*100, supera:r.pendMiles>saldo*1.10});
+    return checks;
+  }
+  const isG = sinContrato;
+  if(SITU==="fases"){
+    if(rec>0 && r.contratoMiles!=null)
+      checks.push({label:isG?"Gasto 20%":"Adj. 20%", base:rec, monto:r.contratoMiles, tope:rec*1.20, pct:(r.contratoMiles/rec-1)*100, supera:r.contratoMiles>rec*1.20});
+    if(!isG && rec>0 && r.modifMiles!=null)
+      checks.push({label:"Modif. 10%", base:rec, monto:r.modifMiles, tope:rec*0.10, pct:r.modifMiles/rec*100, supera:r.modifMiles>rec*0.10});
+    return checks;
+  }
+  // normal
+  const monto20 = isG ? r.gastadoMiles : r.contratoMiles;
+  if(rec>0 && monto20!=null)
+    checks.push({label:isG?"Gasto 20%":"Adj. 20%", base:rec, monto:monto20, tope:rec*1.20, pct:(monto20/rec-1)*100, supera:monto20>rec*1.20});
+  if(rec>0 && r.modifMiles!=null)
+    checks.push({label:"Aumento 10%", base:rec, monto:r.modifMiles, tope:rec*0.10, pct:r.modifMiles/rec*100, supera:r.modifMiles>rec*0.10});
+  return checks;
+}
+
+// =========================================================================
+//  MÓDULO FLOTANTE: convertir y sumar montos de distintos años → un total
+// =========================================================================
+let CONV = null;
+function convYearKey(field){ return field==="gastadoMiles"?"gastadoYear":field==="contratoMiles"?"contratoYear":field==="modifMiles"?"modifYear":field==="pendMiles"?"pendYear":"recYear"; }
+function openConvFase(faseIdx, name, field){
+  const ev = (FASES_EVAL[faseIdx]||{})[name]||{};
+  const yearKey = field==="contrato" ? "contratoYear" : field==="gastado" ? "gastadoYear" : "modifYear";
+  const tgt = ev[yearKey] || baseYearC();
+  const existing = ev[field];
+  const initRows = existing!=null ? [{monto:existing, year:tgt}] : [{monto:null, year:tgt}];
+  CONV = { faseName: name, faseIdx, field, targetYear: tgt, rows: initRows };
+  ensureConvModal(); renderConvModal();
+  document.getElementById("convOverlay").style.display="flex";
+}
+function openConv(i, field){
+  const r=C_ROWS[i];
+  const tgt = r[convYearKey(field)] || baseYearC();
+  const existing = r[field];
+  const initRows = existing!=null ? [{monto:existing, year:tgt}] : [{monto:null, year:tgt}];
+  CONV = { i, field, targetYear: tgt, rows: initRows };
+  ensureConvModal();
+  renderConvModal();
+  document.getElementById("convOverlay").style.display="flex";
+}
+function closeConv(){ const o=document.getElementById("convOverlay"); if(o) o.style.display="none"; CONV=null; }
+function ensureConvModal(){
+  if(document.getElementById("convOverlay")) return;
+  const div=document.createElement("div");
+  div.id="convOverlay"; div.className="conv-overlay";
+  div.onclick=(e)=>{ if(e.target===div) closeConv(); };
+  div.innerHTML=`<div class="conv-modal"><div id="convBody"></div></div>`;
+  document.body.appendChild(div);
+}
+function convTotal(){ return CONV.rows.reduce((a,row)=> a + (row.monto!=null?convMiles(row.monto,row.year,CONV.targetYear):0), 0); }
+function renderConvModal(){
+  const body=document.getElementById("convBody"); if(!body||!CONV) return;
+  const u=cUnitLabel();
+  const rowsHtml = CONV.rows.map((row,k)=>{
+    const mv = row.monto!=null ? Math.round(cToDisp(row.monto)).toLocaleString("es-CL") : "";
+    const conv = row.monto!=null ? convMiles(row.monto, row.year, CONV.targetYear) : null;
+    return `<tr>
+      <td><input class="c-in" inputmode="numeric" placeholder="0" value="${mv}" oninput="onConvMonto(${k},this)"></td>
+      <td><select class="c-yr" style="width:88px" onchange="onConvYear(${k},this.value)">${monedaYearOptions(row.year)}</select></td>
+      <td class="r conv-eq" id="conv-eq-${k}">${conv!=null?(u+" "+fmtDispC(conv)):"—"}</td>
+      <td><button class="c-del" onclick="convDelRow(${k})" aria-label="Quitar">×</button></td>
+    </tr>`;
+  }).join("");
+  body.innerHTML=`
+    <div class="conv-head">
+      <div class="conv-title">Convertir y sumar montos</div>
+      <button class="c-del" onclick="closeConv()" aria-label="Cerrar">×</button>
+    </div>
+    <div class="conv-sub">Ingresa o pega los montos con su año; se convierten a moneda <b>${CONV.targetYear}</b> con la tabla Moneda BIP y se suman. Montos en ${u}.</div>
+    <div class="conv-tgt">Llevar todo al año
+      <select class="c-yr" style="width:88px" onchange="onConvTarget(this.value)">${monedaYearOptions(CONV.targetYear)}</select></div>
+    <textarea id="convPaste" class="conv-paste" placeholder="Pega montos y años (uno por línea). Ej.:&#10;1.200.000   2023&#10;800.000   2024"></textarea>
+    <div class="conv-btns"><button class="btn-mini" onclick="convDoPaste()">Procesar pegado</button> <button class="btn-mini" onclick="convAddRow()">+ Fila</button></div>
+    <table class="conv-table"><thead><tr><th>Monto</th><th>Año</th><th class="r">En ${CONV.targetYear}</th><th></th></tr></thead><tbody>${rowsHtml}</tbody></table>
+    <div class="conv-total"><span>Total en ${CONV.targetYear}:</span> <b id="convTotalVal">${u} ${fmtDispC(convTotal())}</b></div>
+    <div class="conv-actions"><button class="btn btn-ghost" onclick="closeConv()">Cancelar</button><button class="btn btn-primary" onclick="convApply()">Usar total →</button></div>`;
+}
+function updateConvRow(k){
+  const el=document.getElementById("conv-eq-"+k); if(!el) return;
+  const row=CONV.rows[k]; const conv=row.monto!=null?convMiles(row.monto,row.year,CONV.targetYear):null;
+  el.textContent = conv!=null?(cUnitLabel()+" "+fmtDispC(conv)):"—";
+}
+function updateConvTotal(){ const t=document.getElementById("convTotalVal"); if(t) t.textContent = cUnitLabel()+" "+fmtDispC(convTotal()); }
+function onConvMonto(k,el){ let v=el.value.replace(/[^\d]/g,""); el.value=v?parseInt(v,10).toLocaleString("es-CL"):""; CONV.rows[k].monto=v?cFromDisp(parseInt(v,10)):null; updateConvRow(k); updateConvTotal(); }
+function onConvYear(k,y){ CONV.rows[k].year=parseInt(y,10); updateConvRow(k); updateConvTotal(); }
+function onConvTarget(y){ CONV.targetYear=parseInt(y,10); renderConvModal(); }
+function convAddRow(){ CONV.rows.push({monto:null, year:CONV.targetYear}); renderConvModal(); }
+function convDelRow(k){ CONV.rows.splice(k,1); if(!CONV.rows.length) CONV.rows.push({monto:null,year:CONV.targetYear}); renderConvModal(); }
+function convDoPaste(){
+  const ta=document.getElementById("convPaste"); if(!ta) return;
+  const lines=ta.value.split(/\n/).map(l=>l.trim()).filter(Boolean);
+  const added=[];
+  lines.forEach(l=>{
+    const nums=l.match(/\d[\d.\,]*/g)||[];
+    let year=null, monto=null;
+    nums.forEach(n=>{ const clean=n.replace(/[.,]/g,""); const v=parseInt(clean,10); if(clean.length===4 && v>=1928 && v<=2030) year=v; });
+    nums.forEach(n=>{ const clean=n.replace(/[.,]/g,""); const v=parseInt(clean,10); const isYear=(clean.length===4 && v>=1928 && v<=2030); if(!isYear && (monto==null||v>monto)) monto=v; });
+    if(monto!=null) added.push({monto:cFromDisp(monto), year:year||CONV.targetYear});
+  });
+  if(added.length){
+    if(CONV.rows.length===1 && CONV.rows[0].monto==null) CONV.rows=added; else CONV.rows=CONV.rows.concat(added);
+  }
+  ta.value=""; renderConvModal();
+}
+function convApply(){
+  const total=convTotal();
+  if(CONV.faseName != null){
+    const fi=CONV.faseIdx, name=CONV.faseName, field=CONV.field;
+    if(!FASES_EVAL[fi]) FASES_EVAL[fi]={};
+    if(!FASES_EVAL[fi][name]) FASES_EVAL[fi][name]={};
+    const yrKey = field==="contrato" ? "contratoYear" : field==="gastado" ? "gastadoYear" : "modifYear";
+    FASES_EVAL[fi][name][field] = total>0 ? total : null;
+    FASES_EVAL[fi][name][yrKey] = CONV.targetYear;
+    closeConv(); renderFasesUI(); recomputeFases();
+  } else {
+    const r=C_ROWS[CONV.i], field=CONV.field;
+    r[field] = total>0 ? total : null;
+    r[convYearKey(field)] = CONV.targetYear;
+    if(field==="recMiles"){ r.recBaseMiles=r.recMiles; r.recBaseYear=CONV.targetYear; }
+    closeConv(); renderCTable(); recomputeC();
+  }
+}
+
+function exportCReport(){
+  if(!C_RESULT || !C_RESULT.valid) return;
+  const u=cUnitLabel();
+  const logo = new URL("Head Pat-A.png", location.href).href;
+  const f = FICHA || {};
+  const fecha = new Date().toLocaleDateString("es-CL",{day:"2-digit",month:"long",year:"numeric"});
+  const col1 = "Asignación";
+  const baseCol = SITU==="termino" ? "Saldo recomendado" : (SITU==="fases" ? "Presup. de la fase" : "Recomendado");
+  // origen de filas: en fases se arma desde la distribución + evaluación de la fase seleccionada
+  const sourceRows = SITU==="fases"
+    ? (FICHA?FICHA.items:[]).map(it=>{ const ev=(FASES_EVAL[FASES_SEL]||{})[it.name]||{}; return {name:it.name, recMiles:(FASES_DIST[it.name]||[])[FASES_SEL], contratoMiles:ev.contrato!=null?ev.contrato:null, modifMiles:ev.modif!=null?ev.modif:null, gastoMiles:null, pendMiles:null}; })
+    : C_ROWS;
+  let rowsHtml = "";
+  sourceRows.forEach(r=>{
+    const checks = computeRowChecks(r);
+    if(!checks.length) return;
+    checks.forEach((c,idx)=>{
+      rowsHtml += `<tr>
+        <td>${idx===0?(r.name||"—"):""}</td>
+        <td>${c.label}</td>
+        <td class="r">${fmtDispC(c.base)}</td>
+        <td class="r">${fmtDispC(c.monto)}</td>
+        <td class="r">${fmtDispC(c.tope)}</td>
+        <td class="r">${fmtP(c.pct)}</td>
+        <td class="e"><span class="${c.supera?"warn":"ok"}">${c.supera?"Reevaluar":"Dentro"}</span></td>
+      </tr>`;
+    });
+  });
+  const unidad = SITU==="fases" ? "fase(s)" : "asignación(es)";
+  let verdicto = C_RESULT.total>0
+    ? `${C_RESULT.total} de ${C_RESULT.valid} ${unidad} requiere(n) Reevaluación.`
+    : `Ninguna de las ${C_RESULT.valid} ${unidad} supera los umbrales: puede continuarse sin Reevaluación, con respaldo de este cálculo.`;
+  if(C_RESULT.superaMod>0) verdicto += ` ${C_RESULT.superaMod} por modificación de contrato sobre el 10% (causal C, NIP 2026 3.2.1.3).`;
+  if(C_RESULT.supera20>0) verdicto += ` ${C_RESULT.supera20} por superar el 20% en adjudicación o gasto (causal B${SITU==="fases"?"/E":""}, NIP 2026 3.2.1.2 y Ley de Presupuestos 6.9.1).`;
+  if(C_RESULT.superaTerm>0) verdicto += ` ${C_RESULT.superaTerm} por término anticipado sobre el saldo (causal D, NIP 2026 3.2.1.4).`;
+  const meta=[
+    f.codigoBIP?`<b>Código BIP:</b> ${f.codigoBIP}`:"",
+    f.anioSolicitud?`<b>Año solicitud:</b> ${f.anioSolicitud}`:"",
+    f.etapaPostula?`<b>Etapa:</b> ${f.etapaPostula.toLowerCase()}`:"",
+    f.year?`<b>Moneda:</b> Presupuesto ${f.year}`:""
+  ].filter(Boolean).join(" &nbsp;·&nbsp; ");
+  const html = `<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+    <title>Reporte Reevaluación - ${f.codigoBIP||""}</title>
+    <style>
+      *{box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif;}
+      body{margin:0;color:#1e293b;font-size:12.5px;}
+      .hd{background:linear-gradient(135deg,#0f1e3d,#1a2d5a 45%,#581c87);color:#fff;padding:14px 22px;display:flex;align-items:center;gap:16px;}
+      .hd img{height:74px;}
+      .hd .t1{font-size:11px;letter-spacing:.06em;text-transform:uppercase;opacity:.75;}
+      .hd .t2{font-size:18px;font-weight:700;margin-top:2px;}
+      .hd .t3{font-size:12px;opacity:.85;margin-top:3px;}
+      .wrap{padding:22px;}
+      h1{font-size:15px;color:#1a2d5a;margin:0 0 4px;}
+      .sub{color:#64748b;font-size:11.5px;margin-bottom:16px;}
+      .meta{background:#f1f5f9;border-radius:8px;padding:10px 14px;font-size:11.5px;margin-bottom:16px;line-height:1.7;}
+      table{width:100%;border-collapse:collapse;margin-top:6px;}
+      th,td{border-bottom:1px solid #e2e8f0;padding:7px 8px;text-align:left;font-size:11.5px;}
+      th{background:#1a2d5a;color:#fff;font-weight:600;}
+      td.r,th.r{text-align:right;}
+      td.e{text-align:center;font-size:11px;}
+      td.e .warn{color:#b45309;font-weight:700;} td.e .ok{color:#16a34a;font-weight:700;} td.e .na{color:#94a3b8;}
+      .tg{font-size:9px;background:#fffbeb;color:#b45309;border:1px solid #fde68a;border-radius:4px;padding:0 4px;}
+      .verdict{margin-top:18px;padding:13px 16px;border-radius:9px;font-size:13px;font-weight:600;}
+      .verdict.warn{background:#fffbeb;border:1px solid #fde68a;color:#92400e;}
+      .verdict.ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#15803d;}
+      .foot{margin-top:22px;font-size:10.5px;color:#64748b;border-top:1px dashed #cbd5e1;padding-top:10px;line-height:1.6;}
+      @media print{.noprint{display:none;}}
+    </style></head><body>
+    <div class="hd"><img src="${logo}" alt="PAT-A"><div>
+      <div class="t1">Araucanía · Sistema Nacional de Inversiones</div>
+      <div class="t2">Evaluación de Reevaluación presupuestaria</div>
+      <div class="t3">Plataforma de Apoyo Técnico de La Araucanía</div>
+    </div></div>
+    <div class="wrap">
+      <h1>${f.nombre||"Iniciativa de inversión"}</h1>
+      <div class="sub">Emitido el ${fecha} · Montos en ${u} ${C_UNIT==="pesos"?"(pesos)":"(miles de pesos)"}</div>
+      ${meta?`<div class="meta">${meta}</div>`:""}
+      <table>
+        <thead><tr><th>${col1}</th><th>Umbral</th><th class="r">${baseCol}</th><th class="r">Monto evaluado</th><th class="r">Tope</th><th class="r">%</th><th style="text-align:center">Estado</th></tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+      <div class="verdict ${C_RESULT.total>0?"warn":"ok"}">${verdicto}</div>
+      <div class="foot">Umbrales: 20% sobre lo recomendado para adjudicación o gasto (causal B, Ley de Presupuestos 6.9.1) · 10% para modificación de contrato (causal C, NIP 2026 3.2.1.3) · 10% sobre el saldo en término anticipado (causal D, 3.2.1.4) · por fase en licitación por etapas (causal E, 3.2.1.5). Comparación en moneda del año de adjudicación, conforme a NIP 2026 3.2.2. Documento de apoyo técnico; el resultado definitivo lo determina el MDSF en el proceso de Reevaluación.</div>
+      <p class="noprint" style="margin-top:18px;"><button onclick="window.print()" style="padding:9px 18px;font-size:13px;font-weight:700;background:#1a2d5a;color:#fff;border:none;border-radius:7px;cursor:pointer;">Imprimir / Guardar PDF</button></p>
+    </div></body></html>`;
+  const w = window.open("", "_blank");
+  if(!w){ alert("Habilita las ventanas emergentes para exportar el reporte."); return; }
+  w.document.write(html); w.document.close(); w.focus();
+  setTimeout(()=>{ try{ w.print(); }catch(e){} }, 500);
+}
+
+function calcStepC(){
+  const showBack = history.length>1;
+  return `
+    <div class="card">
+      <div class="step-kicker">Calculadora presupuestaria · umbrales 20% / 10%</div>
+      <div class="step-q">Ingresa los montos y la herramienta detecta la causal por asignación</div>
+      <div class="step-help">Los umbrales se miden sobre el <b>monto recomendado de cada asignación</b> (ficha IDI), en la <b>moneda del año de adjudicación</b> (sin reajustes). Solo ingresa los montos: el sistema indica por sí mismo si la asignación requiere reevaluación por superar el <b>20% en la adjudicación o gasto</b>, o el <b>10% en la modificación del contrato</b>. Sube la ficha para autocompletar, o agrega filas a mano.</div>
+      ${fichaUploadHtml()}
+      <div id="cHeader"></div>
+      <div class="situ-row">
+        <span class="unit-label">Situación</span>
+        <div class="seg situ-seg">
+          <button type="button" id="situ-normal" class="seg-btn active" onclick="setSituC('normal')">Contrato normal</button>
+          <button type="button" id="situ-termino" class="seg-btn" onclick="setSituC('termino')">Término anticipado</button>
+          <button type="button" id="situ-fases" class="seg-btn" onclick="setSituC('fases')">Fases constructivas</button>
+        </div>
+      </div>
+      <div class="c-toolbar">
+        <div class="unit-toggle">
+          <span class="unit-label">Tipología</span>
+          <select id="cTipo" class="c-tiposel" onchange="setTipoC(this.value)">
+            <option value="ESTUDIO BASICO">Estudio básico</option>
+            <option value="PROYECTO">Proyecto</option>
+            <option value="PROGRAMA">Programa</option>
+          </select>
+        </div>
+        <div class="unit-toggle">
+          <span class="unit-label">Unidad</span>
+          <div class="seg">
+            <button type="button" id="seg-pesos" class="seg-btn" onclick="setUnitC('pesos')">$ pesos</button>
+            <button type="button" id="seg-miles" class="seg-btn active" onclick="setUnitC('miles')">M$ miles</button>
+          </div>
+        </div>
+        <span class="c-umbral" id="cUmbralNote">Topes: gasto/adjudicación 20% · modificación de contrato 10%</span>
+      </div>
+      <div class="c-table-wrap" id="cTableWrap">
+        <table class="c-table" id="cTable"></table>
+      </div>
+      <div class="c-add-row" id="cAddRow"></div>
+      <div id="cFases"></div>
+      <div id="cSummary"></div>
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="goBack()" ${showBack?"":"style='visibility:hidden'"}>← Volver</button>
+        <button class="btn btn-primary" id="nextBtn" onclick="handleNext()" disabled>Siguiente →</button>
+      </div>
+    </div>`;
+}
+
+function setSituC(s){
+  SITU = s;
+  ["normal","termino","fases"].forEach(k=>{
+    const b=document.getElementById("situ-"+k); if(b) b.classList.toggle("active", k===s);
+  });
+  if(s==="fases"){ initFases(); }
+  else if(FICHA){ C_ROWS = FICHA.items.map(it=>newRow(it.name, it.montoMiles)); }
+  else { C_ROWS = []; }
+  const note=document.getElementById("cUmbralNote");
+  if(note) note.textContent = s==="termino" ? "Tope: 10% sobre el saldo recomendado (recomendado − gasto ejecutado)"
+                          : s==="fases" ? "Cada fase se evalúa con los topes 20% / 10% (como contrato normal)"
+                          : "Topes: gasto/adjudicación 20% · modificación de contrato 10%";
+  renderCTable(); recomputeC();
+}
+
+function initFases(){
+  FASES_SEL = 0; FASES_EVAL = {};
+  FASES_DIST = {};
+  if(FICHA){ FICHA.items.forEach(it=>{ FASES_DIST[it.name] = new Array(FASES_N).fill(null); }); }
+}
+
+function fichaUploadHtml(){
+  return `
+    <div class="ficha-box">
+      <div class="ficha-head">
+        <div class="ficha-title">Subir Ficha IDI para autocompletar (opcional)</div>
+        <div class="ficha-sub">Sube la Ficha IDI <b>cuyo año de moneda sea el de la adjudicación</b>. Se leerán las asignaciones y montos de la sección 16 (Programación), más el nombre, código BIP, año y etapa.</div>
+      </div>
+      <label class="ficha-upload">
+        <input type="file" accept="application/pdf" id="fichaFile" onchange="handleFichaUpload(this)" style="display:none">
+        <span class="ficha-btn">📄 Elegir Ficha IDI (PDF)</span>
+        <span id="fichaStatus" class="ficha-status"></span>
+      </label>
+    </div>`;
+}
+
+function setTipoC(t){ C_TIPO = t; renderCTable(); recomputeC(); }
+
+function initC(){
+  if(FICHA && FICHA.tipologia) C_TIPO = FICHA.tipologia;
+  const ts = document.getElementById("cTipo"); if(ts) ts.value = C_TIPO;
+  ["normal","termino","fases"].forEach(k=>{ const b=document.getElementById("situ-"+k); if(b) b.classList.toggle("active", k===SITU); });
+  renderCHeader();
+  renderCTable();
+  recomputeC();
+}
+
+function calcStep(causal){
+  const c = CALC[causal];
+  const showBack = history.length>1;
+  const fieldsHtml = c.fields.map(f=>`
+    <div class="field">
+      <label for="cf_${f.id}">${f.label}</label>
+      <span class="hint">${f.hint}</span>
+      ${c.money
+        ? `<div class="prefix-wrap"><span class="pfx">$</span><input id="cf_${f.id}" inputmode="numeric" autocomplete="off" placeholder="0" oninput="onMoneyInput(this)"></div>`
+        : `<input id="cf_${f.id}" inputmode="decimal" autocomplete="off" placeholder="0">`}
+    </div>`).join("");
+
+  let monedaHtml = "";
+  if(c.monedaUpd){
+    const m = c.monedaUpd;
+    monedaHtml = `
+      <div class="moneda-box">
+        <label class="moneda-chk">
+          <input type="checkbox" id="cf_moneda_chk" checked onchange="toggleMoneda()">
+          <span>Actualizar a <b>moneda de igual valor</b> — los montos están en pesos de años distintos <span class="moneda-req">exigido por NIP 2026</span></span>
+        </label>
+        <div id="monedaFields" class="moneda-fields">
+          <div class="moneda-years">
+            <div class="field"><label>${m.recLabel}</label><select id="cf_moneda_rec">${monedaYearOptions(REC_DEF)}</select></div>
+            <div class="field"><label>${m.compLabel}</label><select id="cf_moneda_comp">${monedaYearOptions(COMP_DEF)}</select></div>
+          </div>
+          <span class="hint">Se lleva el monto recomendado a la moneda del año de comparación con la tabla oficial <b>Moneda BIP</b> (índice de diciembre). ${m.soloRec?"El gasto y lo pendiente deben ir en pesos del año de comparación.":"El otro monto se ingresa en pesos del año de comparación."}</span>
+        </div>
+      </div>`;
+  }
+
+  return `
+    <div class="card">
+      <div class="step-kicker">${c.kicker}</div>
+      <div class="step-q">${c.q}</div>
+      <div class="step-help">${c.help}</div>
+      <div class="calc-grid">${fieldsHtml}</div>
+      ${monedaHtml}
+      <div class="calc-btn-row">
+        <button class="btn btn-calc" onclick="runCalc('${causal}')">Calcular</button>
+      </div>
+      <div id="calcResult"></div>
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="goBack()" ${showBack?"":"style='visibility:hidden'"}>← Volver</button>
+        <button class="btn btn-primary" id="nextBtn" onclick="handleNext()" disabled>Siguiente →</button>
+      </div>
+    </div>`;
+}
+
+function runCalc(causal){
+  const c = CALC[causal];
+  const v = {};
+  let missing = false;
+  c.fields.forEach(f=>{
+    const n = parseNum(document.getElementById("cf_"+f.id).value);
+    if(isNaN(n)){
+      if(f.optional){ v[f.id] = 0; return; }
+      missing = true;
+    }
+    v[f.id] = n;
+  });
+  const host = document.getElementById("calcResult");
+  if(missing){
+    host.innerHTML = `<div class="verdict dentro"><div class="v-main" style="margin:0;color:var(--no)">Completa todos los campos con valores numéricos para calcular.</div></div>`;
+    return;
+  }
+
+  // --- moneda de igual valor: actualizar el monto de referencia ---
+  let moneda = null;
+  const chk = document.getElementById("cf_moneda_chk");
+  if(c.monedaUpd && chk && chk.checked){
+    const aRec = +document.getElementById("cf_moneda_rec").value;
+    const aComp = +document.getElementById("cf_moneda_comp").value;
+    const f = factorMoneda(aRec, aComp);
+    if(f===null){
+      host.innerHTML = `<div class="verdict dentro"><div class="v-main" style="margin:0;color:var(--no)">No hay valor Moneda BIP para alguno de los años seleccionados.</div></div>`;
+      return;
+    }
+    const fld = c.monedaUpd.field;
+    const orig = v[fld];
+    v[fld] = orig * f;
+    moneda = { aRec, aComp, f, orig, act:v[fld] };
+  }
+
+  // validaciones básicas de denominador
+  if((causal==="B"&&v.rec<=0)||(causal==="C"&&v.rec<=0)||(causal==="H"&&v.orig<=0)||(causal==="D"&&(v.rec-v.gasto)<=0)){
+    host.innerHTML = `<div class="verdict dentro"><div class="v-main" style="margin:0;color:var(--no)">Revisa los montos: el valor de referencia debe ser mayor que cero${causal==="D"?" (el gasto ejecutado no puede igualar o superar lo recomendado)":""}.</div></div>`;
+    return;
+  }
+  const r = c.compute(v);
+
+  // si hubo actualización de moneda, anteponer filas explicativas
+  let rows = r.rows;
+  if(moneda){
+    rows = [
+      [`Monto original (moneda ${moneda.aRec})`, fmtMoney(moneda.orig)],
+      [`Factor de reajuste ${moneda.aRec} → ${moneda.aComp}`, fmtFactor(moneda.f)]
+    ].concat(r.rows);
+  }
+  const rowsHtml = rows.map(row=>`
+    <div class="v-row"><span class="v-k">${row[0]}</span><span class="v-v${row[2]?" big":""}">${row[1]}</span></div>`).join("");
+  const monedaNote = moneda
+    ? `<div class="v-moneda-note">Comparación en moneda de igual valor (pesos de ${moneda.aComp}).</div>` : "";
+  const notasHtml = (r.notas && r.notas.length)
+    ? r.notas.map(n=>`<div class="v-nota">⚠ ${n}</div>`).join("") : "";
+  host.innerHTML = `
+    <div class="verdict ${r.supera?"supera":"dentro"}">
+      <div class="v-tag">${r.supera?"✓ Supera el umbral":"› Dentro del umbral"}</div>
+      <div class="v-main">${r.msg}</div>
+      <div class="v-rows">${rowsHtml}</div>
+      ${notasHtml}
+      ${monedaNote}
+    </div>`;
+  pendingSelection = r.supera ? "yes" : "no";
+  document.getElementById("nextBtn").disabled = false;
+}
+
+function endCard(kind, title, lead, bodyHtml){
+  const badgeClass = kind==="ok" ? "badge-ok" : kind==="no" ? "badge-no" : kind==="ok-light" ? "badge-ok" : "badge-warn";
+  const badgeIcon = kind==="ok" ? "✓" : kind==="no" ? "✕" : kind==="ok-light" ? "✓" : "!";
+  const badgeText = kind==="ok" ? "Procede Reevaluación" : kind==="no" ? "No procede Reevaluación" : kind==="ok-light" ? "Sin Reevaluación necesaria" : "Revisar antes de continuar";
+  return `
+    <div class="card">
+      <span class="result-badge ${badgeClass}">${badgeIcon} ${badgeText}</span>
+      <div class="result-title">${title}</div>
+      <div class="result-text">${lead}</div>
+      ${bodyHtml}
+      <div class="nav-row">
+        <button class="btn btn-ghost" onclick="goBack()">← Revisar respuestas</button>
+        <button class="btn btn-restart" onclick="restart()">Comenzar de nuevo</button>
+      </div>
+    </div>`;
+}
+
+render();
+</script>
+</body>
+</html>

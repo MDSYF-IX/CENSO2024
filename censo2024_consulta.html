@@ -654,7 +654,8 @@
   /* Header estilo BIP */
   .bip-header-censo{background:linear-gradient(135deg,#0f1e3d 0%,#1a2d5a 40%,#223570 70%,#2b4590 100%);position:relative;overflow:hidden;}
   .bip-header-censo .poly{position:absolute;inset:0;z-index:0;overflow:hidden;}
-  .bip-header-censo .inner{position:relative;z-index:1;padding:18px 24px 16px;display:flex;align-items:flex-start;gap:18px;}
+  .bip-header-censo .inner{position:relative;z-index:1;padding:10px 24px 10px;display:flex;align-items:center;gap:18px;}
+  .bip-logo{height:110px;width:auto;flex-shrink:0;}
   .bip-stripe-h{width:7px;flex-shrink:0;margin-top:2px;display:flex;flex-direction:column;height:66px;}
   .bip-stripe-h .sr{flex:0 0 26px;background:#c0392b;}
   .bip-stripe-h .sb{flex:1;background:#2d5fa7;}
@@ -668,16 +669,8 @@
 <body>
 
 <div class="bip-header-censo">
-  <div class="poly">
-    <svg viewBox="0 0 1200 160" preserveAspectRatio="xMaxYMid slice" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;position:absolute;top:0;left:0;">
-      <polygon points="750,0 1200,0 1200,160 950,160" fill="rgba(255,255,255,.03)"/>
-      <polygon points="900,0 1200,0 1200,100" fill="rgba(255,255,255,.05)"/>
-      <polygon points="1100,0 1200,0 1200,70" fill="rgba(255,255,255,.07)"/>
-      <polygon points="1000,50 1200,0 1200,160 1100,160" fill="rgba(45,95,167,.09)"/>
-    </svg>
-  </div>
   <div class="inner">
-    <div class="bip-stripe-h"><div class="sr"></div><div class="sb"></div></div>
+    <img src="Head Pat-A.png" class="bip-logo" alt="PAT-A">
     <div style="flex:1;">
       <a href="index.html" class="back-bip">← Herramientas de Formulación</a>
       <div class="eyebrow-bip">Araucanía · Sistema Nacional de Inversiones</div>
