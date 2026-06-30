@@ -16,10 +16,10 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;min-height:100vh;}
 
-  .bip-header{background:linear-gradient(135deg,var(--navy-d) 0%,var(--navy) 40%,var(--purple-d) 100%);position:relative;overflow:hidden;}
+  .bip-header{background:linear-gradient(135deg,var(--navy-d) 0%,var(--navy) 40%,var(--purple-d) 100%);position:relative;overflow:visible;}
   .bip-poly{position:absolute;inset:0;z-index:0;overflow:hidden;}
   .bip-top{position:relative;z-index:1;padding:10px 28px 10px;max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:20px;}
-  .bip-logo{height:110px;width:auto;flex-shrink:0;}
+  .bip-logo{height:170px;width:auto;flex-shrink:0;align-self:flex-start;}
   .bip-stripe{width:8px;height:64px;flex-shrink:0;margin-top:2px;display:flex;flex-direction:column;}
   .bip-stripe .sr{flex:0 0 26px;background:#c0392b;}
   .bip-stripe .sb{flex:1;background:var(--purple-l);}
@@ -277,7 +277,7 @@
       <a class="back-link" href="index.html">← Herramientas de Formulación</a>
       <div class="bip-eyebrow">Araucanía · Sistema Nacional de Inversiones</div>
       <h1 class="bip-h1">Asistente de Reevaluaciones</h1>
-      <p class="bip-sub">Determina si tu iniciativa debe someterse a Reevaluación ante el SNI según el Módulo Ex Dure · NIP 2026.</p>
+      <p class="bip-sub">Determina si tu iniciativa debe someterse a Reevaluación ante el SNI<br>según el Módulo Ex Dure · NIP 2026.</p>
     </div>
   </div>
 </div>
@@ -290,6 +290,12 @@
 
   <div id="cardHost"></div>
 </main>
+<footer style="max-width:880px;margin:0 auto;padding:0 20px 48px;">
+  <div style="border-top:1px solid var(--line);padding-top:18px;font-size:12px;color:var(--muted);">
+    <strong style="color:var(--navy);">PAT-A · Plataforma de Apoyo Técnico de La Araucanía</strong> · Desarrollado por Cristóbal Oyarzún Parra
+    <p style="margin-top:7px;font-size:11px;font-style:italic;line-height:1.6;">La información entregada es de carácter referencial. La validación de los antecedentes para su uso en procesos de inversión pública es responsabilidad del formulador.</p>
+  </div>
+</footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>

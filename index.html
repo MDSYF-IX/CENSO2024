@@ -9,10 +9,10 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;min-height:100vh;}
 
-  .bip-header{background:linear-gradient(135deg,var(--navy-d) 0%,var(--navy) 40%,var(--navy-m) 70%,var(--navy-l) 100%);position:relative;overflow:hidden;}
+  .bip-header{background:linear-gradient(135deg,var(--navy-d) 0%,var(--navy) 40%,var(--navy-m) 70%,var(--navy-l) 100%);position:relative;overflow:visible;}
   .bip-poly{position:absolute;inset:0;z-index:0;overflow:hidden;}
   .bip-top{position:relative;z-index:1;padding:16px 28px 16px;max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:20px;}
-  .bip-logo{height:130px;width:auto;flex-shrink:0;}
+  .bip-logo{height:170px;width:auto;flex-shrink:0;align-self:flex-start;}
   .bip-stripe{width:8px;height:78px;flex-shrink:0;margin-top:2px;display:flex;flex-direction:column;}
   .bip-stripe .sr{flex:0 0 30px;background:#c0392b;}
   .bip-stripe .sb{flex:1;background:var(--blue-bip);}
@@ -61,10 +61,9 @@
   <div class="bip-top">
     <img src="Head Pat-A.png" class="bip-logo" alt="PAT-A">
     <div>
-      <div class="bip-eyebrow">Araucanía · Sistema Nacional de Inversiones</div>
+      <div class="bip-eyebrow"><strong style="color:#fff;letter-spacing:.04em;">PAT-A</strong> · Plataforma de Apoyo Técnico de La Araucanía</div>
       <h1 class="bip-h1">Herramientas para Formuladores</h1>
       <div class="bip-sub">de Iniciativas en el Sistema Nacional de Inversiones</div>
-      <p class="bip-desc" style="margin-top:22px;">Plataforma de Apoyo Técnico de La Araucanía</p>
     </div>
   </div>
 </div>
@@ -103,7 +102,6 @@
         <h2 class="tc-title">Convertidor de Moneda BIP</h2>
         <p class="tc-desc">Actualiza montos en pesos chilenos entre distintas fechas según el IPC INE. Conversión individual o masiva de múltiples ítems de distintos años a una fecha destino común.</p>
         <ul class="tc-features">
-          <li>IPC INE histórico (1928–2017)</li>
           <li>Conversión individual o masiva de ítems</li>
           <li>Distintas fechas de origen → una fecha destino</li>
           <li>Exportar resultados a CSV</li>
@@ -157,8 +155,8 @@
 
 <footer>
   <div class="footer-inner">
-    <strong>Araucanía · Herramientas de Formulación · Sistema Nacional de Inversiones</strong><br>
-    Ministerio de Desarrollo Social y Familia · Región de La Araucanía
+    <strong>PAT-A · Plataforma de Apoyo Técnico de La Araucanía</strong> · Desarrollado por Cristóbal Oyarzún Parra
+    <p style="margin-top:7px;font-size:11px;font-style:italic;line-height:1.6;">La información entregada es de carácter referencial. La validación de los antecedentes para su uso en procesos de inversión pública es responsabilidad del formulador.</p>
   </div>
 </footer>
 </body>
