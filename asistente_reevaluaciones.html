@@ -1179,7 +1179,7 @@ function cRowHtml(r,i){
   const info = desc ? ` <span class="c-info" title="${desc.replace(/"/g,'&quot;')}">ⓘ</span>` : "";
   const tag = isG ? `<div class="c-asgtag">gasto (sin contrato)</div>` : "";
   const nameCell = editableName
-    ? `<input class="c-in c-name" placeholder="Asignación" value="${r.name||""}" oninput="onCName(${i},this)">${info}`
+    ? `<input class="c-in c-name" placeholder="Asignación" value="${r.name||""}" oninput="onCName(${i},this)" onblur="renderCTable();recomputeC();">${info}`
     : `<span class="c-asg">${r.name||"—"}</span>${info}`;
   const nameBlock = `${nameCell}${tag}<div class="c-saldo" id="cSaldo-${i}"></div><div id="cWarnGasto-${i}"></div>`;
 
@@ -1241,7 +1241,7 @@ function onCInput(i, field, el){
   }
   recomputeC();
 }
-function onCName(i, el){ C_ROWS[i].name = el.value; if(SITU==="normal") renderCTable(); }
+function onCName(i, el){ C_ROWS[i].name = el.value; }
 
 const SALDO_YEAR = MONEDA_BIP[_hoy] ? _hoy : MAX_MONEDA;   // moneda del presupuesto vigente (2026)
 function convMiles(val, fromY, toY){ if(val==null) return val; const f=factorMoneda(fromY,toY); return f!=null ? val*f : val; }
