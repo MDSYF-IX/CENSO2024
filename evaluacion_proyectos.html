@@ -131,6 +131,104 @@ a.back-link:hover{color:#fff;}
 .warn-box{background:#fffbeb;border:1px solid #fcd34d;border-radius:7px;padding:10px 14px;font-size:12.5px;color:#92400e;margin-top:8px;}
 
 @media(max-width:700px){.inv-input{width:85px;}.ind-value{font-size:22px;}.bip-h1{font-size:20px;}.bip-logo{height:80px;}}
+
+/* ─── PCPS ──────────────────────────────────────────────────────────────── */
+.pcps-mkt-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.pcps-mkt-tbl th{background:var(--navy);color:#fff;padding:8px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:left;}
+.pcps-mkt-tbl td{padding:6px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
+.pcps-mkt-tbl td.asig{font-weight:600;font-size:12.5px;}
+.pcps-mkt-tbl td input[type=number]{width:100%;max-width:180px;padding:6px 10px;font-size:13px;text-align:right;border:1.5px solid var(--line);border-radius:6px;font-family:inherit;}
+.pcps-mkt-tbl td input[type=number]:focus{outline:none;border-color:var(--indigo);}
+.pcps-mkt-tbl .pm-tot td{background:#eef4ff;font-weight:700;color:var(--navy);border-top:2px solid var(--blue, #2d5fa7);}
+.corr-card{background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;position:relative;}
+.corr-head{display:flex;align-items:center;gap:10px;padding:10px 16px;background:#f8fafc;border-bottom:1px solid var(--line);border-radius:10px 10px 0 0;}
+.corr-head .ch-name{font-weight:700;font-size:13px;color:var(--navy);flex:1;}
+.corr-head .ch-pm{font-size:12px;color:var(--muted);}
+.corr-head .ch-cs{font-size:13px;font-weight:700;color:var(--green);white-space:nowrap;}
+.corr-head .ch-factor{font-size:11.5px;background:#dbeafe;color:#1e40af;border-radius:5px;padding:2px 8px;font-weight:700;}
+.corr-body{padding:12px 16px;}
+.pp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+@media(max-width:700px){.pp-grid{grid-template-columns:1fr 1fr;}}
+.pp-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-weight:700;display:block;margin-bottom:4px;}
+.pct-wrap{display:flex;align-items:center;gap:4px;}
+.pct-wrap input{flex:1;}
+.pct-wrap span{font-size:12px;color:var(--muted);}
+.note-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;padding:10px 14px;font-size:12px;color:#1e40af;margin-top:6px;}
+.badge-factor{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:5px;}
+.bf-lo{background:#dcfce7;color:#15803d;} .bf-hi{background:#fee2e2;color:#b91c1c;} .bf-eq{background:#f1f5f9;color:#64748b;}
+.anu-section{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:700px){.anu-section{grid-template-columns:1fr;}}
+.anu-sub{background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:14px;}
+.anu-sub-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);margin-bottom:10px;}
+.anu-block{margin-bottom:12px;}
+.anu-block-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:#2d5fa7;margin-bottom:6px;padding-bottom:4px;border-bottom:1px dashed #bfdbfe;}
+.anu-result{margin-top:10px;padding:10px 14px;background:#f0fdf4;border:1px solid #86efac;border-radius:7px;display:flex;justify-content:space-between;align-items:center;}
+.anu-result .ar-label{font-size:12px;color:var(--muted);}
+.anu-result .ar-val{font-size:16px;font-weight:700;color:var(--green);}
+.consul-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.consul-tbl th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase;padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);}
+.consul-tbl td{padding:6px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
+.consul-tbl .tot td{background:#f0fdf4;font-weight:700;color:var(--green);border-top:2px solid #86efac;}
+.con-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.con-tbl th{background:var(--navy);color:#fff;padding:9px 14px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:right;}
+.con-tbl th:first-child{text-align:left;}
+.con-tbl td{padding:8px 14px;border-bottom:1px solid var(--line);text-align:right;}
+.con-tbl td:first-child{text-align:left;font-weight:600;}
+.con-tbl .sub td{background:#f8fafc;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;}
+.con-tbl .tot td{background:#eef4ff;font-weight:700;color:var(--navy);border-top:2px solid #2d5fa7;}
+.con-tbl .zero td{color:#cbd5e1;}
+.cs-up{color:#b91c1c;} .cs-dn{color:#15803d;}
+.sum-box{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
+@media(max-width:640px){.sum-box{grid-template-columns:1fr;}}
+.sb-item{background:#fff;border:1px solid var(--line);border-radius:9px;padding:14px 16px;text-align:center;}
+.sb-item .sb-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+.sb-item .sb-val{font-size:20px;font-weight:700;color:var(--navy);}
+.sb-item .sb-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.sb-item.green .sb-val{color:var(--green);} .sb-item.blue .sb-val{color:#2d5fa7;}
+.ck-wrap{display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;}
+.ck-wrap input[type=checkbox]{width:auto;width:15px;height:15px;}
+.pcps-import-btn{display:block;width:100%;margin-top:18px;background:linear-gradient(135deg,#065f46,#059669);color:#fff;border:none;border-radius:9px;padding:14px 24px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;}
+.pcps-import-btn:hover{opacity:.9;}
+.pcps-msg{display:none;margin-top:10px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:7px;padding:10px 14px;font-size:13px;color:#15803d;font-weight:600;}
+/* PCPS redesigned correction cards */
+.corr-split{display:grid;grid-template-columns:1fr 1fr;gap:0;}
+@media(max-width:760px){.corr-split{grid-template-columns:1fr;}}
+.corr-section{padding:14px 16px;}
+.corr-mo-section{border-left:2px solid var(--line);}
+@media(max-width:760px){.corr-mo-section{border-left:none;border-top:2px solid var(--line);}}
+.corr-section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--navy);margin-bottom:12px;}
+.corr-sub-title{font-size:10.5px;font-weight:700;color:#2d5fa7;text-transform:uppercase;letter-spacing:.04em;padding:5px 0 5px;border-bottom:1px dashed #bfdbfe;margin:10px 0 8px;}
+.corr-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;}
+.comp-val{background:#f1f5f9;border:1.5px dashed #cbd5e1;border-radius:6px;padding:8px 10px;font-size:13px;font-weight:600;color:#475569;line-height:1;}
+.comp-auto{font-size:9px;font-weight:700;background:#e2e8f0;color:#64748b;padding:1px 5px;border-radius:8px;text-transform:uppercase;letter-spacing:.03em;vertical-align:middle;}
+.mo-sum-row{margin-top:10px;padding:8px 12px;border-radius:6px;font-size:12px;font-weight:700;}
+.mo-ok{background:#f0fdf4;color:#15803d;border:1px solid #86efac;}
+.mo-warn{background:#fffbeb;color:#92400e;border:1px solid #fcd34d;}
+.mo-profile-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.mo-chip{font-size:11px;font-weight:700;border:1.5px solid #bfdbfe;background:#f8fafc;color:#1e40af;border-radius:20px;padding:4px 12px;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit;}
+.mo-chip:hover{background:#dbeafe;border-color:#3b82f6;}
+.mo-chip.active{background:#2d5fa7;color:#fff;border-color:#2d5fa7;}
+.mo-profile-tip{font-size:10.5px;color:#1e40af;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:7px 10px;margin-bottom:10px;line-height:1.45;}
+.mo-profile-tip:empty{display:none;}
+.mat-profile-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;}
+.mat-chip{font-size:10.5px;font-weight:700;border:1.5px solid #d1fae5;background:#f0fdf4;color:#065f46;border-radius:20px;padding:3px 10px;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit;position:relative;}
+.mat-chip:hover{background:#d1fae5;border-color:#10b981;}
+.mat-chip.active{background:#059669;color:#fff;border-color:#059669;}
+.mat-chip[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;font-size:11px;padding:9px 13px;border-radius:8px;white-space:pre-line;max-width:260px;z-index:9999;line-height:1.55;pointer-events:none;opacity:0;transition:opacity .15s;box-shadow:0 6px 20px rgba(0,0,0,.3);min-width:200px;}
+.mat-chip[data-tip]:hover::after{opacity:1;}
+.iva-tag{display:inline-block;font-size:9.5px;font-weight:700;border-radius:4px;padding:1px 7px;letter-spacing:.02em;vertical-align:middle;margin-left:5px;}
+.iva-con{background:#dcfce7;color:#15803d;border:1px solid #86efac;}
+.iva-sin{background:#fef3c7;color:#92400e;border:1px solid #fcd34d;}
+.mo-field{margin-bottom:10px;}
+.mo-field-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:3px;}
+.mo-field-row label{font-size:11.5px;font-weight:700;color:#1e293b;margin:0;display:flex;align-items:center;gap:4px;}
+.info-tip{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;background:#2d5fa7;color:#fff;border-radius:50%;font-size:9px;font-weight:800;cursor:help;position:relative;flex-shrink:0;vertical-align:middle;}
+.info-tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;font-size:11.5px;padding:10px 14px;border-radius:8px;white-space:pre-line;max-width:280px;z-index:9000;line-height:1.6;pointer-events:none;opacity:0;transition:opacity .15s;box-shadow:0 6px 20px rgba(0,0,0,.3);min-width:200px;}
+.info-tip:hover::after{opacity:1;}
+.anu-pct-wrap{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+.anu-pct-wrap label{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--muted);min-width:130px;}
+.anu-pct-wrap .pct-wrap{flex:1;max-width:160px;}
+.anu-prop-disp{font-size:12px;color:var(--muted);background:#f8fafc;border:1px solid var(--line);border-radius:6px;padding:6px 10px;margin-bottom:10px;}
 </style>
 </head>
 <body>
@@ -150,6 +248,7 @@ a.back-link:hover{color:#fff;}
 <div class="tabs-wrap">
   <div class="tabs">
     <button class="tab-btn active" onclick="showTab('params')">⚙ Parámetros</button>
+    <button class="tab-btn" onclick="showTab('pcps')">💱 Conv. PCPS</button>
     <button class="tab-btn" onclick="showTab('inv')">📅 Inversión</button>
     <button class="tab-btn" onclick="showTab('anu')">📈 Flujos Anuales</button>
     <button class="tab-btn" onclick="showTab('flow')">💹 Flujo de Caja</button>
@@ -226,9 +325,124 @@ a.back-link:hover{color:#fff;}
     </div>
   </div>
 
+  <div class="card">
+    <div class="card-title">Parámetros PCPS SNI 2026 — Corrección a Precios Sociales</div>
+    <div class="info-box" style="margin-bottom:14px;">Valores oficiales SNI 2026. Utilizados en la pestaña <strong>💱 Conv. PCPS</strong>. Modificar solo si el SNI instruye valores distintos.</div>
+    <div class="three-col">
+      <div class="field"><label>FCSD · Factor divisas</label>
+        <input type="number" id="pp-fcsd" value="1.0000" step="0.0001" min="0" oninput="PCPS.params.fcsd=+this.value;pcps_recalc()">
+      </div>
+      <div class="field"><label>t · Distribución importados</label>
+        <input type="number" id="pp-t" value="0.0071" step="0.0001" min="0" oninput="PCPS.params.t=+this.value;pcps_recalc()">
+      </div>
+      <div class="field"><label>IVA (fracción · 19% = 0.19)</label>
+        <input type="number" id="pp-iva" value="0.19" step="0.01" min="0" max="1" oninput="PCPS.params.iva=+this.value;pcps_recalc()">
+      </div>
+      <div class="field"><label>f<sub>MOC</sub> · MO Calificada</label>
+        <input type="number" id="pp-fmoc" value="0.97" step="0.01" min="0" max="1" oninput="PCPS.params.fMOC=+this.value;pcps_recalc()">
+      </div>
+      <div class="field"><label>f<sub>MOSC</sub> · MO Semi-Calificada</label>
+        <input type="number" id="pp-fmosc" value="0.95" step="0.01" min="0" max="1" oninput="PCPS.params.fMOSC=+this.value;pcps_recalc()">
+      </div>
+      <div class="field"><label>f<sub>MONC</sub> · MO No Calificada</label>
+        <input type="number" id="pp-fmonc" value="0.91" step="0.01" min="0" max="1" oninput="PCPS.params.fMONC=+this.value;pcps_recalc()">
+      </div>
+    </div>
+    <div style="margin-top:10px;text-align:right;">
+      <button onclick="pcps_resetParams()" style="background:#2d5fa7;color:#fff;border:none;border-radius:6px;padding:7px 18px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">↺ Restaurar defaults 2026</button>
+    </div>
+  </div>
+
 </div>
 
-<!-- TAB 2: INVERSIÓN -->
+<!-- TAB 2: CONV. PCPS -->
+<div id="pane-pcps" class="tab-pane">
+
+  <!-- Precios de Mercado -->
+  <div class="card">
+    <div class="card-title">Precios de Mercado ($ CLP)</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:8px;">Inversión</div>
+        <table class="pcps-mkt-tbl">
+          <thead><tr><th>Asignación</th><th style="text-align:right;width:190px;">Monto PM ($)</th></tr></thead>
+          <tbody>
+            <tr><td class="asig">Obras Civiles (OOCC) <span class="iva-tag iva-con">c/IVA</span></td><td><input type="number" id="pm-oocc" value="0" min="0" oninput="PCPS.mer.oocc=+this.value;pcps_recalc()"></td></tr>
+            <tr><td class="asig">Equipos <span class="iva-tag iva-con">c/IVA</span></td><td><input type="number" id="pm-equi" value="0" min="0" oninput="PCPS.mer.equi=+this.value;pcps_recalc()"></td></tr>
+            <tr><td class="asig">Equipamiento <span class="iva-tag iva-con">c/IVA</span></td><td><input type="number" id="pm-equip" value="0" min="0" oninput="PCPS.mer.equip=+this.value;pcps_recalc()"></td></tr>
+            <tr><td class="asig">Terreno <span class="iva-tag iva-sin">s/IVA</span></td><td><input type="number" id="pm-terr" value="0" min="0" oninput="PCPS.mer.terr=+this.value;pcps_recalc()"></td></tr>
+            <tr><td class="asig">Plan de Contingencia <span class="iva-tag iva-con">c/IVA</span></td><td><input type="number" id="pm-cont" value="0" min="0" oninput="PCPS.mer.cont=+this.value;pcps_recalc()"></td></tr>
+            <tr><td class="asig">Vehículos <span class="iva-tag iva-con">c/IVA</span></td><td><input type="number" id="pm-vehi" value="0" min="0" oninput="PCPS.mer.vehi=+this.value;pcps_recalc()"></td></tr>
+            <tr><td class="asig" style="color:var(--muted);">Consultorías (ver abajo)</td>
+                <td style="text-align:right;padding:6px 10px;color:var(--muted);font-size:12px;" id="pv-consul-sum">$ 0</td></tr>
+          </tbody>
+          <tfoot><tr class="pm-tot"><td>Total Inversión PM</td><td style="text-align:right;padding:6px 10px;font-size:14px;" id="pv-total-inv">$ 0</td></tr></tfoot>
+        </table>
+      </div>
+      <div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin-bottom:8px;">Costos Anuales</div>
+        <table class="pcps-mkt-tbl">
+          <thead><tr><th>Ítem</th><th style="text-align:right;width:190px;">Monto PM ($/año)</th></tr></thead>
+          <tbody>
+            <tr><td class="asig">Operación <span class="iva-tag iva-con">c/IVA</span></td><td><input type="number" id="pm-oper" value="0" min="0" oninput="PCPS.mer.oper=+this.value;pcps_recalc()"></td></tr>
+            <tr><td class="asig">Mantención <span class="iva-tag iva-con">c/IVA</span></td><td><input type="number" id="pm-mant" value="0" min="0" oninput="PCPS.mer.mant=+this.value;pcps_recalc()"></td></tr>
+          </tbody>
+          <tfoot><tr class="pm-tot"><td>Total Anual PM</td><td style="text-align:right;padding:6px 10px;font-size:14px;" id="pv-total-anu">$ 0</td></tr></tfoot>
+        </table>
+        <div class="note-box" style="margin-top:12px;">Los montos son en <strong>pesos CLP ($)</strong>. El consolidado al final convierte a <strong>M$</strong> al importar a la evaluación.<br><span style="color:var(--muted);">Anuales: ingrese el total con IVA. La parte contratada se desglosa internamente por (1+IVA); la parte propia aplica IVA solo sobre materiales.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Consultorías -->
+  <div class="card">
+    <div class="card-title">Consultorías — Detalle por Línea</div>
+    <div class="note-box" style="margin-bottom:12px;">Con IVA → CS = (PM ÷ 1,19) × f<sub>MOC</sub> &nbsp;|&nbsp; Sin IVA → CS = PM × f<sub>MOC</sub></div>
+    <table class="consul-tbl">
+      <thead><tr><th>Descripción</th><th style="width:180px;text-align:right;">Monto PM ($)</th><th style="width:120px;text-align:center;">Incluye IVA</th><th style="width:160px;text-align:right;">CS ($)</th></tr></thead>
+      <tbody id="pv-consul-tbody"></tbody>
+      <tfoot><tr class="tot">
+        <td colspan="2" style="text-align:right;font-size:13px;">Total Consultorías CS</td>
+        <td></td>
+        <td style="text-align:right;" id="pv-consul-cs-total">$ 0</td>
+      </tr></tfoot>
+    </table>
+  </div>
+
+  <!-- Corrección Inversión -->
+  <div class="card">
+    <div class="card-title">Estructura de Costos — Corrección por Categoría</div>
+    <div class="note-box" style="margin-bottom:14px;">Para cada asignación desglosa el costo en <strong>Materiales</strong> y <strong>Mano de Obra</strong>. Ingresa los porcentajes y los factores de corrección se aplican automáticamente.</div>
+    <div id="pv-inv-corr-wrap"></div>
+  </div>
+
+  <!-- Corrección Anuales -->
+  <div class="card">
+    <div class="card-title">Corrección Costos Anuales</div>
+    <div id="pv-anu-corr-wrap"></div>
+  </div>
+
+  <!-- Consolidado + Import -->
+  <div class="card">
+    <div class="card-title">Consolidado PM vs. Precios Sociales (CS)</div>
+    <div class="sum-box" id="pv-sum-box">
+      <div class="sb-item blue"><div class="sb-label">Total Inversión PM</div><div class="sb-val">$ 0</div><div class="sb-sub">Precio de Mercado</div></div>
+      <div class="sb-item green"><div class="sb-label">Total Inversión CS</div><div class="sb-val">$ 0</div><div class="sb-sub">—</div></div>
+      <div class="sb-item"><div class="sb-label">Total Anual CS</div><div class="sb-val">$ 0</div><div class="sb-sub">—</div></div>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="con-tbl">
+        <thead><tr><th style="text-align:left;">Ítem</th><th>PM ($)</th><th>CS ($)</th><th>Factor</th><th>Diferencia</th></tr></thead>
+        <tbody id="pv-con-tbody"></tbody>
+      </table>
+    </div>
+    <button class="pcps-import-btn" onclick="pcps_importToEval()">↙ Importar CS a pestaña Inversión y Flujos (÷ 1.000 → M$)</button>
+    <div class="pcps-msg" id="pcps-import-msg"></div>
+  </div>
+
+</div>
+
+<!-- TAB 3: INVERSIÓN -->
 <div id="pane-inv" class="tab-pane">
 
   <div class="card">
@@ -300,14 +514,13 @@ a.back-link:hover{color:#fff;}
 <script>
 // ─── CONSTANTES ───────────────────────────────────────────────────────────────
 const CATS = [
-  { id:'oocc',    label:'Obras y Construcciones', vu:30 },
-  { id:'equi',    label:'Equipos',                vu:10 },
-  { id:'equip',   label:'Equipamiento',           vu:10 },
-  { id:'maqui',   label:'Maquinarias',            vu:15 },
-  { id:'vehi',    label:'Vehículos',              vu:7  },
-  { id:'consul',  label:'Consultorías',           vu:0  },
-  { id:'conting', label:'Contingencias',          vu:0  },
-  { id:'otros',   label:'Otros',                  vu:10 },
+  { id:'oocc',    label:'Obras y Construcciones',  vu:30 },
+  { id:'equi',    label:'Equipos',                 vu:10 },
+  { id:'equip',   label:'Equipamiento',            vu:10 },
+  { id:'vehi',    label:'Vehículos',               vu:7  },
+  { id:'consul',  label:'Consultorías',            vu:0  },
+  { id:'conting', label:'Plan de Contingencia',    vu:0  },
+  { id:'otros',   label:'Otros',                   vu:10 },
 ];
 
 // ─── ESTADO ───────────────────────────────────────────────────────────────────
@@ -543,7 +756,7 @@ function autoReinv() {
     const inv = row.vals.reduce((s,v)=>s+(+v||0), 0);
     if (inv <= 0 || row.vu >= n) continue;
     // Reinversiones en años VU, 2·VU, 3·VU, ... (< total-1 para no caer en año final)
-    for (let k=1; k*row.vu < total; k++) {
+    for (let k=1; k*row.vu < total - 1; k++) {
       S.reinv.push({ desc:`Reinversión ${row.label}`, anio: k*row.vu, monto: inv, auto: true });
     }
   }
@@ -874,16 +1087,533 @@ function renderEvalIfActive() {
 }
 
 // ─── NAVEGACIÓN ───────────────────────────────────────────────────────────────
-const TABS = ['params','inv','anu','flow','eval'];
+const TABS = ['params','pcps','inv','anu','flow','eval'];
 function showTab(id) {
   TABS.forEach((t,i) => {
     document.getElementById('pane-'+t).classList.toggle('active', t===id);
     document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t===id);
   });
+  if (id==='pcps')  { pcps_renderCorrCards(); pcps_renderAnuCards(); pcps_renderConsulLines(); pcps_recalc(); }
   if (id==='inv')   { renderInvTable(); renderReinvList(); }
   if (id==='anu')   renderAnu();
   if (id==='flow')  renderFlowTable();
   if (id==='eval')  renderEval();
+}
+
+// ─── PCPS ─────────────────────────────────────────────────────────────────────
+const PCPS = {
+  params: { fcsd:1.00, t:0.0071, iva:0.19, fMOC:0.97, fMOSC:0.95, fMONC:0.91 },
+  mer:    { oocc:0, equi:0, equip:0, terr:0, cont:0, vehi:0, oper:0, mant:0 },
+  inv: {
+    oocc:  { mat:0.55, nac:0.85, tr:0.40, moNC:0.50, moSC:0.00, moC:0.50 },
+    equi:  { mat:0.70, nac:0.75, tr:0.60, moNC:0.00, moSC:0.50, moC:0.50 },
+    equip: { mat:0.75, nac:0.70, tr:0.55, moNC:0.00, moSC:0.00, moC:1.00 },
+  },
+  consul: Array.from({length:5}, ()=>({ desc:'', monto:0, iva:true })),
+  anu: {
+    oper: {
+      contPct: 1.00,
+      cont: { mat:0.35, nac:0.85, tr:0.35, moNC:0.50, moSC:0.00, moC:0.50 },
+      prop: { mat:0.20, nac:0.90, tr:0.30, moNC:0.50, moSC:0.00, moC:0.50 },
+    },
+    mant: {
+      contPct: 0.80,
+      cont: { mat:0.50, nac:0.85, tr:0.40, moNC:0.50, moSC:0.00, moC:0.50 },
+      prop: { mat:0.45, nac:0.85, tr:0.40, moNC:0.50, moSC:0.00, moC:0.50 },
+    },
+  },
+};
+const PCPS_RES = {};
+
+function pcps_csM(M, nac, tr, p) {
+  const adj = p.fcsd / (1+p.t);
+  return M*nac*tr*adj + M*nac*(1-tr) + M*(1-nac)*adj;
+}
+function pcps_csMO(L, o, p) {
+  return L*(o.moNC*p.fMONC + o.moSC*p.fMOSC + o.moC*p.fMOC);
+}
+function pcps_csGenerico(monto, o, p) {
+  const neto = monto/(1+p.iva);
+  return pcps_csM(o.mat*neto, o.nac, o.tr, p) + pcps_csMO((1-o.mat)*neto, o, p);
+}
+function pcps_csVehiculos(monto, p) { return monto/(1+p.iva)/(1+p.t)*p.fcsd; }
+function pcps_csConsultoria(monto, conIVA, p) {
+  return conIVA ? (monto/(1+p.iva))*p.fMOC : monto*p.fMOC;
+}
+function pcps_csContratado(total, pct, o, p) {
+  const neto = pct*total/(1+p.iva);
+  return pcps_csM(o.mat*neto, o.nac, o.tr, p) + pcps_csMO((1-o.mat)*neto, o, p);
+}
+function pcps_csPropios(total, pct, o, p) {
+  const s = pct*total;
+  return pcps_csM(o.mat*s/(1+p.iva), o.nac, o.tr, p) + pcps_csMO((1-o.mat)*s, o, p);
+}
+function pcps_fmtCLP(n) { return '$ '+Math.round(n).toLocaleString('es-CL'); }
+function pcps_fmtFactor(f) {
+  if(f===null) return '—';
+  const pct=(f*100).toFixed(1)+'%';
+  const cls = f<0.999?'bf-lo':f>1.001?'bf-hi':'bf-eq';
+  return `<span class="badge-factor ${cls}">${pct}</span>`;
+}
+
+function pcps_recalc() {
+  const p=PCPS.params, m=PCPS.mer;
+  PCPS_RES.oocc  = m.oocc>0  ? pcps_csGenerico(m.oocc,  PCPS.inv.oocc,  p) : 0;
+  PCPS_RES.equi  = m.equi>0  ? pcps_csGenerico(m.equi,  PCPS.inv.equi,  p) : 0;
+  PCPS_RES.equip = m.equip>0 ? pcps_csGenerico(m.equip, PCPS.inv.equip, p) : 0;
+  PCPS_RES.terr  = m.terr;
+  PCPS_RES.f_oocc  = m.oocc>0  ? PCPS_RES.oocc/m.oocc   : null;
+  PCPS_RES.f_equi  = m.equi>0  ? PCPS_RES.equi/m.equi   : null;
+  PCPS_RES.f_equip = m.equip>0 ? PCPS_RES.equip/m.equip : null;
+  PCPS_RES.f_terr  = 1;
+  if(m.cont>0 && m.oocc>0 && PCPS_RES.oocc>0) {
+    PCPS_RES.cont   = m.cont*(PCPS_RES.oocc/m.oocc);
+    PCPS_RES.f_cont = PCPS_RES.oocc/m.oocc;
+  } else { PCPS_RES.cont=m.cont>0?m.cont:0; PCPS_RES.f_cont=m.cont>0?1:null; }
+  PCPS_RES.vehi   = m.vehi>0 ? pcps_csVehiculos(m.vehi,p) : 0;
+  PCPS_RES.f_vehi = m.vehi>0 ? PCPS_RES.vehi/m.vehi : null;
+  PCPS_RES.consulLines = PCPS.consul.map(cl=>pcps_csConsultoria(cl.monto,cl.iva,p));
+  PCPS_RES.pmConsul = PCPS.consul.reduce((s,cl)=>s+cl.monto,0);
+  PCPS_RES.consul   = PCPS_RES.consulLines.reduce((s,v)=>s+v,0);
+  PCPS_RES.f_consul = PCPS_RES.pmConsul>0 ? PCPS_RES.consul/PCPS_RES.pmConsul : null;
+  const oa=PCPS.anu.oper, propO=Math.max(0,1-oa.contPct);
+  PCPS_RES.csOper = pcps_csContratado(m.oper, oa.contPct, oa.cont, p)
+                  + pcps_csPropios(m.oper, propO, oa.prop, p);
+  PCPS_RES.f_oper = m.oper>0 ? PCPS_RES.csOper/m.oper : null;
+  const ma=PCPS.anu.mant, propM=Math.max(0,1-ma.contPct);
+  PCPS_RES.csMant = pcps_csContratado(m.mant, ma.contPct, ma.cont, p)
+                  + pcps_csPropios(m.mant, propM, ma.prop, p);
+  PCPS_RES.f_mant = m.mant>0 ? PCPS_RES.csMant/m.mant : null;
+  PCPS_RES.pmInv = m.oocc+m.equi+m.equip+m.terr+m.cont+m.vehi+PCPS_RES.pmConsul;
+  PCPS_RES.csInv = PCPS_RES.oocc+PCPS_RES.equi+PCPS_RES.equip+PCPS_RES.terr+PCPS_RES.cont+PCPS_RES.vehi+PCPS_RES.consul;
+  PCPS_RES.pmAnu = m.oper+m.mant;
+  PCPS_RES.csAnu = PCPS_RES.csOper+PCPS_RES.csMant;
+  pcps_renderResults();
+}
+
+function pcps_el(id){ return document.getElementById(id); }
+function pcps_renderResults() {
+  const m=PCPS.mer;
+  const pv=(id,v)=>{const e=pcps_el(id);if(e)e.textContent=pcps_fmtCLP(v);};
+  const ph=(id,h)=>{const e=pcps_el(id);if(e)e.innerHTML=h;};
+  pv('pv-consul-sum',PCPS_RES.pmConsul); pv('pv-total-inv',PCPS_RES.pmInv); pv('pv-total-anu',PCPS_RES.pmAnu);
+  [['oocc',m.oocc,PCPS_RES.oocc,PCPS_RES.f_oocc],
+   ['equi',m.equi,PCPS_RES.equi,PCPS_RES.f_equi],
+   ['equip',m.equip,PCPS_RES.equip,PCPS_RES.f_equip],
+   ['terr',m.terr,PCPS_RES.terr,PCPS_RES.f_terr],
+   ['cont',m.cont,PCPS_RES.cont,PCPS_RES.f_cont],
+   ['vehi',m.vehi,PCPS_RES.vehi,PCPS_RES.f_vehi],
+   ['consul',PCPS_RES.pmConsul,PCPS_RES.consul,PCPS_RES.f_consul],
+  ].forEach(([k,pm,cs,f])=>{
+    pv('pv-pm-'+k,pm); ph('pv-cs-'+k,'CS: '+pcps_fmtCLP(cs)); ph('pv-f-'+k,pcps_fmtFactor(f));
+  });
+  pv('pv-pm-oper',m.oper); ph('pv-cs-oper','CS: '+pcps_fmtCLP(PCPS_RES.csOper));
+  pv('pv-pm-mant',m.mant); ph('pv-cs-mant','CS: '+pcps_fmtCLP(PCPS_RES.csMant));
+  const eO=pcps_el('pv-ao-prop-pct-disp'); if(eO) eO.textContent=Math.round(Math.max(0,1-PCPS.anu.oper.contPct)*100)+'% complemento';
+  const eM=pcps_el('pv-am-prop-pct-disp'); if(eM) eM.textContent=Math.round(Math.max(0,1-PCPS.anu.mant.contPct)*100)+'% complemento';
+  pcps_updateConsulCS();
+  pcps_renderConsolidado();
+}
+
+function pcps_renderConsulLines() {
+  const tbody=pcps_el('pv-consul-tbody'); if(!tbody) return;
+  tbody.innerHTML=PCPS.consul.map((cl,i)=>`
+    <tr>
+      <td><input type="text" placeholder="Descripción ${i+1}" value="${cl.desc}" oninput="PCPS.consul[${i}].desc=this.value"></td>
+      <td><input type="number" id="pv-consul-monto-${i}" value="${cl.monto}" min="0" style="width:100%;max-width:160px;text-align:right;" oninput="PCPS.consul[${i}].monto=+this.value;pcps_recalc()"></td>
+      <td style="text-align:center;"><label class="ck-wrap" style="justify-content:center;"><input type="checkbox" ${cl.iva?'checked':''} onchange="PCPS.consul[${i}].iva=this.checked;pcps_recalc()"> Sí</label></td>
+      <td style="text-align:right;font-weight:600;color:var(--green);" id="pv-consul-cs-${i}">$ 0</td>
+    </tr>`).join('');
+}
+function pcps_updateConsulCS() {
+  PCPS.consul.forEach((_,i)=>{
+    const e=pcps_el('pv-consul-cs-'+i); if(e) e.textContent=pcps_fmtCLP((PCPS_RES.consulLines||[])[i]||0);
+  });
+  const t=pcps_el('pv-consul-cs-total'); if(t) t.textContent=pcps_fmtCLP(PCPS_RES.consul||0);
+}
+
+function pcps_renderConsolidado() {
+  const m=PCPS.mer, R=PCPS_RES;
+  const fmtN=n=>Math.round(n).toLocaleString('es-CL');
+  const rows=[
+    {label:'— INVERSIÓN',subhead:true},
+    {label:'Obras Civiles (OOCC)',  pm:m.oocc,      cs:R.oocc,   f:R.f_oocc},
+    {label:'Equipos',               pm:m.equi,      cs:R.equi,   f:R.f_equi},
+    {label:'Equipamiento',          pm:m.equip,     cs:R.equip,  f:R.f_equip},
+    {label:'Terreno',               pm:m.terr,      cs:R.terr,   f:R.f_terr},
+    {label:'Plan Contingencia',     pm:m.cont,      cs:R.cont,   f:R.f_cont},
+    {label:'Vehículos',             pm:m.vehi,      cs:R.vehi,   f:R.f_vehi},
+    {label:'Consultorías',          pm:R.pmConsul,  cs:R.consul, f:R.f_consul},
+    {label:'TOTAL INVERSIÓN',total:true,pm:R.pmInv,cs:R.csInv,f:R.pmInv>0?R.csInv/R.pmInv:null},
+    {label:'— ANUALES',subhead:true},
+    {label:'Operación',             pm:m.oper,      cs:R.csOper, f:R.f_oper},
+    {label:'Mantención',            pm:m.mant,      cs:R.csMant, f:R.f_mant},
+    {label:'TOTAL ANUAL',total:true,pm:R.pmAnu,cs:R.csAnu,f:R.pmAnu>0?R.csAnu/R.pmAnu:null},
+  ];
+  const tbody=pcps_el('pv-con-tbody'); if(!tbody) return;
+  tbody.innerHTML=rows.map(r=>{
+    if(r.subhead) return `<tr class="sub"><td colspan="5" style="text-align:left;">${r.label}</td></tr>`;
+    const diff=r.cs-r.pm;
+    const diffStr=`<td class="${diff<0?'cs-dn':'cs-up'}">${diff<0?'-':'+'} $ ${fmtN(Math.abs(diff))}</td>`;
+    if(r.total) return `<tr class="tot"><td>${r.label}</td><td>$ ${fmtN(r.pm)}</td><td style="color:var(--green);">$ ${fmtN(r.cs)}</td><td>${pcps_fmtFactor(r.f)}</td>${diffStr}</tr>`;
+    if(r.pm===0) return `<tr class="zero"><td>${r.label}</td><td>$ 0</td><td>—</td><td>—</td><td>—</td></tr>`;
+    return `<tr><td>${r.label}</td><td>$ ${fmtN(r.pm)}</td><td style="color:var(--green);">$ ${fmtN(r.cs)}</td><td>${pcps_fmtFactor(r.f)}</td>${diffStr}</tr>`;
+  }).join('');
+  const fInv=R.pmInv>0?(R.csInv/R.pmInv*100).toFixed(1)+'%':'—';
+  const fAnu=R.pmAnu>0?(R.csAnu/R.pmAnu*100).toFixed(1)+'%':'—';
+  const sb=pcps_el('pv-sum-box'); if(!sb) return;
+  sb.innerHTML=`
+    <div class="sb-item blue"><div class="sb-label">Total Inversión PM</div><div class="sb-val">$ ${fmtN(R.pmInv)}</div><div class="sb-sub">Precio de Mercado</div></div>
+    <div class="sb-item green"><div class="sb-label">Total Inversión CS</div><div class="sb-val">$ ${fmtN(R.csInv)}</div><div class="sb-sub">Factor: ${fInv}</div></div>
+    <div class="sb-item"><div class="sb-label">Total Anual CS</div><div class="sb-val">$ ${fmtN(R.csAnu)}</div><div class="sb-sub">Factor: ${fAnu}</div></div>`;
+}
+
+function pcps_resetParams() {
+  PCPS.params={fcsd:1.00,t:0.0071,iva:0.19,fMOC:0.97,fMOSC:0.95,fMONC:0.91};
+  [['pp-fcsd',1.0000],['pp-t',0.0071],['pp-iva',0.19],['pp-fmoc',0.97],['pp-fmosc',0.95],['pp-fmonc',0.91]]
+    .forEach(([id,v])=>{const e=pcps_el(id);if(e)e.value=v;});
+  pcps_recalc();
+}
+
+const PCPS_MAT_PROFILES = {
+  oocc: [
+    { name:'Labor-intensiva', mat:0.40, nac:0.90, tr:0.25,
+      tip:'Obras con alto uso de MO: remodelaciones,&#10;habilitaciones, obras menores rurales.&#10;Materiales locales no transables&#10;(áridos, madera, tierra).' },
+    { name:'Típica', mat:0.55, nac:0.85, tr:0.35,
+      tip:'Edificación y obras viales estándar.&#10;Materiales locales con insumos transables&#10;(cemento, acero).&#10;Perfil más habitual para OOCC en SNI 2026.' },
+    { name:'Estructura pesada', mat:0.65, nac:0.75, tr:0.50,
+      tip:'Hormigón armado, acero estructural&#10;o prefabricados. Mayor componente&#10;importado y transable&#10;(puentes, edificios en altura).' },
+  ],
+  equi: [
+    { name:'Equipo nacional', mat:0.72, nac:0.75, tr:0.40,
+      tip:'Maquinaria fabricada localmente o con&#10;alto componente nacional.&#10;Menor exposición a precios internacionales&#10;(ej: equipos agrícolas, maquinaria simple).' },
+    { name:'Equipo mixto', mat:0.75, nac:0.55, tr:0.62,
+      tip:'Combinación de componentes nacionales&#10;e importados. Habitual para equipos&#10;electromecánicos y maquinaria de proceso.' },
+    { name:'Equipo importado', mat:0.80, nac:0.30, tr:0.78,
+      tip:'Equipos de origen extranjero: maquinaria&#10;industrial especializada, equipos de precisión.&#10;Alta transabilidad por su naturaleza&#10;de bien de capital importado.' },
+  ],
+  equip: [
+    { name:'Estándar', mat:0.78, nac:0.70, tr:0.45,
+      tip:'Mobiliario, equipos de oficina, herramientas.&#10;Combinación de fabricación local e importada.&#10;Menor componente transable.' },
+    { name:'Tecnológico', mat:0.83, nac:0.45, tr:0.68,
+      tip:'Computadores, telecomunicaciones,&#10;instrumentación. Alto componente&#10;importado y transable.' },
+    { name:'Hospitalario/Ind.', mat:0.80, nac:0.35, tr:0.72,
+      tip:'Equipamiento médico, de laboratorio&#10;o industrial especializado.&#10;Predominantemente importado con alta&#10;exposición a precios internacionales.' },
+  ],
+  'ao-cont': [
+    { name:'Serv. básico', mat:0.25, nac:0.92, tr:0.22,
+      tip:'Servicios de bajo componente material:&#10;aseo, vigilancia, áreas verdes.&#10;Materiales locales y no transables.' },
+    { name:'Serv. mixto', mat:0.38, nac:0.87, tr:0.33,
+      tip:'Operación estándar con suministros moderados:&#10;combustible, materiales de uso corriente.&#10;Habitual para servicios de complejidad media.' },
+    { name:'Serv. especializado', mat:0.55, nac:0.75, tr:0.48,
+      tip:'Servicios con insumos técnicos o repuestos,&#10;algunos importados.&#10;Ej: operación de plantas, transporte especializado.' },
+  ],
+  'ao-prop': [
+    { name:'Op. básica', mat:0.15, nac:0.95, tr:0.18,
+      tip:'Personal propio con bajo consumo de materiales.&#10;Insumos mínimos de origen local.&#10;Ej: administración y atención de usuarios.' },
+    { name:'Op. estándar', mat:0.25, nac:0.90, tr:0.28,
+      tip:'Operación interna con consumo moderado:&#10;combustible, papelería, materiales de oficina.&#10;Perfil habitual para personal de servicio propio.' },
+    { name:'Op. técnica', mat:0.40, nac:0.82, tr:0.38,
+      tip:'Consumo significativo de materiales técnicos&#10;o repuestos. Ej: personal propio&#10;operando plantas o equipos complejos.' },
+  ],
+  'am-cont': [
+    { name:'Preventiva', mat:0.48, nac:0.85, tr:0.38,
+      tip:'Mantención preventiva con insumos estándar:&#10;lubricantes, materiales de reposición.&#10;Predominantemente de origen nacional.' },
+    { name:'Con repuestos', mat:0.60, nac:0.70, tr:0.52,
+      tip:'Mantención correctiva con reposición de&#10;partes, algunas importadas. Habitual&#10;para mantención de equipos y maquinaria.' },
+    { name:'Especializada', mat:0.65, nac:0.58, tr:0.65,
+      tip:'Repuestos importados para sistemas&#10;eléctricos, electrónicos o mecánicos complejos.&#10;Alta transabilidad de los insumos.' },
+  ],
+  'am-prop': [
+    { name:'Básica', mat:0.40, nac:0.90, tr:0.32,
+      tip:'Personal propio con materiales de uso corriente.&#10;Bajo componente importado.&#10;Ej: mantención rutinaria de instalaciones.' },
+    { name:'Con repuestos', mat:0.55, nac:0.78, tr:0.46,
+      tip:'Equipo propio con consumo regular de repuestos,&#10;algunos importados. Habitual para personal&#10;técnico de mantención interna.' },
+    { name:'Especializada', mat:0.62, nac:0.65, tr:0.58,
+      tip:'Personal técnico con alta demanda de&#10;repuestos importados.&#10;Ej: mantención de equipos industriales.' },
+  ],
+};
+
+const PCPS_MO_PROFILES = {
+  oocc: [
+    { name:'Alta NC', moNC:0.70, moSC:0.20, moC:0.10,
+      tip:'Faenas con alto uso de MO no calificada: movimiento de tierras, excavaciones, hormigones simples, terraplenes. La mayor parte del costo de MO corresponde a peones y jornaleros.' },
+    { name:'Estándar', moNC:0.50, moSC:0.30, moC:0.20,
+      tip:'Construcción general: edificación, obras viales, infraestructura hidráulica de complejidad media. Perfil más habitual para Obras Civiles según SNI 2026.' },
+    { name:'Técnica', moNC:0.20, moSC:0.40, moC:0.40,
+      tip:'Obras de alta complejidad técnica: urbanización con redes de servicios, instalaciones especializadas, estructuras de hormigón armado complejas, obras de saneamiento.' },
+  ],
+  equi: [
+    { name:'Técnica media', moNC:0.00, moSC:0.50, moC:0.50,
+      tip:'Instalación de equipos electromecánicos e industriales estándar: maquinaria de proceso, grupos electrógenos, sistemas de bombeo. Perfil habitual para Equipos en SNI 2026.' },
+    { name:'Alta esp.', moNC:0.00, moSC:0.20, moC:0.80,
+      tip:'Equipos de alta tecnología: sistemas de control y automatización, telecomunicaciones, equipamiento de precisión, instalaciones TI. Instalación requiere mayoritariamente personal calificado.' },
+    { name:'Con soporte', moNC:0.10, moSC:0.50, moC:0.40,
+      tip:'Equipos que requieren apoyo no calificado para transporte, posicionamiento o cimentaciones menores. Incluye maquinaria pesada o grandes equipos con maniobras de instalación.' },
+  ],
+  equip: [
+    { name:'Profesional', moNC:0.00, moSC:0.00, moC:1.00,
+      tip:'Equipamiento con instalación exclusivamente calificada: mobiliario, equipos informáticos, electrodomésticos, equipamiento de oficina. La mano de obra es casi enteramente calificada.' },
+    { name:'Técnica', moNC:0.00, moSC:0.30, moC:0.70,
+      tip:'Equipamiento que requiere instalación técnica: equipamiento hospitalario, de laboratorio, sistemas de climatización, equipamiento gastronómico industrial.' },
+    { name:'Mixta', moNC:0.00, moSC:0.50, moC:0.50,
+      tip:'Equipamiento con montaje técnico significativo: grandes módulos, equipamiento deportivo, mobiliario urbano estructurado. Instalación involucra trabajo técnico y de montaje.' },
+  ],
+  anu: [
+    { name:'Servicios básicos', moNC:0.60, moSC:0.30, moC:0.10,
+      tip:'Servicios de bajo perfil técnico: aseo y limpieza, vigilancia, mantención de áreas verdes, recolección. Alto componente de MO no calificada.' },
+    { name:'Op. mixta', moNC:0.40, moSC:0.35, moC:0.25,
+      tip:'Operación estándar de servicios públicos: atención de usuarios, administración básica, mantención general. Perfil habitual para servicios de mediana complejidad.' },
+    { name:'Técnica esp.', moNC:0.15, moSC:0.35, moC:0.50,
+      tip:'Operación/mantención especializada: plantas de tratamiento, centros de salud, infraestructura eléctrica, transporte técnico. Mayoría del costo en MO calificada y semi-calificada.' },
+  ],
+};
+
+function pcps_matProfilesFor(dk) { return PCPS_MAT_PROFILES[dk] || []; }
+function pcps_matchMatProfile(dk, o) {
+  return pcps_matProfilesFor(dk).findIndex(p =>
+    Math.round(p.mat*100)===Math.round(o.mat*100) &&
+    Math.round(p.nac*100)===Math.round(o.nac*100) &&
+    Math.round(p.tr*100) ===Math.round(o.tr*100));
+}
+function pcps_clearMatChips(dk) {
+  [0,1,2].forEach(i=>{const e=pcps_el('pv-'+dk+'-mchip-'+i);if(e)e.classList.remove('active');});
+}
+function pcps_applyMatProfile(dk, se, mat, nac, tr, idx) {
+  const o=pcps_getObj(se);
+  o.mat=mat; o.nac=nac; o.tr=tr;
+  const sv=(id,v)=>{const e=pcps_el(id);if(e)e.value=v;};
+  sv('pv-'+dk+'-mat',Math.round(mat*100));
+  sv('pv-'+dk+'-nac',Math.round(nac*100));
+  sv('pv-'+dk+'-tr', Math.round(tr*100));
+  pcps_setComp('pv-'+dk+'-mo-disp',  Math.round(mat*100));
+  pcps_setComp('pv-'+dk+'-mo-pct-r', Math.round(mat*100));
+  pcps_setComp('pv-'+dk+'-imp',       Math.round(nac*100));
+  pcps_setComp('pv-'+dk+'-ntr',       Math.round(tr*100));
+  pcps_clearMatChips(dk);
+  const chip=pcps_el('pv-'+dk+'-mchip-'+idx); if(chip) chip.classList.add('active');
+  pcps_recalc();
+}
+
+function pcps_getObj(path) {
+  const refs = {
+    'PCPS.inv.oocc':      PCPS.inv.oocc,
+    'PCPS.inv.equi':      PCPS.inv.equi,
+    'PCPS.inv.equip':     PCPS.inv.equip,
+    'PCPS.anu.oper.cont': PCPS.anu.oper.cont,
+    'PCPS.anu.oper.prop': PCPS.anu.oper.prop,
+    'PCPS.anu.mant.cont': PCPS.anu.mant.cont,
+    'PCPS.anu.mant.prop': PCPS.anu.mant.prop,
+  };
+  return refs[path];
+}
+function pcps_profilesFor(dk) {
+  if(dk==='oocc')  return PCPS_MO_PROFILES.oocc;
+  if(dk==='equi')  return PCPS_MO_PROFILES.equi;
+  if(dk==='equip') return PCPS_MO_PROFILES.equip;
+  return PCPS_MO_PROFILES.anu;
+}
+function pcps_matchProfile(dk, o) {
+  return pcps_profilesFor(dk).findIndex(p =>
+    Math.round(p.moNC*100)===Math.round(o.moNC*100) &&
+    Math.round(p.moSC*100)===Math.round(o.moSC*100) &&
+    Math.round(p.moC*100) ===Math.round(o.moC*100));
+}
+function pcps_clearChips(dk) {
+  [0,1,2].forEach(i=>{const e=pcps_el('pv-'+dk+'-chip-'+i);if(e)e.classList.remove('active');});
+  const tip=pcps_el('pv-'+dk+'-profile-tip'); if(tip) tip.textContent='';
+}
+function pcps_applyMoProfile(dk, se, nc, sc, c, idx) {
+  const o = pcps_getObj(se);
+  o.moNC=nc; o.moSC=sc; o.moC=c;
+  const sv=(id,v)=>{const e=pcps_el(id);if(e)e.value=v;};
+  sv('pv-'+dk+'-moNC',Math.round(nc*100));
+  sv('pv-'+dk+'-moSC',Math.round(sc*100));
+  sv('pv-'+dk+'-moC', Math.round(c*100));
+  pcps_clearChips(dk);
+  const chip=pcps_el('pv-'+dk+'-chip-'+idx); if(chip) chip.classList.add('active');
+  const tip=pcps_el('pv-'+dk+'-profile-tip');
+  if(tip) tip.textContent = pcps_profilesFor(dk)[idx]?.tip || '';
+  pcps_setMoSum(dk, o);
+  pcps_recalc();
+}
+
+function pcps_setComp(displayId, primaryPct) {
+  const e = pcps_el(displayId);
+  if(e) e.textContent = Math.round(100 - primaryPct) + '%';
+}
+function pcps_setMoSum(dk, o) {
+  const sum = Math.round((o.moNC + o.moSC + o.moC) * 100);
+  const el = pcps_el('pv-' + dk + '-mo-sum');
+  if(!el) return;
+  const ok = sum === 100;
+  el.className = 'mo-sum-row ' + (ok ? 'mo-ok' : 'mo-warn');
+  el.textContent = ok ? '✓ Distribución MO correcta (100%)' : '⚠ Suma MO = ' + sum + '% — debe ser 100%';
+}
+
+function pcps_catFields(dk, o, se) {
+  const pct = v => Math.round(v*100);
+  const moSum = Math.round((o.moNC + o.moSC + o.moC) * 100);
+  const moOk = moSum === 100;
+  const TIP_TR = 'Transable: bien que puede importarse o exportarse&#10;(ej: acero, cemento, maquinaria). Su precio de mercado&#10;se ajusta por el FCSD y el arancel de importacion.&#10;&#10;No Transable: bien que no se transa internacionalmente&#10;(ej: arena local, piedra, hormigon en obra). Su precio&#10;de mercado equivale directamente al precio social.';
+  const TIP_NC = 'Mano de Obra No Calificada:&#10;Trabajadores sin formacion tecnica especifica&#10;(ej: peones, jornaleros, ayudantes generales).&#10;Factor de correccion social mas alto (f_MONC).&#10;Refleja el mayor costo de oportunidad social.';
+  const TIP_SC = 'Mano de Obra Semi-Calificada:&#10;Trabajadores con formacion tecnica basica&#10;(ej: operarios de maquinaria, ayudantes de obra,&#10;choferes, instaladores). Factor intermedio (f_MOSC).';
+  const TIP_C  = 'Mano de Obra Calificada:&#10;Profesionales y tecnicos especializados&#10;(ej: ingenieros, arquitectos, supervisores,&#10;contadores). Factor de correccion mas bajo (f_MOC).&#10;Su salario de mercado esta mas cercano al precio social.';
+  return `<div class="corr-split">
+    <div class="corr-section">
+      <div class="corr-section-title">Materiales</div>
+      <div style="font-size:11.5px;color:var(--muted);margin-bottom:8px;">Elige un perfil o ajusta manualmente:</div>
+      <div class="mat-profile-chips">
+        ${pcps_matProfilesFor(dk).map((p,i)=>`<button type="button" class="mat-chip${i===pcps_matchMatProfile(dk,o)?' active':''}" id="pv-${dk}-mchip-${i}" data-tip="${p.tip}" onclick="pcps_applyMatProfile('${dk}','${se}',${p.mat},${p.nac},${p.tr},${i})">${p.name}</button>`).join('')}
+      </div>
+      <div class="corr-sub-title">Composicion del Costo Total</div>
+      <div class="corr-row2">
+        <div class="pp-field">
+          <label>% Materiales</label>
+          <div class="pct-wrap"><input type="number" id="pv-${dk}-mat" value="${pct(o.mat)}" min="0" max="100"
+            oninput="${se}.mat=+this.value/100;pcps_clearMatChips('${dk}');pcps_setComp('pv-${dk}-mo-disp',+this.value);pcps_setComp('pv-${dk}-mo-pct-r',+this.value);pcps_recalc()"><span>%</span></div>
+        </div>
+        <div class="pp-field">
+          <label>% Mano de Obra <span class="comp-auto">auto</span></label>
+          <div class="comp-val" id="pv-${dk}-mo-disp">${100-pct(o.mat)}%</div>
+        </div>
+      </div>
+      <div class="corr-sub-title">Origen del Material</div>
+      <div class="corr-row2">
+        <div class="pp-field">
+          <label>% Nacional</label>
+          <div class="pct-wrap"><input type="number" id="pv-${dk}-nac" value="${pct(o.nac)}" min="0" max="100"
+            oninput="${se}.nac=+this.value/100;pcps_clearMatChips('${dk}');pcps_setComp('pv-${dk}-imp',+this.value);pcps_recalc()"><span>%</span></div>
+        </div>
+        <div class="pp-field">
+          <label>% Importado <span class="comp-auto">auto</span></label>
+          <div class="comp-val" id="pv-${dk}-imp">${100-pct(o.nac)}%</div>
+        </div>
+      </div>
+      <div class="corr-sub-title">
+        Tipo (del Material Nacional)
+        <span class="info-tip" data-tip="${TIP_TR}">i</span>
+      </div>
+      <div class="corr-row2">
+        <div class="pp-field">
+          <label>% Transable</label>
+          <div class="pct-wrap"><input type="number" id="pv-${dk}-tr" value="${pct(o.tr)}" min="0" max="100"
+            oninput="${se}.tr=+this.value/100;pcps_clearMatChips('${dk}');pcps_setComp('pv-${dk}-ntr',+this.value);pcps_recalc()"><span>%</span></div>
+        </div>
+        <div class="pp-field">
+          <label>% No Transable <span class="comp-auto">auto</span></label>
+          <div class="comp-val" id="pv-${dk}-ntr">${100-pct(o.tr)}%</div>
+        </div>
+      </div>
+    </div>
+    <div class="corr-section corr-mo-section">
+      <div class="corr-section-title">Mano de Obra</div>
+      <div style="font-size:11.5px;color:var(--muted);margin-bottom:10px;">Distribución del <strong id="pv-${dk}-mo-pct-r">${100-pct(o.mat)}%</strong> de MO. Elige un perfil típico o ajusta manualmente:</div>
+      <div class="mo-profile-chips">
+        ${pcps_profilesFor(dk).map((p,i)=>`<button type="button" class="mo-chip${i===pcps_matchProfile(dk,o)?' active':''}" id="pv-${dk}-chip-${i}" onclick="pcps_applyMoProfile('${dk}','${se}',${p.moNC},${p.moSC},${p.moC},${i})">${p.name}</button>`).join('')}
+      </div>
+      <div class="mo-profile-tip" id="pv-${dk}-profile-tip">${(()=>{const ai=pcps_matchProfile(dk,o);return ai>=0?pcps_profilesFor(dk)[ai].tip:''})()}</div>
+      <div class="mo-field">
+        <div class="mo-field-row">
+          <label>No Calificada (NC) <span class="info-tip" data-tip="${TIP_NC}">i</span></label>
+          <div class="pct-wrap"><input type="number" id="pv-${dk}-moNC" value="${pct(o.moNC)}" min="0" max="100"
+            oninput="${se}.moNC=+this.value/100;pcps_clearChips('${dk}');pcps_setMoSum('${dk}',${se});pcps_recalc()"><span>%</span></div>
+        </div>
+      </div>
+      <div class="mo-field">
+        <div class="mo-field-row">
+          <label>Semi-Calificada (SC) <span class="info-tip" data-tip="${TIP_SC}">i</span></label>
+          <div class="pct-wrap"><input type="number" id="pv-${dk}-moSC" value="${pct(o.moSC)}" min="0" max="100"
+            oninput="${se}.moSC=+this.value/100;pcps_clearChips('${dk}');pcps_setMoSum('${dk}',${se});pcps_recalc()"><span>%</span></div>
+        </div>
+      </div>
+      <div class="mo-field">
+        <div class="mo-field-row">
+          <label>Calificada (C) <span class="info-tip" data-tip="${TIP_C}">i</span></label>
+          <div class="pct-wrap"><input type="number" id="pv-${dk}-moC" value="${pct(o.moC)}" min="0" max="100"
+            oninput="${se}.moC=+this.value/100;pcps_clearChips('${dk}');pcps_setMoSum('${dk}',${se});pcps_recalc()"><span>%</span></div>
+        </div>
+      </div>
+      <div class="mo-sum-row ${moOk?'mo-ok':'mo-warn'}" id="pv-${dk}-mo-sum">
+        ${moOk?'✓ Distribución MO correcta (100%)':'⚠ Suma MO = '+moSum+'% — debe ser 100%'}
+      </div>
+    </div>
+  </div>`;
+}
+
+function pcps_renderCorrCards() {
+  const w = pcps_el('pv-inv-corr-wrap'); if(!w) return;
+  const cats = [
+    {key:'oocc',  label:'Obras Civiles (OOCC)', o:PCPS.inv.oocc,  se:'PCPS.inv.oocc'},
+    {key:'equi',  label:'Equipos',              o:PCPS.inv.equi,  se:'PCPS.inv.equi'},
+    {key:'equip', label:'Equipamiento',          o:PCPS.inv.equip, se:'PCPS.inv.equip'},
+  ];
+  w.innerHTML = cats.map(({key,label,o,se}) => `
+    <div class="corr-card">
+      <div class="corr-head">
+        <div class="ch-name">${label}</div>
+        <div class="ch-pm">PM: <span id="pv-pm-${key}">$ 0</span></div>
+        <div class="ch-cs" id="pv-cs-${key}">CS: $ 0</div>
+        <div class="ch-factor" id="pv-f-${key}">—</div>
+      </div>
+      ${pcps_catFields(key, o, se)}
+    </div>`).join('') + `
+    <div class="corr-card">
+      <div class="corr-head"><div class="ch-name">Terreno</div><div class="ch-pm">PM: <span id="pv-pm-terr">$ 0</span></div><div class="ch-cs" id="pv-cs-terr">CS: $ 0</div><div class="ch-factor" id="pv-f-terr">100%</div></div>
+      <div class="corr-body"><div class="note-box">Sin corrección: CS = PM (precio pagado = precio social).</div></div>
+    </div>
+    <div class="corr-card">
+      <div class="corr-head"><div class="ch-name">Plan de Contingencia</div><div class="ch-pm">PM: <span id="pv-pm-cont">$ 0</span></div><div class="ch-cs" id="pv-cs-cont">CS: $ 0</div><div class="ch-factor" id="pv-f-cont">—</div></div>
+      <div class="corr-body"><div class="note-box">Aplica el mismo factor que OOCC: CS<sub>cont</sub> = PM<sub>cont</sub> × (CS<sub>OOCC</sub> / PM<sub>OOCC</sub>).</div></div>
+    </div>
+    <div class="corr-card">
+      <div class="corr-head"><div class="ch-name">Vehículos</div><div class="ch-pm">PM: <span id="pv-pm-vehi">$ 0</span></div><div class="ch-cs" id="pv-cs-vehi">CS: $ 0</div><div class="ch-factor" id="pv-f-vehi">—</div></div>
+      <div class="corr-body"><div class="note-box">Fórmula directa: CS = PM ÷ (1+IVA) ÷ (1+t) × FCSD.</div></div>
+    </div>
+    <div class="corr-card">
+      <div class="corr-head"><div class="ch-name">Consultorías</div><div class="ch-pm">PM: <span id="pv-pm-consul">$ 0</span></div><div class="ch-cs" id="pv-cs-consul">CS: $ 0</div><div class="ch-factor" id="pv-f-consul">—</div></div>
+      <div class="corr-body"><div class="note-box">CS calculado en la tabla de Consultorías arriba.</div></div>
+    </div>`;
+}
+
+function pcps_renderAnuCards() {
+  const w = pcps_el('pv-anu-corr-wrap'); if(!w) return;
+  function anuCat(dk, label, o, se, isContratado, cpSe, cpVal) {
+    const badge = `<span style="font-size:11px;font-weight:700;background:#eef4ff;border:1px solid #bfdbfe;border-radius:5px;padding:3px 10px;color:var(--navy);">${label}</span>`;
+    const pctCtrl = isContratado
+      ? `<div class="anu-pct-wrap">${badge}<div class="pct-wrap"><input type="number" value="${Math.round(cpVal*100)}" min="0" max="100" oninput="${cpSe}=+this.value/100;pcps_recalc()"><span>%</span></div></div>`
+      : `<div class="anu-pct-wrap">${badge}<div class="anu-prop-disp" id="pv-${dk}-pct-disp">${Math.round((1-cpVal)*100)}% complemento</div></div>`;
+    return `<div style="margin-bottom:14px;">${pctCtrl}${pcps_catFields(dk, o, se)}</div>`;
+  }
+  const oa=PCPS.anu.oper, ma=PCPS.anu.mant;
+  w.innerHTML = `
+    <div style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);">Operación · PM: <span id="pv-pm-oper">$ 0</span></div>
+      <div style="font-size:14px;font-weight:700;color:var(--green);" id="pv-cs-oper">CS: $ 0</div>
+    </div>
+    ${anuCat('ao-cont','Contratado (externo)',oa.cont,'PCPS.anu.oper.cont',true,'PCPS.anu.oper.contPct',oa.contPct)}
+    ${anuCat('ao-prop','Propios (internos)',oa.prop,'PCPS.anu.oper.prop',false,'PCPS.anu.oper.contPct',oa.contPct)}
+    <div style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding-top:14px;margin-top:6px;">
+      <div style="font-size:13px;font-weight:700;color:var(--navy);">Mantención · PM: <span id="pv-pm-mant">$ 0</span></div>
+      <div style="font-size:14px;font-weight:700;color:var(--green);" id="pv-cs-mant">CS: $ 0</div>
+    </div>
+    ${anuCat('am-cont','Contratado',ma.cont,'PCPS.anu.mant.cont',true,'PCPS.anu.mant.contPct',ma.contPct)}
+    ${anuCat('am-prop','Propios',ma.prop,'PCPS.anu.mant.prop',false,'PCPS.anu.mant.contPct',ma.contPct)}`;
+}
+
+function pcps_importToEval() {
+  const toM = v => Math.round(v/1000);
+  const map=[['oocc','oocc'],['equi','equi'],['equip','equip'],['vehi','vehi'],['consul','consul'],['cont','conting']];
+  map.forEach(([pk,ek])=>{
+    const row=S.inv.find(r=>r.id===ek);
+    if(row) row.vals[0]=toM(PCPS_RES[pk]||0);
+  });
+  S.terr = toM(PCPS_RES.terr||0);
+  S.anu.oper.c = toM(PCPS_RES.csOper||0);
+  S.anu.mant.c = toM(PCPS_RES.csMant||0);
+  showTab('inv');
+  const msg=pcps_el('pcps-import-msg');
+  if(msg){msg.style.display='block';msg.textContent='✓ Valores CS importados en M$: Inversión (OOCC, Equipos, Equipamiento, Vehículos, Consultorías, Plan de Contingencia, Terreno) y Costos Anuales (Operación, Mantención). Revise y ajuste según corresponda.';setTimeout(()=>msg.style.display='none',7000);}
 }
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
@@ -893,6 +1623,11 @@ function showTab(id) {
   renderAnu();
   document.getElementById('mode-hint').textContent = 'El mismo valor se repite en cada año del período de operación.';
 })();
+
+// Auto-seleccionar contenido al enfocar cualquier input numérico (evita tener que borrar el 0 manualmente)
+document.addEventListener('focus', e => {
+  if (e.target.matches('input[type="number"]')) e.target.select();
+}, true);
 </script>
 </body>
 </html>
