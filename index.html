@@ -13,6 +13,7 @@
   .bip-poly{position:absolute;inset:0;z-index:0;overflow:hidden;}
   .bip-top{position:relative;z-index:1;padding:16px 28px 16px;max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:20px;}
   .bip-logo{height:170px;width:auto;flex-shrink:0;align-self:flex-start;}
+  .bip-logo-link{display:contents;}
   .bip-stripe{width:8px;height:78px;flex-shrink:0;margin-top:2px;display:flex;flex-direction:column;}
   .bip-stripe .sr{flex:0 0 30px;background:#c0392b;}
   .bip-stripe .sb{flex:1;background:var(--blue-bip);}
@@ -44,11 +45,17 @@
   .bip-card .tc-features li::before{background:#c4963a;}
   .obras .tc-features li::before{background:#16a34a;}
   .reev .tc-features li::before{background:#9333ea;}
+  .pcps .tc-features li::before{background:#0d9488;}
   .tc-cta{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;align-self:flex-start;padding:8px 18px;border-radius:7px;color:#fff;}
   .censo .tc-cta{background:var(--navy);}
   .bip-card .tc-cta{background:#b45309;}
   .obras .tc-cta{background:#16a34a;}
   .reev .tc-cta{background:#9333ea;}
+  .pcps .tc-cta{background:#0f766e;}
+  .eval-card .tc-features li::before{background:#6366f1;}
+  .eval-card .tc-cta{background:#4338ca;}
+  .ips-card .tc-features li::before{background:#059669;}
+  .ips-card .tc-cta{background:#065f46;}
   footer{max-width:1080px;margin:0 auto;padding:0 20px 48px;}
   .footer-inner{border-top:1px solid var(--line);padding-top:20px;font-size:12.5px;color:var(--muted);}
   .footer-inner strong{color:var(--navy);}
@@ -59,7 +66,7 @@
 
 <div class="bip-header">
   <div class="bip-top">
-    <img src="Head Pat-A.png" class="bip-logo" alt="PAT-A">
+    <a href="index.html" class="bip-logo-link" title="Inicio"><img src="Head Pat-A.png" class="bip-logo" alt="PAT-A"></a>
     <div>
       <div class="bip-eyebrow"><strong style="color:#fff;letter-spacing:.04em;">PAT-A</strong> · Plataforma de Apoyo Técnico de La Araucanía</div>
       <h1 class="bip-h1">Herramientas para Formuladores</h1>
@@ -100,9 +107,10 @@
       </div>
       <div class="tc-body">
         <h2 class="tc-title">Convertidor de Moneda BIP</h2>
-        <p class="tc-desc">Actualiza montos en pesos chilenos entre distintas fechas según el IPC INE. Conversión individual o masiva de múltiples ítems de distintos años a una fecha destino común.</p>
+        <p class="tc-desc">Actualiza montos en pesos chilenos entre distintas fechas según el IPC INE. Conversión individual, masiva o de contratos de distintos años a una fecha destino común.</p>
         <ul class="tc-features">
           <li>Conversión individual o masiva de ítems</li>
+          <li>Convertir contratos a una moneda</li>
           <li>Distintas fechas de origen → una fecha destino</li>
           <li>Exportar resultados a CSV</li>
         </ul>
@@ -147,6 +155,66 @@
           <li>Cálculo del reajuste a pagar</li>
         </ul>
         <span class="tc-cta">Abrir herramienta →</span>
+      </div>
+    </a>
+
+    <a href="pcps_sni2026.html" class="tool-card pcps">
+      <div class="tc-banner" style="background:linear-gradient(120deg,#0f766e 0%,#0d9488 100%);">
+        <div class="tc-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        </div>
+        <svg class="deco" width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="tc-body">
+        <h2 class="tc-title">Conversión a Precios Sociales</h2>
+        <p class="tc-desc">Convierte presupuestos de mercado a precios sociales según la metodología PCPS SNI 2026. Corrige materiales, mano de obra, IVA y divisas para todas las asignaciones de inversión.</p>
+        <ul class="tc-features">
+          <li>OOCC, Equipos, Equipamiento, Terreno, Vehículos</li>
+          <li>Consultorías, Operación y Mantención</li>
+          <li>16 combinaciones de composición de MO</li>
+          <li>Consolidado PM vs. CS con factores</li>
+        </ul>
+        <span class="tc-cta">Abrir herramienta →</span>
+      </div>
+    </a>
+
+    <a href="evaluacion_proyectos.html" class="tool-card eval-card">
+      <div class="tc-banner" style="background:linear-gradient(120deg,#3730a3 0%,#6366f1 100%);">
+        <div class="tc-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <svg class="deco" width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      </div>
+      <div class="tc-body">
+        <h2 class="tc-title">Evaluación de Proyectos</h2>
+        <p class="tc-desc">Elabora flujos de caja y evalúa proyectos según la Metodología General SNI 2025. Cálculo de VAN, TIR, VAC y CAE con análisis de sensibilidad automático.</p>
+        <ul class="tc-features">
+          <li>Costo-Beneficio: VAN y TIR</li>
+          <li>Costo-Eficiencia: VAC y CAE</li>
+          <li>Flujo de caja automático por categoría</li>
+          <li>Valor Residual y sensibilidad incluidos</li>
+        </ul>
+        <span class="tc-cta">Abrir herramienta →</span>
+      </div>
+    </a>
+
+    <a href="ips2026.html" class="tool-card ips-card">
+      <div class="tc-banner" style="background:linear-gradient(120deg,#065f46 0%,#059669 100%);">
+        <div class="tc-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </div>
+        <svg class="deco" width="110" height="110" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <div class="tc-body">
+        <h2 class="tc-title">Precios Sociales IPS 2026</h2>
+        <p class="tc-desc">Asistente para convertir a precios sociales según el IPS 2026. Incluye tabla de referencia completa y calculadoras guiadas para cada factor social.</p>
+        <ul class="tc-features">
+          <li>Corrección Social de la Mano de Obra (FCSMO)</li>
+          <li>Valor Social del Tiempo de Viaje (VST)</li>
+          <li>Valor de una Vida Estadística (VVE)</li>
+          <li>Operación Vehicular y Precios Ambientales</li>
+        </ul>
+        <span class="tc-cta">Abrir asistente →</span>
       </div>
     </a>
 

@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Evaluación de Proyectos SNI 2025 — PAT-A</title>
+<style>
+:root{
+  --navy:#1a2d5a;--navy-d:#0f1e3d;--navy-m:#223570;--navy-l:#2b4590;
+  --blue:#2d5fa7;--green:#15803d;--teal:#0f766e;--indigo:#4338ca;
+  --bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--ink:#1e293b;--muted:#64748b;
+  --red:#dc2626;--amber:#d97706;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;min-height:100vh;}
+
+.bip-header{background:linear-gradient(135deg,var(--navy-d) 0%,var(--navy) 40%,var(--navy-m) 70%,var(--navy-l) 100%);}
+.bip-top{padding:16px 28px;max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:20px;}
+.bip-logo{height:120px;width:auto;flex-shrink:0;}
+.bip-eyebrow{font-size:10.5px;color:rgba(255,255,255,.62);letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px;font-weight:600;}
+.bip-h1{font-size:26px;font-weight:700;color:#fff;line-height:1.12;}
+.bip-sub{font-size:12.5px;color:rgba(255,255,255,.75);margin-top:4px;}
+a.back-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:rgba(255,255,255,.65);text-decoration:none;margin-top:8px;}
+a.back-link:hover{color:#fff;}
+
+.tabs-wrap{background:var(--navy-d);border-bottom:2px solid rgba(255,255,255,.1);}
+.tabs{display:flex;max-width:1200px;margin:0 auto;overflow-x:auto;}
+.tab-btn{padding:11px 20px;background:none;border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;border-bottom:3px solid transparent;transition:.15s;}
+.tab-btn.active{color:#fff;border-bottom-color:#818cf8;}
+.tab-btn:hover:not(.active){color:rgba(255,255,255,.85);}
+
+.page{max-width:1200px;margin:0 auto;padding:24px 20px 60px;}
+.tab-pane{display:none;}.tab-pane.active{display:block;}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:20px 24px;margin-bottom:18px;}
+.card-title{font-size:14px;font-weight:700;color:var(--navy);margin-bottom:14px;border-bottom:1px solid var(--line);padding-bottom:8px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.three-col{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:640px){.two-col,.three-col{grid-template-columns:1fr;}}
+
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:12px;font-weight:600;color:var(--muted);}
+.field input,.field select{border:1.5px solid var(--line);border-radius:6px;padding:8px 10px;font-size:13px;color:var(--ink);background:#fff;font-family:inherit;}
+.field input:focus,.field select:focus{outline:none;border-color:var(--indigo);box-shadow:0 0 0 3px rgba(99,102,241,.12);}
+.field input[type=number]{text-align:right;}
+
+
+.inv-table{width:100%;border-collapse:collapse;font-size:12.5px;}
+.inv-table th{background:var(--navy);color:#fff;padding:7px 10px;text-align:right;font-size:11.5px;font-weight:600;white-space:nowrap;}
+.inv-table th:first-child{text-align:left;}
+.inv-table td{border-bottom:1px solid var(--line);padding:6px 8px;vertical-align:middle;}
+.inv-table td:first-child{font-weight:600;color:var(--ink);}
+.inv-table td.num{text-align:right;}
+.inv-input{border:1px solid #cbd5e1;border-radius:4px;padding:4px 7px;font-size:12px;text-align:right;width:110px;background:#fff;}
+.inv-input:focus{border-color:var(--indigo);outline:none;}
+.vu-input{border:1px solid #cbd5e1;border-radius:4px;padding:3px 6px;font-size:12px;width:65px;text-align:center;}
+.vu-input:focus{border-color:var(--indigo);outline:none;}
+.inv-table tr.total-row td{font-weight:700;background:#f1f5f9;border-top:2px solid var(--navy);}
+.inv-table tr.terr-row{background:#fffbeb;}
+.inv-table tr.warn-row{background:#fef9c3;}
+
+.vr-box{background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:12px 16px;margin-top:14px;}
+.vr-box-title{font-size:12px;font-weight:700;color:#15803d;margin-bottom:6px;}
+.vr-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid #bbf7d0;}
+.vr-row:last-child{border-bottom:none;font-weight:700;}
+
+.reinv-item{display:flex;align-items:flex-end;gap:10px;margin-bottom:8px;background:#f8fafc;border:1px solid var(--line);border-radius:7px;padding:10px 12px;flex-wrap:wrap;}
+.reinv-item .field{flex:1;min-width:120px;}
+.btn-remove{background:#fee2e2;border:none;color:#dc2626;padding:6px 12px;border-radius:5px;cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap;}
+.btn-add{background:var(--navy);color:#fff;border:none;padding:9px 18px;border-radius:7px;font-size:12.5px;font-weight:700;cursor:pointer;margin-top:4px;}
+.btn-add:hover{background:var(--navy-m);}
+
+.mode-toggle{display:flex;gap:8px;margin-bottom:14px;}
+.mode-btn{padding:7px 16px;border:1.5px solid var(--line);border-radius:6px;background:#fff;font-size:12.5px;font-weight:600;cursor:pointer;color:var(--muted);}
+.mode-btn.active{border-color:var(--indigo);background:#eef2ff;color:var(--indigo);}
+
+.anu-card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 22px;margin-bottom:14px;}
+.anu-title{font-size:13.5px;font-weight:700;margin-bottom:10px;}
+.var-textarea{border:1.5px solid var(--line);border-radius:6px;padding:8px 10px;font-family:'Courier New',monospace;font-size:12px;width:100%;resize:vertical;background:#fafafa;min-height:72px;}
+.var-textarea:focus{outline:none;border-color:var(--indigo);}
+
+.flow-wrap{overflow-x:auto;}
+.flow-table{border-collapse:collapse;font-size:11.5px;min-width:500px;}
+.flow-table th{background:var(--navy);color:#fff;padding:6px 10px;white-space:nowrap;font-size:11px;text-align:right;position:sticky;top:0;}
+.flow-table th.row-hdr{text-align:left;min-width:190px;position:sticky;left:0;z-index:2;background:var(--navy);}
+.flow-table td{border-bottom:1px solid #f1f5f9;padding:5px 10px;text-align:right;white-space:nowrap;}
+.flow-table td.row-hdr{text-align:left;font-weight:600;background:#f8fafc;border-right:1px solid var(--line);position:sticky;left:0;z-index:1;}
+.flow-table td.row-hdr.sub{font-weight:400;color:var(--muted);padding-left:24px;font-size:11px;}
+.flow-table tr.total-row td{background:var(--navy);color:#fff;font-weight:700;}
+.flow-table tr.total-row td.row-hdr{background:var(--navy-d);}
+.flow-table td.pos{color:#15803d;}
+.flow-table td.neg{color:#dc2626;}
+.flow-table td.zero{color:#94a3b8;}
+
+.ind-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px;}
+.ind-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-bottom:20px;}
+@media(max-width:700px){.ind-grid,.ind-grid-3{grid-template-columns:1fr;}}
+.ind-box{border-radius:10px;padding:20px 24px;}
+.ind-box.van{background:linear-gradient(135deg,#1e1b4b,#312e81);}
+.ind-box.tir{background:linear-gradient(135deg,#0f2d63,#1e3a8a);}
+.ind-box.vae{background:linear-gradient(135deg,#1e1b4b,#4338ca);}
+.ind-box.vac{background:linear-gradient(135deg,#052e16,#14532d);}
+.ind-box.cae{background:linear-gradient(135deg,#042f2e,#064e3b);}
+.ind-box.ce-unit{background:linear-gradient(135deg,#0c1a2e,#0f766e);}
+.ind-label{font-size:12px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:6px;}
+.ind-value{font-size:30px;font-weight:800;color:#fff;letter-spacing:-.02em;word-break:break-all;}
+.ind-unit{font-size:12px;color:rgba(255,255,255,.6);margin-top:4px;}
+.ind-badge{display:inline-block;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;margin-top:10px;}
+.badge-ok{background:#bbf7d0;color:#15803d;}
+.badge-warn{background:#fef9c3;color:#92400e;}
+.badge-bad{background:#fee2e2;color:#991b1b;}
+.badge-neutral{background:#e0e7ff;color:#4338ca;}
+
+.decision-box{border-radius:10px;padding:16px 20px;margin-top:4px;}
+.decision-box.favorable{background:#f0fdf4;border:2px solid #86efac;}
+.decision-box.unfavorable{background:#fef2f2;border:2px solid #fca5a5;}
+.decision-box.neutral{background:#fffbeb;border:2px solid #fcd34d;}
+.decision-title{font-size:15px;font-weight:800;margin-bottom:6px;}
+.decision-text{font-size:13px;line-height:1.65;}
+
+.sens-table{border-collapse:collapse;font-size:12px;width:100%;}
+.sens-table th{background:#334155;color:#fff;padding:7px 12px;text-align:center;white-space:nowrap;}
+.sens-table th:first-child{text-align:left;min-width:130px;}
+.sens-table td{border:1px solid var(--line);padding:6px 12px;text-align:right;}
+.sens-table td:first-child{text-align:left;font-weight:700;background:#f8fafc;}
+.s-ok{background:#f0fdf4;color:#15803d;font-weight:700;}
+.s-bad{background:#fef2f2;color:#dc2626;font-weight:700;}
+.s-base{background:#e0e7ff !important;color:#4338ca !important;font-weight:800;outline:2px solid #818cf8;outline-offset:-2px;}
+
+.info-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;padding:10px 14px;font-size:12.5px;color:#1d4ed8;margin-top:8px;}
+.warn-box{background:#fffbeb;border:1px solid #fcd34d;border-radius:7px;padding:10px 14px;font-size:12.5px;color:#92400e;margin-top:8px;}
+
+@media(max-width:700px){.inv-input{width:85px;}.ind-value{font-size:22px;}.bip-h1{font-size:20px;}.bip-logo{height:80px;}}
+</style>
+</head>
+<body>
+
+<div class="bip-header">
+  <div class="bip-top">
+    <a href="index.html"><img src="Head Pat-A.png" class="bip-logo" alt="PAT-A"></a>
+    <div>
+      <div class="bip-eyebrow"><strong style="color:#fff;">PAT-A</strong> · Plataforma de Apoyo Técnico de La Araucanía</div>
+      <h1 class="bip-h1">Elaboración de Flujos y Evaluación de Proyectos</h1>
+      <div class="bip-sub">Metodología General SNI 2025 · Costo-Beneficio (VAN/TIR) y Costo-Eficiencia (VAC/CAE)</div>
+      <a href="index.html" class="back-link">← Volver al inicio</a>
+    </div>
+  </div>
+</div>
+
+<div class="tabs-wrap">
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('params')">⚙ Parámetros</button>
+    <button class="tab-btn" onclick="showTab('inv')">📅 Inversión</button>
+    <button class="tab-btn" onclick="showTab('anu')">📈 Flujos Anuales</button>
+    <button class="tab-btn" onclick="showTab('flow')">💹 Flujo de Caja</button>
+    <button class="tab-btn" onclick="showTab('eval')">📊 Evaluación</button>
+  </div>
+</div>
+
+<div class="page">
+
+<!-- TAB 1: PARÁMETROS -->
+<div id="pane-params" class="tab-pane active">
+
+  <div class="card">
+    <div class="card-title">Tipo de Análisis — Automático</div>
+    <div class="info-box">
+      El criterio de evaluación se determina <strong>automáticamente</strong> según los flujos ingresados en la pestaña <em>Flujos Anuales</em>:<br><br>
+      · <strong>Sin beneficios</strong> → Costo-Eficiencia: <strong>VAC</strong> y <strong>CAE</strong> (menor es mejor)<br>
+      · <strong>Con beneficios</strong> → Costo-Beneficio: <strong>VAN</strong>, <strong>TIR</strong> y <strong>VAE</strong> (VAN ≥ 0 es conveniente)
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Información del Proyecto</div>
+    <div class="two-col">
+      <div class="field"><label>Nombre del proyecto</label>
+        <input type="text" id="p-nombre" placeholder="Nombre de la iniciativa" oninput="S.params.nombre=this.value">
+      </div>
+      <div class="field"><label>Código BIP</label>
+        <input type="text" id="p-codigo" placeholder="30XXXXXXX" oninput="S.params.codigo=this.value">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Parámetros de Evaluación</div>
+    <div class="three-col">
+      <div class="field">
+        <label>Horizonte de evaluación — n (años operación)</label>
+        <input type="number" id="p-n" min="1" max="50" value="20" oninput="S.params.n=+this.value;recalc()">
+      </div>
+      <div class="field">
+        <label>Años de inversión — m</label>
+        <select id="p-m" onchange="S.params.m=+this.value;recalc()">
+          <option value="1">1 año</option>
+          <option value="2">2 años</option>
+          <option value="3">3 años</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tasa Social de Descuento — TSD (%)</label>
+        <input type="number" id="p-tsd" min="0" max="30" step="0.5" value="5.5" oninput="S.params.tsd=+this.value;recalc()">
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:12px;">
+      ℹ️ <strong>TSD vigente SNI 2026:</strong> 5,5% anual. La unidad de todos los montos es <strong>Miles de Pesos (M$)</strong>.
+    </div>
+    <div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px;">
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:3px;">Magnitud del proyecto — Indicador CE unitario</div>
+      <div style="font-size:11.5px;color:var(--muted);margin-bottom:10px;">Opcional · Solo aplica en análisis <strong>Costo-Eficiencia</strong> (sin beneficios). Al ingresar la magnitud se calcula el indicador <strong>CAE ÷ Magnitud</strong> (ej: M$/arranque, M$/usuario, M$/km).</div>
+      <div class="two-col">
+        <div class="field">
+          <label>Descripción de la magnitud</label>
+          <input type="text" id="p-mag-desc" placeholder="Ej: arranques/año · usuarios equiv. · km construidos"
+            oninput="S.params.magnitud.desc=this.value;renderEvalIfActive()">
+        </div>
+        <div class="field">
+          <label>Valor de la magnitud (unidades)</label>
+          <input type="text" id="p-mag-val" placeholder="0" style="text-align:right;"
+            onfocus="this.value=this.value.replace(/\./g,'')"
+            onblur="if(this.value.trim())this.value=fmtNum(parseNum(this.value))"
+            oninput="S.params.magnitud.valor=parseNum(this.value);renderEvalIfActive()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TAB 2: INVERSIÓN -->
+<div id="pane-inv" class="tab-pane">
+
+  <div class="card">
+    <div class="card-title">Calendario de Inversiones (M$)</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Ingresa montos por categoría y año. La Vida Útil (VU) determina el Valor Residual automático al final del horizonte.</p>
+    <div style="overflow-x:auto;">
+      <table class="inv-table">
+        <thead><tr id="inv-head"></tr></thead>
+        <tbody id="inv-body"></tbody>
+      </table>
+    </div>
+    <div id="vr-box"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      Reinversiones
+      <button onclick="autoReinv()" style="background:#b45309;color:#fff;border:none;padding:5px 13px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;">
+        🔄 Generar automáticas desde VU
+      </button>
+    </div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Agregar si algún activo tiene VU &lt; n. El botón superior genera reinversiones en los años correctos según la VU de cada categoría.</p>
+    <div id="reinv-list"></div>
+    <button class="btn-add" onclick="addReinv()">+ Agregar reinversión manual</button>
+  </div>
+
+</div>
+
+<!-- TAB 3: FLUJOS ANUALES -->
+<div id="pane-anu" class="tab-pane">
+
+  <div class="card">
+    <div class="card-title">Modo de ingreso</div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="mode-const" onclick="setMode('const')">Valores constantes por año</button>
+      <button class="mode-btn" id="mode-var" onclick="setMode('var')">Valores variables (uno por año)</button>
+    </div>
+    <div id="mode-hint" style="font-size:12px;color:var(--muted);"></div>
+  </div>
+
+  <div id="anu-content"></div>
+
+</div>
+
+<!-- TAB 4: FLUJO DE CAJA -->
+<div id="pane-flow" class="tab-pane">
+  <div class="card">
+    <div class="card-title" id="flow-title">Flujo de Caja</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:10px;">Valores en M$ (Miles de Pesos). <span style="color:#15803d;font-weight:600;">Verde = ingreso (+)</span> · <span style="color:#dc2626;font-weight:600;">Rojo = egreso (−)</span>.</p>
+    <div class="flow-wrap">
+      <table class="flow-table" id="flow-table"></table>
+    </div>
+  </div>
+</div>
+
+<!-- TAB 5: EVALUACIÓN -->
+<div id="pane-eval" class="tab-pane">
+  <div id="eval-content"></div>
+</div>
+
+</div><!-- /page -->
+
+<footer style="max-width:1200px;margin:0 auto;padding:0 20px 48px;">
+  <div style="border-top:1px solid var(--line);padding-top:16px;font-size:12px;color:var(--muted);">
+    <strong style="color:var(--navy);">PAT-A</strong> · Basado en Metodología General de Preparación y Evaluación SNI 2025 · MIDESO · Desarrollado por Cristóbal Oyarzún Parra
+  </div>
+</footer>
+
+<script>
+// ─── CONSTANTES ───────────────────────────────────────────────────────────────
+const CATS = [
+  { id:'oocc',    label:'Obras y Construcciones', vu:30 },
+  { id:'equi',    label:'Equipos',                vu:10 },
+  { id:'equip',   label:'Equipamiento',           vu:10 },
+  { id:'maqui',   label:'Maquinarias',            vu:15 },
+  { id:'vehi',    label:'Vehículos',              vu:7  },
+  { id:'consul',  label:'Consultorías',           vu:0  },
+  { id:'conting', label:'Contingencias',          vu:0  },
+  { id:'otros',   label:'Otros',                  vu:10 },
+];
+
+// ─── ESTADO ───────────────────────────────────────────────────────────────────
+const S = {
+  tipo: 'CB',
+  params: { nombre:'', codigo:'', n:20, m:1, tsd:5.5, magnitud:{ desc:'', valor:0 } },
+  inv: CATS.map(c => ({ ...c, vals:[0,0,0] })),
+  terr: 0,
+  reinv: [],
+  anu: {
+    mode: 'const',
+    ben:   { c:0, v:[] },
+    benAdd:{ c:0, v:[] },
+    oper:  { c:0, v:[] },
+    mant:  { c:0, v:[] },
+    otros2:{ c:0, v:[] },
+  }
+};
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+const N   = new Intl.NumberFormat('es-CL', {maximumFractionDigits:1});
+const NF0 = new Intl.NumberFormat('es-CL', {maximumFractionDigits:0});
+const fmt  = v => (!isFinite(v)||isNaN(v)) ? '—' : N.format(v);
+const fmtS = v => (!isFinite(v)||isNaN(v)) ? '—' : (v<0?'−':'')+N.format(Math.abs(v));
+const sign = v => v>0.0001?'pos':v<-0.0001?'neg':'zero';
+const tdCell = v => `<td class="${sign(v)}">${fmtS(v)}</td>`;
+// Para inputs con punto de miles en edición
+function parseNum(v) { return parseFloat((v+'').replace(/\./g,'').replace(',','.')) || 0; }
+function fmtNum(n)   { return NF0.format(+n||0); }
+const INP_MILES = `onfocus="this.value=this.value.replace(/\\./g,'')" onblur="if(!isNaN(parseFloat(this.value)))this.value=fmtNum(parseNum(this.value))"`;
+
+
+// ─── MOTOR ───────────────────────────────────────────────────────────────────
+function getV(line, opIdx) {
+  if (S.anu.mode === 'const') return +line.c || 0;
+  return +(line.v[opIdx]) || 0;
+}
+
+function calcVRData() {
+  const n = +S.params.n || 20;
+  const rows = [];
+  let total = +S.terr || 0;
+  for (const row of S.inv) {
+    const inv = row.vals.reduce((s,v)=>s+(+v||0), 0);
+    if (!row.vu || row.vu <= 0 || inv <= 0) continue;
+    if (row.vu >= n) {
+      const vr = ((row.vu - n) / row.vu) * inv;
+      rows.push({ label:row.label, vu:row.vu, inv, vr });
+      total += vr;
+    } else {
+      rows.push({ label:row.label, vu:row.vu, inv, vr:0, warn:true });
+    }
+  }
+  return { total, rows, terr: +S.terr || 0 };
+}
+
+function buildComponents() {
+  const m = +S.params.m || 1;
+  const n = +S.params.n || 20;
+  const T = m + n;
+  const mk = len => new Array(len).fill(0);
+
+  const invA=mk(T), benA=mk(T), bnAddA=mk(T), operA=mk(T),
+        mantA=mk(T), otrA=mk(T), reinvA=mk(T), vrA=mk(T), terrA=mk(T);
+
+  for (const row of S.inv)
+    for (let y=0; y<m; y++) invA[y] += (+row.vals[y]||0);
+
+  terrA[0] = +S.terr || 0;
+
+  for (const rv of S.reinv) {
+    const y = +rv.anio;
+    if (y>=0 && y<T) reinvA[y] += (+rv.monto||0);
+  }
+
+  for (let op=0; op<n; op++) {
+    const y = m + op;
+    benA[y]   = getV(S.anu.ben,    op);
+    bnAddA[y] = getV(S.anu.benAdd, op);
+    operA[y]  = getV(S.anu.oper,   op);
+    mantA[y]  = getV(S.anu.mant,   op);
+    otrA[y]   = getV(S.anu.otros2, op);
+  }
+
+  vrA[T-1] = calcVRData().total;
+
+  const flows = mk(T);
+  for (let t=0; t<T; t++) {
+    flows[t] = benA[t] + vrA[t] - invA[t] - terrA[t] - operA[t] - mantA[t] - otrA[t] - reinvA[t];
+  }
+
+  return { flows, invA, benA, bnAddA, operA, mantA, otrA, reinvA, vrA, terrA };
+}
+
+function npv(flows, r) {
+  return flows.reduce((s,f,t) => s + f/Math.pow(1+r,t), 0);
+}
+
+function calcTIR(flows) {
+  const hasPos = flows.some(f=>f>0);
+  const hasNeg = flows.some(f=>f<0);
+  if (!hasPos || !hasNeg) return null;
+  let lo=-0.9999, hi=100;
+  if (npv(flows,lo)*npv(flows,hi) > 0) {
+    // try smaller hi
+    hi = 5;
+    if (npv(flows,lo)*npv(flows,hi) > 0) return null;
+  }
+  for (let i=0; i<120; i++) {
+    const mid=(lo+hi)/2;
+    npv(flows,mid)*npv(flows,lo) <= 0 ? hi=mid : lo=mid;
+    if (hi-lo<1e-9) break;
+  }
+  return (lo+hi)/2;
+}
+
+function calcCAE(vac, r, n) {
+  if (Math.abs(r)<1e-9) return vac/n;
+  const rn = Math.pow(1+r,n);
+  return vac * r * rn / (rn-1);
+}
+
+function recalc() {
+  const activePane = document.querySelector('.tab-pane.active');
+  if (!activePane) return;
+  const id = activePane.id.replace('pane-','');
+  if (id==='inv')   { renderInvTable(); renderReinvList(); }
+  if (id==='anu')   renderAnu();
+  if (id==='flow')  renderFlowTable();
+  if (id==='eval')  renderEval();
+}
+
+// ─── VAE ─────────────────────────────────────────────────────────────────────
+function calcVAE(van, r, n) {
+  if (Math.abs(r) < 1e-9) return van / n;
+  const rn = Math.pow(1+r, n);
+  return van * r * rn / (rn - 1);
+}
+
+function isCBMode() {
+  const benSum = S.anu.mode === 'const'
+    ? (+S.anu.ben.c || 0)
+    : (S.anu.ben.v || []).reduce((s,v) => s+(+v||0), 0);
+  return benSum > 0.001;
+}
+
+// ─── TAB 2: INVERSIÓN ────────────────────────────────────────────────────────
+function renderInvTable() {
+  const m = +S.params.m||1;
+  let hdr = '<th>Categoría</th><th style="text-align:center;">VU (años)</th>';
+  for (let y=0; y<m; y++) hdr += `<th>Año ${y} (M$)</th>`;
+  hdr += '<th>Total (M$)</th>';
+  document.getElementById('inv-head').innerHTML = hdr;
+
+  let rows = '';
+  S.inv.forEach((row,i) => {
+    const total = row.vals.slice(0,m).reduce((s,v)=>s+(+v||0), 0);
+    const vuEl = row.vu > 0
+      ? `<input type="number" class="vu-input" value="${row.vu}" min="0" max="100" oninput="S.inv[${i}].vu=+this.value;renderVRBox()">`
+      : '<span style="font-size:11px;color:var(--muted);">N/A</span>';
+    let yc = '';
+    for (let y=0; y<m; y++)
+      yc += `<td class="num"><input type="text" class="inv-input" value="${fmtNum(row.vals[y]||0)}" ${INP_MILES} oninput="S.inv[${i}].vals[${y}]=parseNum(this.value);renderVRBox();renderEvalIfActive()"></td>`;
+    rows += `<tr><td>${row.label}</td><td style="text-align:center;">${vuEl}</td>${yc}<td class="num" style="font-weight:700;">${fmt(total)}</td></tr>`;
+  });
+
+  // Terreno row
+  let tYc = `<td class="num"><input type="text" class="inv-input" value="${fmtNum(S.terr||0)}" ${INP_MILES} oninput="S.terr=parseNum(this.value);renderVRBox();renderEvalIfActive()"></td>`;
+  for (let y=1; y<m; y++) tYc += `<td class="num"><input type="text" class="inv-input" value="0" disabled style="opacity:.35;"></td>`;
+  rows += `<tr class="terr-row"><td>🌍 Terreno</td><td style="text-align:center;font-size:11px;color:var(--muted);">Sin deprec.</td>${tYc}<td class="num" style="font-weight:700;">${fmt(S.terr||0)}</td></tr>`;
+
+  // Totals row
+  let totCells = '';
+  let grand = 0;
+  for (let y=0; y<m; y++) {
+    let col = (y===0 ? (+S.terr||0) : 0);
+    S.inv.forEach(r => col += (+r.vals[y]||0));
+    grand += col;
+    totCells += `<td class="num">${fmt(col)}</td>`;
+  }
+  rows += `<tr class="total-row"><td colspan="2">TOTAL</td>${totCells}<td class="num">${fmt(grand)}</td></tr>`;
+  document.getElementById('inv-body').innerHTML = rows;
+  renderVRBox();
+}
+
+function renderVRBox() {
+  const vrd = calcVRData();
+  const n = +S.params.n||20;
+  const m = +S.params.m||1;
+  let hasWarn = false;
+  let h = '<div class="vr-box"><div class="vr-box-title">Valor Residual automático</div>';
+  if (vrd.terr > 0) h += `<div class="vr-row"><span>🌍 Terreno (recupero total)</span><span>${fmt(vrd.terr)} M$</span></div>`;
+  for (const r of vrd.rows) {
+    if (r.vr > 0) h += `<div class="vr-row"><span>${r.label} · VU=${r.vu}a, Inv=${fmt(r.inv)} M$</span><span>${fmt(r.vr)} M$</span></div>`;
+    if (r.warn) {
+      hasWarn = true;
+      // Calcular cuántas reinversiones necesita
+      const nReinv = Math.floor((n-1) / r.vu);
+      h += `<div class="vr-row" style="color:#92400e;background:#fffbeb;border-color:#fcd34d;">
+        <span>⚠️ ${r.label}: VU=${r.vu}a &lt; n=${n}a → necesita ${nReinv} reinversión${nReinv>1?'es':''}</span>
+        <span>—</span></div>`;
+    }
+  }
+  h += `<div class="vr-row"><span><strong>VR Total · Año ${m+n-1}</strong></span><span><strong>${fmt(vrd.total)} M$</strong></span></div></div>`;
+  if (hasWarn) {
+    h += `<button onclick="autoReinv()" style="margin-top:10px;background:#b45309;color:#fff;border:none;padding:8px 16px;border-radius:7px;font-size:12.5px;font-weight:700;cursor:pointer;">
+      🔄 Generar reinversiones automáticas en tabla
+    </button>`;
+  }
+  h += `<div style="font-size:11.5px;color:var(--muted);margin-top:8px;">Fórmula: VR = Σ<sub>i</sub>[(VU<sub>i</sub>−n)/VU<sub>i</sub>]×Inv<sub>i</sub> + Te &nbsp;·&nbsp; n=${n} años</div>`;
+  document.getElementById('vr-box').innerHTML = h;
+}
+
+function addReinv() {
+  S.reinv.push({ desc:'', anio:+S.params.m||1, monto:0 });
+  renderReinvList();
+}
+
+function removeReinv(i) {
+  S.reinv.splice(i,1);
+  renderReinvList();
+  renderEvalIfActive();
+}
+
+function autoReinv() {
+  const m = +S.params.m||1;
+  const n = +S.params.n||20;
+  const total = m + n;
+  // Eliminar las auto-generadas previas, conservar las manuales
+  S.reinv = S.reinv.filter(rv => !rv.auto);
+  for (const row of S.inv) {
+    if (!row.vu || row.vu <= 0) continue;
+    const inv = row.vals.reduce((s,v)=>s+(+v||0), 0);
+    if (inv <= 0 || row.vu >= n) continue;
+    // Reinversiones en años VU, 2·VU, 3·VU, ... (< total-1 para no caer en año final)
+    for (let k=1; k*row.vu < total; k++) {
+      S.reinv.push({ desc:`Reinversión ${row.label}`, anio: k*row.vu, monto: inv, auto: true });
+    }
+  }
+  // Ordenar por año
+  S.reinv.sort((a,b) => (+a.anio)-(+b.anio));
+  renderReinvList();
+  renderVRBox();
+  renderEvalIfActive();
+}
+
+function renderReinvList() {
+  const el = document.getElementById('reinv-list');
+  if (!S.reinv.length) {
+    el.innerHTML = '<p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Sin reinversiones registradas.</p>';
+    return;
+  }
+  el.innerHTML = S.reinv.map((rv,i) => {
+    const autoBg = rv.auto ? 'background:#fffbeb;border-color:#fcd34d;' : '';
+    const autoBadge = rv.auto
+      ? '<span style="font-size:10px;font-weight:700;background:#fef3c7;color:#92400e;border:1px solid #fcd34d;padding:2px 7px;border-radius:10px;white-space:nowrap;">🔄 auto</span>'
+      : '';
+    return `
+    <div class="reinv-item" style="${autoBg}">
+      <div class="field"><label>Descripción ${autoBadge}</label>
+        <input type="text" placeholder="Ej: Reposición vehículos" value="${rv.desc||''}" oninput="S.reinv[${i}].desc=this.value;S.reinv[${i}].auto=false;" style="min-width:180px;">
+      </div>
+      <div class="field"><label>Año (desde año 0)</label>
+        <input type="number" min="0" max="100" value="${rv.anio||0}" oninput="S.reinv[${i}].anio=+this.value;S.reinv[${i}].auto=false;renderEvalIfActive()">
+      </div>
+      <div class="field"><label>Monto (M$)</label>
+        <input type="text" value="${fmtNum(rv.monto||0)}" ${INP_MILES} oninput="S.reinv[${i}].monto=parseNum(this.value);S.reinv[${i}].auto=false;renderEvalIfActive()">
+      </div>
+      <button class="btn-remove" onclick="removeReinv(${i})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ─── TAB 3: FLUJOS ANUALES ───────────────────────────────────────────────────
+function setMode(mode) {
+  const n = +S.params.n||20;
+  if (mode==='var') {
+    ['ben','benAdd','oper','mant','otros2'].forEach(k => {
+      if (!S.anu[k].v || S.anu[k].v.length < n) {
+        const fill = +S.anu[k].c || 0;
+        S.anu[k].v = new Array(n).fill(fill);
+      }
+    });
+  }
+  S.anu.mode = mode;
+  document.getElementById('mode-const').classList.toggle('active', mode==='const');
+  document.getElementById('mode-var').classList.toggle('active', mode==='var');
+  document.getElementById('mode-hint').textContent = mode==='const'
+    ? 'El mismo valor se repite en cada año del período de operación.'
+    : `Escribe un valor por línea (${n} líneas, una por año de operación). Líneas en blanco = 0.`;
+  renderAnu();
+  renderEvalIfActive();
+}
+
+function parseLines(txt, n) {
+  const lines = txt.split(/\n/).map(l=>l.trim());
+  const arr = [];
+  for (let i=0; i<n; i++) arr.push(parseNum(lines[i]||'0'));
+  return arr;
+}
+
+function renderAnu() {
+  const n = +S.params.n||20;
+  const mode = S.anu.mode;
+  const defs = [
+    { key:'ben',    label:'(+) Beneficios',            color:'#15803d', hint:'Ingresos o beneficios cuantificables del proyecto. Dejar en 0 para análisis Costo-Eficiencia (VAC/CAE).' },
+    { key:'oper',   label:'(−) Costos de Operación',   color:'#dc2626', hint:'Gastos anuales de personal, suministros y operación.' },
+    { key:'mant',   label:'(−) Costos de Mantención',  color:'#dc2626', hint:'Gastos anuales de mantención y reparación.' },
+    { key:'otros2', label:'(−) Otros Costos',           color:'#d97706', hint:'Otros costos anuales no incluidos arriba.' },
+  ];
+
+  let h = '';
+  for (const d of defs) {
+    const line = S.anu[d.key];
+    h += `<div class="anu-card" style="border-left:4px solid ${d.color};">
+      <div class="anu-title" style="color:${d.color};">${d.label} <span style="font-size:11px;font-weight:400;color:var(--muted);">M$ / año</span></div>
+      <div style="font-size:11.5px;color:var(--muted);margin-bottom:10px;">${d.hint}</div>`;
+
+    if (mode==='const') {
+      h += `<div class="field" style="max-width:260px;"><label>Valor anual constante (M$)</label>
+        <input type="text" value="${fmtNum(line.c||0)}" ${INP_MILES} oninput="S.anu.${d.key}.c=parseNum(this.value);renderEvalIfActive()">
+      </div>`;
+    } else {
+      const vals = line.v.length>=n ? line.v.slice(0,n) : [...line.v,...new Array(n-line.v.length).fill(0)];
+      const sum = vals.reduce((s,v)=>s+(+v||0),0);
+      h += `<div style="display:grid;grid-template-columns:1fr 220px;gap:14px;align-items:start;">
+        <div>
+          <div style="font-size:11.5px;color:var(--muted);margin-bottom:5px;">Un número por línea · ${n} años de operación</div>
+          <textarea class="var-textarea" rows="${Math.min(n,12)}"
+            onchange="S.anu.${d.key}.v=parseLines(this.value,${n});renderEvalIfActive()"
+          >${vals.join('\n')}</textarea>
+        </div>
+        <div style="background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:12px;font-size:12.5px;">
+          <div style="margin-bottom:6px;"><strong>Suma total:</strong><br>${fmt(sum)} M$</div>
+          <div><strong>Promedio anual:</strong><br>${fmt(sum/n)} M$</div>
+        </div>
+      </div>`;
+    }
+    h += '</div>';
+  }
+  document.getElementById('anu-content').innerHTML = h;
+}
+
+// ─── TAB 4: FLUJO DE CAJA ────────────────────────────────────────────────────
+function renderFlowTable() {
+  const m = +S.params.m||1;
+  const n = +S.params.n||20;
+  const T = m+n;
+  const r = (+S.params.tsd||5.5)/100;
+  const { flows, invA, benA, bnAddA, operA, mantA, otrA, reinvA, vrA, terrA } = buildComponents();
+
+  const isCB = benA.some(v=>v>0.001);
+  document.getElementById('flow-title').textContent = isCB
+    ? 'Flujo de Beneficios Netos (FBN)' : 'Flujo de Costos Totales (FCT)';
+
+  let h = '<thead><tr><th class="row-hdr">Componente</th>';
+  for (let t=0; t<T; t++) h += `<th>Año ${t}</th>`;
+  h += '<th>VP Total</th></tr></thead><tbody>';
+
+  const addRow = (label, arr, sub=false) => {
+    if (!arr.some(v=>v!==0)) return '';
+    const vp = arr.reduce((s,v,t)=>s+v/Math.pow(1+r,t),0);
+    return `<tr><td class="row-hdr${sub?' sub':''}">${label}</td>${arr.map(v=>tdCell(v)).join('')}<td style="text-align:right;font-weight:700;">${fmtS(vp)}</td></tr>`;
+  };
+
+  h += addRow('(+) Beneficios', benA);
+  h += addRow('(+) Valor Residual', vrA);
+
+  // Inversiones combined
+  const invTotal = invA.map((v,t)=>-(v+terrA[t]));
+  if (invTotal.some(v=>v!==0)) {
+    const vp = invTotal.reduce((s,v,t)=>s+v/Math.pow(1+r,t),0);
+    h += `<tr><td class="row-hdr">(−) Inversiones</td>${invTotal.map(v=>tdCell(v)).join('')}<td style="text-align:right;font-weight:700;">${fmtS(vp)}</td></tr>`;
+  }
+  h += addRow('(−) Reinversiones', reinvA.map(v=>-v));
+  h += addRow('(−) Costos de Operación', operA.map(v=>-v));
+  h += addRow('(−) Costos de Mantención', mantA.map(v=>-v));
+  h += addRow('(−) Otros Costos', otrA.map(v=>-v));
+
+  const vpFlows = flows.reduce((s,v,t)=>s+v/Math.pow(1+r,t),0);
+  const tlabel = isCB ? 'Flujo de Beneficios Netos (FBN)' : 'Flujo de Costos Totales (FCT)';
+  h += `<tr class="total-row"><td class="row-hdr">${tlabel}</td>${flows.map(v=>tdCell(v)).join('')}<td style="text-align:right;">${fmtS(vpFlows)}</td></tr>`;
+  h += '</tbody>';
+  document.getElementById('flow-table').innerHTML = h;
+}
+
+// ─── TAB 5: EVALUACIÓN ───────────────────────────────────────────────────────
+function renderEval() {
+  const { flows, benA } = buildComponents();
+  const r = (+S.params.tsd||5.5)/100;
+  const n = +S.params.n||20;
+  const tsdStr = (r*100).toFixed(r*100 === Math.round(r*100) ? 0 : 1).replace('.',',');
+
+  const benSum = benA.reduce((s,v)=>s+v, 0);
+  const isCB = benSum > 0.001;
+  let h = '';
+
+  if (isCB) {
+    // ── COSTO-BENEFICIO: VAN + TIR + VAE ──────────────────────────────────
+    const van = npv(flows, r);
+    const tir = calcTIR(flows);
+    const vae = calcVAE(van, r, n);
+    const tirPct = tir !== null ? tir*100 : null;
+
+    const vanBadge = van>=0
+      ? '<span class="ind-badge badge-ok">✓ VAN ≥ 0 — conveniente</span>'
+      : '<span class="ind-badge badge-bad">✗ VAN &lt; 0 — no conveniente</span>';
+    const vaeBadge = vae>=0
+      ? '<span class="ind-badge badge-ok">✓ VAE ≥ 0</span>'
+      : '<span class="ind-badge badge-bad">✗ VAE &lt; 0</span>';
+
+    h += '<div class="ind-grid-3">';
+    h += `<div class="ind-box van">
+      <div class="ind-label">Valor Actual Neto (VAN)</div>
+      <div class="ind-value">${fmtS(van)}</div>
+      <div class="ind-unit">M$ · TSD = ${tsdStr}%</div>${vanBadge}</div>`;
+
+    if (tirPct !== null) {
+      const tirBadge = tir>r
+        ? '<span class="ind-badge badge-ok">✓ TIR > TSD</span>'
+        : '<span class="ind-badge badge-bad">✗ TIR &lt; TSD</span>';
+      h += `<div class="ind-box tir">
+        <div class="ind-label">Tasa Interna de Retorno (TIR)</div>
+        <div class="ind-value">${tirPct.toFixed(2).replace('.',',')}%</div>
+        <div class="ind-unit">vs. TSD = ${tsdStr}%</div>${tirBadge}</div>`;
+    } else {
+      h += `<div class="ind-box tir">
+        <div class="ind-label">Tasa Interna de Retorno (TIR)</div>
+        <div class="ind-value" style="font-size:20px;">No calculable</div>
+        <div class="ind-unit">Sin cambio de signo en el flujo</div>
+        <span class="ind-badge badge-warn">Revisar flujos</span></div>`;
+    }
+
+    h += `<div class="ind-box vae">
+      <div class="ind-label">Valor Anual Equivalente (VAE)</div>
+      <div class="ind-value">${fmtS(vae)}</div>
+      <div class="ind-unit">M$/año · VAN distribuido en ${n} años</div>${vaeBadge}</div>`;
+    h += '</div>';
+
+    const decClass = van>=0 ? 'favorable' : 'unfavorable';
+    h += `<div class="card"><div class="card-title">Criterio de decisión — Costo-Beneficio</div>
+      <div class="decision-box ${decClass}">
+        <div class="decision-title">${van>=0 ? '✅ Proyecto conveniente' : '❌ Proyecto no conveniente'}</div>
+        <div class="decision-text">
+          VAN = <strong>${fmtS(van)} M$</strong> · VAE = <strong>${fmtS(vae)} M$/año</strong>
+          ${tirPct!==null ? ` · TIR = <strong>${tirPct.toFixed(2).replace('.',',')}%</strong>` : ''}<br>
+          ${van>=0
+            ? `La iniciativa genera beneficios netos de <strong>${fmtS(vae)} M$ por año</strong> sobre el costo de oportunidad del capital (${tsdStr}%). Se recomienda aprobar.`
+            : `Los costos superan los beneficios al ${tsdStr}% de costo de oportunidad. Revisar diseño o descartar.`}
+          ${tirPct!==null ? `<br>La TIR ${tir>r ? 'supera' : 'no supera'} la TSD, lo que ${tir>r ? 'confirma' : 'confirma el rechazo de'} la conveniencia.` : ''}
+        </div>
+      </div></div>`;
+
+    h += renderSensCB(flows, benA, r, n);
+
+  } else {
+    // ── COSTO-EFICIENCIA: VAC + CAE ───────────────────────────────────────
+    const van = npv(flows, r);
+    const vac = -van;
+    const cae = calcCAE(vac, r, n);
+
+    const mag = S.params.magnitud;
+    const hasMag = mag && mag.valor > 0;
+    const caeUnit = hasMag ? cae / mag.valor : null;
+    const magDesc = (mag && mag.desc) ? mag.desc : 'unidad';
+
+    h += hasMag ? '<div class="ind-grid-3">' : '<div class="ind-grid">';
+    h += `<div class="ind-box vac">
+      <div class="ind-label">Valor Actual de Costos (VAC)</div>
+      <div class="ind-value">${fmt(vac)}</div>
+      <div class="ind-unit">M$ · Alternativas de igual vida útil</div>
+      <span class="ind-badge badge-neutral">Menor VAC = preferida</span></div>`;
+    h += `<div class="ind-box cae">
+      <div class="ind-label">Costo Anual Equivalente (CAE)</div>
+      <div class="ind-value">${fmt(cae)}</div>
+      <div class="ind-unit">M$/año · Alternativas de distinta vida útil</div>
+      <span class="ind-badge badge-neutral">Menor CAE = preferida</span></div>`;
+    if (hasMag) {
+      h += `<div class="ind-box ce-unit">
+        <div class="ind-label">CAE / ${magDesc}</div>
+        <div class="ind-value">${fmt(caeUnit)}</div>
+        <div class="ind-unit">M$/año · por ${magDesc} · (magnitud = ${fmtNum(mag.valor)})</div>
+        <span class="ind-badge badge-neutral">Indicador CE unitario</span></div>`;
+    }
+    h += '</div>';
+
+    h += `<div class="card"><div class="card-title">Criterio de decisión — Costo-Eficiencia</div>
+      <div class="decision-box neutral">
+        <div class="decision-title">⚖️ Selección por mínimo costo</div>
+        <div class="decision-text">
+          VAC = <strong>${fmt(vac)} M$</strong> · CAE = <strong>${fmt(cae)} M$/año</strong>${hasMag ? ` · CAE/${magDesc} = <strong>${fmt(caeUnit)} M$/año</strong>` : ''}.<br>
+          · Alternativas de <strong>igual vida útil</strong>: seleccionar la de <strong>menor VAC</strong>.<br>
+          · Alternativas de <strong>distinta vida útil</strong>: seleccionar la de <strong>menor CAE</strong>.<br>
+          ${hasMag ? `· El <strong>CAE unitario</strong> de <strong>${fmt(caeUnit)} M$/año por ${magDesc}</strong> permite comparar directamente con otras alternativas de distinta escala.<br>` : ''}
+          El análisis CE no determina conveniencia por sí solo; es comparativo entre alternativas.
+        </div>
+      </div></div>`;
+
+    h += renderSensCE(flows, r, n);
+  }
+
+  document.getElementById('eval-content').innerHTML = h;
+}
+
+function renderSensCB(flows, benA, rBase, n) {
+  const bFactors = [0.60, 0.80, 1.00, 1.20, 1.40];
+  const tsds = [0.03, 0.04, 0.055, 0.07, 0.10];
+  const fmtTsd = t => (t*100 % 1 === 0) ? `${(t*100).toFixed(0)}%` : `${(t*100).toFixed(1).replace('.',',')}%`;
+
+  let h = `<div class="card"><div class="card-title">Sensibilidad — VAN y VAE (M$)</div>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">
+      Filas: factor aplicado a los beneficios · Columnas: TSD. Celda base en azul.
+    </p><div style="overflow-x:auto;"><table class="sens-table"><thead>
+    <tr><th>Beneficios \ TSD</th>${tsds.map(t=>`<th>${fmtTsd(t)}</th>`).join('')}</tr>
+    </thead><tbody>`;
+
+  for (const bf of bFactors) {
+    h += `<tr><td>${(bf*100).toFixed(0)}%</td>`;
+    for (const tsd of tsds) {
+      const mf = flows.map((f,t) => f + benA[t]*(bf-1));
+      const van = npv(mf, tsd);
+      const vae = calcVAE(van, tsd, n);
+      const isBase = Math.abs(bf-1)<0.01 && Math.abs(tsd-rBase)<0.001;
+      const cls = isBase ? 's-base' : van>=0 ? 's-ok' : 's-bad';
+      h += `<td class="${cls}" title="VAE=${fmtS(vae)} M$/año">${fmtS(van)}</td>`;
+    }
+    h += '</tr>';
+  }
+  h += `</tbody></table></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:6px;">Posiciona el cursor sobre cada celda para ver el VAE correspondiente.</div>
+  </div>`;
+  return h;
+}
+
+function renderSensCE(flows, rBase, n) {
+  const tsds = [0.03, 0.04, 0.05, 0.055, 0.065, 0.075, 0.09, 0.10];
+  const fmtTsd = t => (t*100 % 1 === 0) ? `${(t*100).toFixed(0)}%` : `${(t*100).toFixed(1).replace('.',',')}%`;
+  const vacBase = -npv(flows, rBase);
+
+  let h = `<div class="card"><div class="card-title">Análisis de Sensibilidad — VAC y CAE según TSD</div>
+    <div style="overflow-x:auto;"><table class="sens-table"><thead>
+    <tr><th>TSD</th><th>VAC (M$)</th><th>CAE (M$/año)</th><th>Δ VAC vs. base</th></tr>
+    </thead><tbody>`;
+
+  for (const tsd of tsds) {
+    const vac = -npv(flows, tsd);
+    const cae = calcCAE(vac, tsd, n);
+    const isBase = Math.abs(tsd-rBase)<0.001;
+    const delta = Math.abs(vacBase)>0.001 ? ((vac/vacBase)-1)*100 : 0;
+    h += `<tr>
+      <td${isBase?' class="s-base"':''}>${fmtTsd(tsd)}${isBase?' ← base':''}</td>
+      <td>${fmt(vac)}</td><td>${fmt(cae)}</td>
+      <td>${isBase ? '—' : (delta>0?'+':'')+delta.toFixed(1)+'%'}</td>
+    </tr>`;
+  }
+  h += '</tbody></table></div></div>';
+  return h;
+}
+
+function renderEvalIfActive() {
+  const p = document.querySelector('.tab-pane.active');
+  if (p && p.id==='pane-eval') renderEval();
+  if (p && p.id==='pane-flow') renderFlowTable();
+}
+
+// ─── NAVEGACIÓN ───────────────────────────────────────────────────────────────
+const TABS = ['params','inv','anu','flow','eval'];
+function showTab(id) {
+  TABS.forEach((t,i) => {
+    document.getElementById('pane-'+t).classList.toggle('active', t===id);
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active', t===id);
+  });
+  if (id==='inv')   { renderInvTable(); renderReinvList(); }
+  if (id==='anu')   renderAnu();
+  if (id==='flow')  renderFlowTable();
+  if (id==='eval')  renderEval();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+(function init() {
+  renderInvTable();
+  renderReinvList();
+  renderAnu();
+  document.getElementById('mode-hint').textContent = 'El mismo valor se repite en cada año del período de operación.';
+})();
+</script>
+</body>
+</html>

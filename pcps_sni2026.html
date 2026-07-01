@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conversión a Precios Sociales PCPS SNI 2026 — PAT-A</title>
+<style>
+  :root{--navy:#1a2d5a;--navy-d:#0f1e3d;--navy-m:#223570;--navy-l:#2b4590;--blue-bip:#2d5fa7;--bg:#f1f5f9;--card:#fff;--line:#e2e8f0;--ink:#1e293b;--muted:#64748b;--green:#15803d;--red:#b91c1c;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5;}
+  /* Header */
+  .bip-header{background:linear-gradient(135deg,var(--navy-d) 0%,var(--navy) 40%,var(--navy-m) 70%,var(--navy-l) 100%);position:relative;overflow:visible;}
+  .bip-inner{position:relative;z-index:1;padding:10px 26px 10px;max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:18px;}
+  .bip-logo{height:170px;width:auto;flex-shrink:0;align-self:flex-start;}
+  .bip-logo-link{display:contents;}
+  .bip-stripe{width:7px;flex-shrink:0;margin-top:2px;display:flex;flex-direction:column;height:66px;}
+  .bip-stripe .sr{flex:0 0 26px;background:#c0392b;} .bip-stripe .sb{flex:1;background:#2d5fa7;}
+  .eyebrow-bip{font-size:10px;color:rgba(255,255,255,.6);letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px;font-weight:600;}
+  .bip-h1{font-size:22px;font-weight:700;color:#fff;line-height:1.15;margin:0;}
+  .back-bip{display:inline-flex;align-items:center;gap:5px;color:rgba(255,255,255,.8);text-decoration:none;font-size:11.5px;padding:4px 11px;background:rgba(255,255,255,.12);border-radius:5px;border:1px solid rgba(255,255,255,.18);margin-bottom:10px;}
+  /* Nav */
+  .bip-nav{background:#fff;border-bottom:2px solid #dde3ed;box-shadow:0 2px 5px rgba(0,0,0,.07);}
+  .bip-nav-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;overflow-x:auto;}
+  .nav-tab{padding:12px 18px;font-size:13px;color:#5472a3;text-decoration:none;font-weight:500;border-bottom:3px solid transparent;display:block;cursor:pointer;border-top:none;border-left:none;border-right:none;background:none;font-family:inherit;transition:all .14s;white-space:nowrap;}
+  .nav-tab:hover{color:var(--navy);background:#f5f8ff;}
+  .nav-tab.active{color:var(--navy);border-bottom-color:#2d5fa7;font-weight:700;}
+  /* Main */
+  main{max-width:1060px;margin:0 auto;padding:20px 18px 60px;}
+  .panel{display:none;padding-top:16px;} .panel.active{display:block;}
+  /* Cards */
+  .card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:18px 20px;margin-bottom:14px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+  .card-title{font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.05em;margin:0 0 14px;padding-bottom:9px;border-bottom:2px solid var(--blue-bip);}
+  label.lbl{font-size:11px;color:var(--muted);margin-bottom:3px;display:block;font-weight:700;text-transform:uppercase;letter-spacing:.03em;}
+  input[type=text],input[type=number],select{width:100%;padding:8px 10px;font-size:13px;border:1.5px solid var(--line);border-radius:7px;font-family:inherit;background:#fff;color:var(--ink);outline:none;transition:border .15s;}
+  input:focus,select:focus{border-color:var(--blue-bip);}
+  input[type=number]{text-align:right;}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  .g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;}
+  @media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr;}}
+  .btn-bip{background:var(--blue-bip);color:#fff;border:none;border-radius:6px;padding:9px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;}
+  .btn-bip:hover{background:#1e4a8a;}
+  /* Param table */
+  .param-tbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px;}
+  .param-tbl th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);}
+  .param-tbl td{padding:7px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
+  .param-tbl td input{padding:5px 8px;font-size:12px;}
+  .param-tbl .param-name{font-weight:600;color:var(--ink);font-size:12.5px;}
+  .param-tbl .param-sym{font-family:monospace;font-size:13px;color:var(--blue-bip);font-weight:700;}
+  .param-tbl .param-desc{font-size:11.5px;color:var(--muted);}
+  /* Investment table (Tab 2) */
+  .mkt-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+  .mkt-tbl th{background:var(--navy);color:#fff;padding:9px 12px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:left;}
+  .mkt-tbl td{padding:6px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
+  .mkt-tbl tr:hover td{background:#f5f8ff;}
+  .mkt-tbl td.asig-name{font-weight:600;font-size:12.5px;}
+  .mkt-tbl td input{width:100%;max-width:180px;padding:6px 10px;font-size:13px;text-align:right;}
+  .mkt-tbl .pm-total td{background:#eef4ff;font-weight:700;color:var(--navy);border-top:2px solid var(--blue-bip);}
+  /* Correction cards */
+  .corr-card{background:#fff;border:1px solid var(--line);border-radius:10px;margin-bottom:12px;overflow:hidden;}
+  .corr-head{display:flex;align-items:center;gap:10px;padding:12px 18px;background:#f8fafc;border-bottom:1px solid var(--line);}
+  .corr-head .ch-name{font-weight:700;font-size:13.5px;color:var(--navy);flex:1;}
+  .corr-head .ch-pm{font-size:12px;color:var(--muted);}
+  .corr-head .ch-pm span{font-weight:700;color:var(--ink);}
+  .corr-head .ch-cs{font-size:14px;font-weight:700;color:var(--green);white-space:nowrap;}
+  .corr-head .ch-factor{font-size:11.5px;background:#dbeafe;color:#1e40af;border-radius:5px;padding:2px 8px;font-weight:700;white-space:nowrap;}
+  .corr-body{padding:14px 18px;}
+  .pp-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+  @media(max-width:700px){.pp-grid{grid-template-columns:1fr 1fr;}}
+  .pp-field label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;font-weight:700;display:block;margin-bottom:4px;}
+  .pp-field .pct-wrap{display:flex;align-items:center;gap:4px;}
+  .pp-field .pct-wrap input{flex:1;}
+  .pp-field .pct-wrap span{font-size:12px;color:var(--muted);}
+  .note-box{background:#eff6ff;border:1px solid #bfdbfe;border-radius:7px;padding:10px 14px;font-size:12px;color:#1e40af;margin-top:8px;}
+  /* Consultorias table */
+  .consul-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+  .consul-tbl th{background:#f8fafc;color:var(--muted);font-size:11px;text-transform:uppercase;padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);}
+  .consul-tbl td{padding:7px 10px;border-bottom:1px solid #f1f5f9;vertical-align:middle;}
+  .consul-tbl td input[type=text]{font-size:12px;}
+  .consul-tbl .tot td{background:#f0fdf4;font-weight:700;color:var(--green);border-top:2px solid #86efac;}
+  /* Anuales */
+  .anu-section{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:700px){.anu-section{grid-template-columns:1fr;}}
+  .anu-sub{background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:14px;}
+  .anu-sub-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--navy);margin-bottom:12px;}
+  .anu-block{margin-bottom:14px;}
+  .anu-block-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--blue-bip);margin-bottom:8px;padding-bottom:5px;border-bottom:1px dashed #bfdbfe;}
+  .anu-result{margin-top:10px;padding:10px 14px;background:#f0fdf4;border:1px solid #86efac;border-radius:7px;display:flex;justify-content:space-between;align-items:center;}
+  .anu-result .ar-label{font-size:12px;color:var(--muted);}
+  .anu-result .ar-val{font-size:16px;font-weight:700;color:var(--green);}
+  /* Consolidado */
+  .con-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+  .con-tbl th{background:var(--navy);color:#fff;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;text-align:right;}
+  .con-tbl th:first-child{text-align:left;}
+  .con-tbl td{padding:9px 14px;border-bottom:1px solid var(--line);text-align:right;}
+  .con-tbl td:first-child{text-align:left;font-weight:600;}
+  .con-tbl .sub td{background:#f8fafc;font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;}
+  .con-tbl .tot td{background:#eef4ff;font-weight:700;color:var(--navy);border-top:2px solid var(--blue-bip);}
+  .con-tbl .zero td{color:#cbd5e1;}
+  .cs-up{color:var(--red);} .cs-dn{color:var(--green);}
+  .badge-factor{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 7px;border-radius:5px;}
+  .bf-lo{background:#dcfce7;color:#15803d;} .bf-hi{background:#fee2e2;color:#b91c1c;} .bf-eq{background:#f1f5f9;color:#64748b;}
+  /* Summary box */
+  .sum-box{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px;}
+  @media(max-width:640px){.sum-box{grid-template-columns:1fr;}}
+  .sb-item{background:#fff;border:1px solid var(--line);border-radius:9px;padding:14px 16px;text-align:center;}
+  .sb-item .sb-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;}
+  .sb-item .sb-val{font-size:22px;font-weight:700;color:var(--navy);}
+  .sb-item .sb-sub{font-size:12px;color:var(--muted);margin-top:2px;}
+  .sb-item.green .sb-val{color:var(--green);}
+  .sb-item.blue .sb-val{color:var(--blue-bip);}
+  /* Checkbox styled */
+  .ck-wrap{display:flex;align-items:center;gap:6px;font-size:12.5px;cursor:pointer;}
+  .ck-wrap input[type=checkbox]{width:auto;accent-color:var(--blue-bip);width:15px;height:15px;}
+</style>
+</head>
+<body>
+
+<div class="bip-header">
+  <div class="bip-inner">
+    <a href="index.html" class="bip-logo-link" title="Volver al inicio"><img src="Head Pat-A.png" class="bip-logo" alt="PAT-A"></a>
+    <div>
+      <a href="index.html" class="back-bip">← Herramientas de Formulación</a>
+      <div class="eyebrow-bip">Araucanía · Sistema Nacional de Inversiones</div>
+      <div class="bip-h1">Conversión a Precios Sociales</div>
+    </div>
+  </div>
+</div>
+
+<div class="bip-nav">
+  <div class="bip-nav-inner">
+    <button class="nav-tab active" id="ntab-par" onclick="showTab('par')">⚙ Parámetros</button>
+    <button class="nav-tab" id="ntab-mer" onclick="showTab('mer')">💲 Precios de Mercado</button>
+    <button class="nav-tab" id="ntab-inv" onclick="showTab('inv')">🔧 Corrección Inversión</button>
+    <button class="nav-tab" id="ntab-anu" onclick="showTab('anu')">📅 Corrección Anuales</button>
+    <button class="nav-tab" id="ntab-con" onclick="showTab('con')">📊 Consolidado</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 1: PARÁMETROS E INICIATIVA
+════════════════════════════════════════════════════════════════ -->
+<div class="panel active" id="panel-par">
+
+  <div class="card">
+    <div class="card-title">Identificación de la Iniciativa</div>
+    <div class="g3" style="margin-bottom:12px;">
+      <div><label class="lbl">Nombre de la Iniciativa</label>
+        <input type="text" id="ini-nombre" placeholder="Nombre iniciativa" oninput="ST.init.nombre=this.value"></div>
+      <div><label class="lbl">Código BIP</label>
+        <input type="text" id="ini-codigo" placeholder="30xxxxxxx" oninput="ST.init.codigo=this.value"></div>
+      <div><label class="lbl">Año de Análisis</label>
+        <input type="number" id="ini-anio" value="2026" min="2020" max="2035" oninput="ST.init.anio=+this.value"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Parámetros PCPS SNI 2026</div>
+    <div class="note-box" style="margin-bottom:14px;">
+      Valores oficiales publicados por el SNI para el proceso de formulación 2026. Modificar solo si el SNI instruye valores distintos.
+    </div>
+    <table class="param-tbl">
+      <thead><tr>
+        <th>Símbolo</th><th>Parámetro</th><th style="width:130px;text-align:right;">Valor</th><th>Descripción</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td class="param-sym">FCSD</td>
+          <td class="param-name">Factor de Corrección Social de Divisas</td>
+          <td><input type="number" id="p-fcsd" value="1.0000" step="0.0001" min="0" style="max-width:110px;margin-left:auto;" oninput="ST.params.fcsd=+this.value;recalc()"></td>
+          <td class="param-desc">Corrección por distorsión cambiaria (adimensional)</td>
+        </tr>
+        <tr>
+          <td class="param-sym">t</td>
+          <td class="param-name">Costo de Distribución de Importados</td>
+          <td><input type="number" id="p-t" value="0.0071" step="0.0001" min="0" style="max-width:110px;margin-left:auto;" oninput="ST.params.t=+this.value;recalc()"></td>
+          <td class="param-desc">Margen de distribución sobre precio CIF (fracción)</td>
+        </tr>
+        <tr>
+          <td class="param-sym">IVA</td>
+          <td class="param-name">Impuesto al Valor Agregado</td>
+          <td><input type="number" id="p-iva" value="0.19" step="0.01" min="0" max="1" style="max-width:110px;margin-left:auto;" oninput="ST.params.iva=+this.value;recalc()"></td>
+          <td class="param-desc">Tasa IVA (fracción). 19% → 0.19</td>
+        </tr>
+        <tr>
+          <td class="param-sym">f<sub>MOC</sub></td>
+          <td class="param-name">Factor Mano de Obra Calificada</td>
+          <td><input type="number" id="p-fmoc" value="0.97" step="0.01" min="0" max="1" style="max-width:110px;margin-left:auto;" oninput="ST.params.fMOC=+this.value;recalc()"></td>
+          <td class="param-desc">Factor de corrección MO calificada (0–1)</td>
+        </tr>
+        <tr>
+          <td class="param-sym">f<sub>MOSC</sub></td>
+          <td class="param-name">Factor Mano de Obra Semi-Calificada</td>
+          <td><input type="number" id="p-fmosc" value="0.95" step="0.01" min="0" max="1" style="max-width:110px;margin-left:auto;" oninput="ST.params.fMOSC=+this.value;recalc()"></td>
+          <td class="param-desc">Factor de corrección MO semi-calificada (0–1)</td>
+        </tr>
+        <tr>
+          <td class="param-sym">f<sub>MONC</sub></td>
+          <td class="param-name">Factor Mano de Obra No Calificada</td>
+          <td><input type="number" id="p-fmonc" value="0.91" step="0.01" min="0" max="1" style="max-width:110px;margin-left:auto;" oninput="ST.params.fMONC=+this.value;recalc()"></td>
+          <td class="param-desc">Factor de corrección MO no calificada (0–1)</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="margin-top:12px;text-align:right;">
+      <button class="btn-bip" onclick="resetParams()">↺ Restaurar defaults 2026</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Referencia — 16 Índices de Composición de Mano de Obra</div>
+    <div style="background:#fef9c3;border:1.5px solid #fde68a;border-radius:7px;padding:10px 14px;font-size:12.5px;color:#78350f;margin-bottom:12px;display:flex;align-items:flex-start;gap:8px;">
+      <span style="font-size:16px;flex-shrink:0;">ℹ️</span>
+      <div>Esta tabla es solo de <strong>referencia visual</strong>. Para asignar un índice a cada ítem de inversión o costo anual, ve a la pestaña
+      <button onclick="showTab('inv')" style="background:#0f766e;color:#fff;border:none;border-radius:5px;padding:2px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">🔧 Corrección Inversión</button>
+      o
+      <button onclick="showTab('anu')" style="background:#0f766e;color:#fff;border:none;border-radius:5px;padding:2px 10px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">📅 Corrección Anuales</button>
+      y usa el selector <strong>«Índice MO»</strong> en cada asignación.
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:8px;"><span style="background:#fecaca;padding:1px 5px;border-radius:3px;color:#7f1d1d;">■</span> NC = No Calificada &nbsp;·&nbsp; <span style="background:#fde68a;padding:1px 5px;border-radius:3px;color:#78350f;">■</span> SC = Semi-Calificada &nbsp;·&nbsp; <span style="background:#bfdbfe;padding:1px 5px;border-radius:3px;color:#1e3a8a;">■</span> C = Calificada</div>
+    <div id="mo-legend" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;font-size:11.5px;"></div>
+  </div>
+
+</div><!-- /panel-par -->
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 2: PRECIOS DE MERCADO
+════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-mer">
+
+  <div class="card">
+    <div class="card-title">Inversión — Precios de Mercado (en $)</div>
+    <div class="note-box" style="margin-bottom:12px;">Ingresa los montos de mercado en <strong>pesos chilenos ($)</strong> para cada asignación de inversión. Deja en 0 las asignaciones que no aplican.</div>
+    <table class="mkt-tbl">
+      <thead><tr><th>Asignación</th><th style="text-align:right;width:210px;">Monto PM ($)</th></tr></thead>
+      <tbody>
+        <tr><td class="asig-name">Obras Civiles (OOCC)</td><td><input type="number" id="m-oocc" value="0" min="0" oninput="ST.mer.oocc=+this.value;recalc()"></td></tr>
+        <tr><td class="asig-name">Equipos</td><td><input type="number" id="m-equi" value="0" min="0" oninput="ST.mer.equi=+this.value;recalc()"></td></tr>
+        <tr><td class="asig-name">Equipamiento</td><td><input type="number" id="m-equip" value="0" min="0" oninput="ST.mer.equip=+this.value;recalc()"></td></tr>
+        <tr><td class="asig-name">Terreno</td><td><input type="number" id="m-terr" value="0" min="0" oninput="ST.mer.terr=+this.value;recalc()"></td></tr>
+        <tr><td class="asig-name">Plan de Contingencia</td><td><input type="number" id="m-cont" value="0" min="0" oninput="ST.mer.cont=+this.value;recalc()"></td></tr>
+        <tr><td class="asig-name">Vehículos</td><td><input type="number" id="m-vehi" value="0" min="0" oninput="ST.mer.vehi=+this.value;recalc()"></td></tr>
+        <tr><td class="asig-name" style="color:var(--muted);">Consultorías (detalle en Tab 3)</td>
+            <td style="text-align:right;padding:6px 10px;color:var(--muted);font-size:12px;" id="m-consul-sum">$ 0</td></tr>
+      </tbody>
+      <tfoot>
+        <tr class="pm-total"><td>Total Inversión PM</td><td style="text-align:right;padding:6px 10px;font-size:15px;" id="m-total-inv">$ 0</td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Costos Anuales — Precios de Mercado (en $/año)</div>
+    <div class="note-box" style="margin-bottom:12px;">Ingresa el monto anual total de cada ítem. En Tab 4 detallarás la composición Contratado / Propios.</div>
+    <table class="mkt-tbl">
+      <thead><tr><th>Ítem Anual</th><th style="text-align:right;width:210px;">Monto PM ($/año)</th></tr></thead>
+      <tbody>
+        <tr><td class="asig-name">Operación</td><td><input type="number" id="m-oper" value="0" min="0" oninput="ST.mer.oper=+this.value;recalc()"></td></tr>
+        <tr><td class="asig-name">Mantención</td><td><input type="number" id="m-mant" value="0" min="0" oninput="ST.mer.mant=+this.value;recalc()"></td></tr>
+      </tbody>
+      <tfoot>
+        <tr class="pm-total"><td>Total Anual PM</td><td style="text-align:right;padding:6px 10px;font-size:15px;" id="m-total-anu">$ 0</td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+</div><!-- /panel-mer -->
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 3: CORRECCIÓN INVERSIÓN
+════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-inv">
+
+  <!-- OOCC -->
+  <div class="corr-card" id="cc-oocc">
+    <div class="corr-head">
+      <div class="ch-name">Obras Civiles (OOCC)</div>
+      <div class="ch-pm">PM: <span id="v-pm-oocc">$ 0</span></div>
+      <div class="ch-cs" id="v-cs-oocc">CS: $ 0</div>
+      <div class="ch-factor" id="v-f-oocc">—</div>
+    </div>
+    <div class="corr-body">
+      <div class="pp-grid">
+        <div class="pp-field"><label>% Materiales</label><div class="pct-wrap"><input type="number" id="c-oocc-mat" value="55" min="0" max="100" oninput="ST.inv.oocc.mat=+this.value/100;recalc()"><span>%</span></div></div>
+        <div class="pp-field"><label>% Nacional (en Mat.)</label><div class="pct-wrap"><input type="number" id="c-oocc-nac" value="85" min="0" max="100" oninput="ST.inv.oocc.nac=+this.value/100;recalc()"><span>%</span></div></div>
+        <div class="pp-field"><label>% Transable (en Nac.)</label><div class="pct-wrap"><input type="number" id="c-oocc-tr" value="40" min="0" max="100" oninput="ST.inv.oocc.tr=+this.value/100;recalc()"><span>%</span></div></div>
+        <div class="pp-field"><label>Índice MO <span style="font-weight:400;color:var(--muted);">(ver ref. Tab 1)</span></label><select id="c-oocc-imo" onchange="ST.inv.oocc.imo=+this.value;recalc()"></select></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Equipos -->
+  <div class="corr-card" id="cc-equi">
+    <div class="corr-head">
+      <div class="ch-name">Equipos</div>
+      <div class="ch-pm">PM: <span id="v-pm-equi">$ 0</span></div>
+      <div class="ch-cs" id="v-cs-equi">CS: $ 0</div>
+      <div class="ch-factor" id="v-f-equi">—</div>
+    </div>
+    <div class="corr-body">
+      <div class="pp-grid">
+        <div class="pp-field"><label>% Materiales</label><div class="pct-wrap"><input type="number" id="c-equi-mat" value="70" min="0" max="100" oninput="ST.inv.equi.mat=+this.value/100;recalc()"><span>%</span></div></div>
+        <div class="pp-field"><label>% Nacional (en Mat.)</label><div class="pct-wrap"><input type="number" id="c-equi-nac" value="75" min="0" max="100" oninput="ST.inv.equi.nac=+this.value/100;recalc()"><span>%</span></div></div>
+        <div class="pp-field"><label>% Transable (en Nac.)</label><div class="pct-wrap"><input type="number" id="c-equi-tr" value="60" min="0" max="100" oninput="ST.inv.equi.tr=+this.value/100;recalc()"><span>%</span></div></div>
+        <div class="pp-field"><label>Índice MO <span style="font-weight:400;color:var(--muted);">(ver ref. Tab 1)</span></label><select id="c-equi-imo" onchange="ST.inv.equi.imo=+this.value;recalc()"></select></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Equipamiento -->
+  <div class="corr-card" id="cc-equip">
+    <div class="corr-head">
+      <div class="ch-name">Equipamiento</div>
+      <div class="ch-pm">PM: <span id="v-pm-equip">$ 0</span></div>
+      <div class="ch-cs" id="v-cs-equip">CS: $ 0</div>
+      <div class="ch-factor" id="v-f-equip">—</div>
+    </div>
+    <div class="corr-body">
+      <div class="pp-grid">
+        <div class="pp-field"><label>% Materiales</label><div class="pct-wrap"><input type="number" id="c-equip-mat" value="75" min="0" max="100" oninput="ST.inv.equip.mat=+this.value/100;recalc()"><span>%</span></div></div>
+        <div class="pp-field"><label>% Nacional (en Mat.)</label><div class="pct-wrap"><input type="number" id="c-equip-nac" value="70" min="0" max="100" oninput="ST.inv.equip.nac=+this.value/100;recalc()"><span>%</span></div></div>
+        <div class="pp-field"><label>% Transable (en Nac.)</label><div class="pct-wrap"><input type="number" id="c-equip-tr" value="55" min="0" max="100" oninput="ST.inv.equip.tr=+this.value/100;recalc()"><span>%</span></div></div>
+        <div class="pp-field"><label>Índice MO <span style="font-weight:400;color:var(--muted);">(ver ref. Tab 1)</span></label><select id="c-equip-imo" onchange="ST.inv.equip.imo=+this.value;recalc()"></select></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Terreno -->
+  <div class="corr-card">
+    <div class="corr-head">
+      <div class="ch-name">Terreno</div>
+      <div class="ch-pm">PM: <span id="v-pm-terr">$ 0</span></div>
+      <div class="ch-cs" id="v-cs-terr">CS: $ 0</div>
+      <div class="ch-factor" id="v-f-terr">100%</div>
+    </div>
+    <div class="corr-body">
+      <div class="note-box">El terreno no tiene corrección: CS = Precio de Mercado. Se utiliza el precio pagado como precio social.</div>
+    </div>
+  </div>
+
+  <!-- Plan Contingencia -->
+  <div class="corr-card">
+    <div class="corr-head">
+      <div class="ch-name">Plan de Contingencia</div>
+      <div class="ch-pm">PM: <span id="v-pm-cont">$ 0</span></div>
+      <div class="ch-cs" id="v-cs-cont">CS: $ 0</div>
+      <div class="ch-factor" id="v-f-cont">—</div>
+    </div>
+    <div class="corr-body">
+      <div class="note-box">Aplica el mismo factor de corrección de OOCC: CS<sub>cont</sub> = PM<sub>cont</sub> × (CS<sub>OOCC</sub> / PM<sub>OOCC</sub>). Si PM OOCC = 0, no se puede calcular.</div>
+    </div>
+  </div>
+
+  <!-- Vehículos -->
+  <div class="corr-card">
+    <div class="corr-head">
+      <div class="ch-name">Vehículos</div>
+      <div class="ch-pm">PM: <span id="v-pm-vehi">$ 0</span></div>
+      <div class="ch-cs" id="v-cs-vehi">CS: $ 0</div>
+      <div class="ch-factor" id="v-f-vehi">—</div>
+    </div>
+    <div class="corr-body">
+      <div class="note-box">Fórmula directa: CS = PM ÷ (1+IVA) ÷ (1+t) × FCSD. No requiere parámetros adicionales.</div>
+    </div>
+  </div>
+
+  <!-- Consultorías -->
+  <div class="corr-card">
+    <div class="corr-head">
+      <div class="ch-name">Consultorías (5 líneas)</div>
+      <div class="ch-pm">PM: <span id="v-pm-consul">$ 0</span></div>
+      <div class="ch-cs" id="v-cs-consul">CS: $ 0</div>
+      <div class="ch-factor" id="v-f-consul">—</div>
+    </div>
+    <div class="corr-body">
+      <div class="note-box" style="margin-bottom:12px;">
+        Para cada línea: si <strong>Incluye IVA</strong> → CS = (PM / (1+IVA)) × f<sub>MOC</sub> &nbsp;|&nbsp; si <strong>No incluye IVA</strong> → CS = PM × f<sub>MOC</sub>
+      </div>
+      <table class="consul-tbl">
+        <thead><tr><th>Descripción</th><th style="width:170px;text-align:right;">Monto PM ($)</th><th style="width:110px;text-align:center;">Incluye IVA</th><th style="width:150px;text-align:right;">CS ($)</th></tr></thead>
+        <tbody id="consul-tbody"></tbody>
+        <tfoot><tr class="tot">
+          <td colspan="2" style="text-align:right;font-size:13px;">Total Consultorías</td>
+          <td></td>
+          <td style="text-align:right;" id="consul-cs-total">$ 0</td>
+        </tr></tfoot>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /panel-inv -->
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 4: CORRECCIÓN ANUALES
+════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-anu">
+
+  <!-- OPERACIÓN -->
+  <div class="card">
+    <div class="card-title">Operación — Corrección a Precios Sociales</div>
+    <div style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:13px;">PM total Operación: <strong id="va-pm-oper">$ 0</strong></div>
+      <div style="font-size:14px;font-weight:700;color:var(--green);" id="va-cs-oper">CS: $ 0</div>
+    </div>
+    <div class="anu-section">
+      <!-- Contratado -->
+      <div class="anu-sub">
+        <div class="anu-sub-title">Contratado (externo)</div>
+        <div class="note-box" style="margin-bottom:10px;font-size:11.5px;">Tiene IVA. Se descuenta del total antes de corregir materiales y MO.</div>
+        <div class="anu-block">
+          <div class="anu-block-label">Proporción del total que es contratado</div>
+          <div class="pct-wrap"><input type="number" id="ao-cont-pct" value="100" min="0" max="100" oninput="ST.anu.oper.contPct=+this.value/100;recalc()"><span>%</span></div>
+        </div>
+        <div class="g2" style="margin-bottom:10px;">
+          <div class="pp-field"><label>% Materiales</label><div class="pct-wrap"><input type="number" id="ao-cont-mat" value="35" min="0" max="100" oninput="ST.anu.oper.contMat=+this.value/100;recalc()"><span>%</span></div></div>
+          <div class="pp-field"><label>Índice MO <span style="font-weight:400;color:var(--muted);">(ver ref. Tab 1)</span></label><select id="ao-cont-imo" onchange="ST.anu.oper.contImo=+this.value;recalc()"></select></div>
+          <div class="pp-field"><label>% Nacional (en Mat.)</label><div class="pct-wrap"><input type="number" id="ao-cont-nac" value="85" min="0" max="100" oninput="ST.anu.oper.contNac=+this.value/100;recalc()"><span>%</span></div></div>
+          <div class="pp-field"><label>% Transable (en Nac.)</label><div class="pct-wrap"><input type="number" id="ao-cont-tr" value="35" min="0" max="100" oninput="ST.anu.oper.contTr=+this.value/100;recalc()"><span>%</span></div></div>
+        </div>
+      </div>
+      <!-- Propios -->
+      <div class="anu-sub">
+        <div class="anu-sub-title">Propios (recursos internos)</div>
+        <div class="note-box" style="margin-bottom:10px;font-size:11.5px;">Sin IVA en total. El IVA se aplica solo sobre la porción materiales.</div>
+        <div class="anu-block">
+          <div class="anu-block-label">Proporción del total que es propios</div>
+          <div style="font-size:12px;color:var(--muted);padding:6px 10px;background:#f8fafc;border-radius:6px;border:1px solid var(--line);" id="ao-prop-pct-display">0% (complemento del contratado)</div>
+        </div>
+        <div class="g2" style="margin-bottom:10px;">
+          <div class="pp-field"><label>% Materiales</label><div class="pct-wrap"><input type="number" id="ao-prop-mat" value="20" min="0" max="100" oninput="ST.anu.oper.propMat=+this.value/100;recalc()"><span>%</span></div></div>
+          <div class="pp-field"><label>Índice MO <span style="font-weight:400;color:var(--muted);">(ver ref. Tab 1)</span></label><select id="ao-prop-imo" onchange="ST.anu.oper.propImo=+this.value;recalc()"></select></div>
+          <div class="pp-field"><label>% Nacional (en Mat.)</label><div class="pct-wrap"><input type="number" id="ao-prop-nac" value="90" min="0" max="100" oninput="ST.anu.oper.propNac=+this.value/100;recalc()"><span>%</span></div></div>
+          <div class="pp-field"><label>% Transable (en Nac.)</label><div class="pct-wrap"><input type="number" id="ao-prop-tr" value="30" min="0" max="100" oninput="ST.anu.oper.propTr=+this.value/100;recalc()"><span>%</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="anu-result">
+      <div class="ar-label">Costo Social Anual Operación</div>
+      <div class="ar-val" id="va-cs-oper2">$ 0</div>
+    </div>
+  </div>
+
+  <!-- MANTENCIÓN -->
+  <div class="card">
+    <div class="card-title">Mantención — Corrección a Precios Sociales</div>
+    <div style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:13px;">PM total Mantención: <strong id="va-pm-mant">$ 0</strong></div>
+      <div style="font-size:14px;font-weight:700;color:var(--green);" id="va-cs-mant">CS: $ 0</div>
+    </div>
+    <div class="anu-section">
+      <div class="anu-sub">
+        <div class="anu-sub-title">Contratado (externo)</div>
+        <div class="note-box" style="margin-bottom:10px;font-size:11.5px;">Tiene IVA. Se descuenta del total antes de corregir materiales y MO.</div>
+        <div class="anu-block">
+          <div class="anu-block-label">Proporción del total que es contratado</div>
+          <div class="pct-wrap"><input type="number" id="am-cont-pct" value="80" min="0" max="100" oninput="ST.anu.mant.contPct=+this.value/100;recalc()"><span>%</span></div>
+        </div>
+        <div class="g2" style="margin-bottom:10px;">
+          <div class="pp-field"><label>% Materiales</label><div class="pct-wrap"><input type="number" id="am-cont-mat" value="50" min="0" max="100" oninput="ST.anu.mant.contMat=+this.value/100;recalc()"><span>%</span></div></div>
+          <div class="pp-field"><label>Índice MO <span style="font-weight:400;color:var(--muted);">(ver ref. Tab 1)</span></label><select id="am-cont-imo" onchange="ST.anu.mant.contImo=+this.value;recalc()"></select></div>
+          <div class="pp-field"><label>% Nacional (en Mat.)</label><div class="pct-wrap"><input type="number" id="am-cont-nac" value="85" min="0" max="100" oninput="ST.anu.mant.contNac=+this.value/100;recalc()"><span>%</span></div></div>
+          <div class="pp-field"><label>% Transable (en Nac.)</label><div class="pct-wrap"><input type="number" id="am-cont-tr" value="40" min="0" max="100" oninput="ST.anu.mant.contTr=+this.value/100;recalc()"><span>%</span></div></div>
+        </div>
+      </div>
+      <div class="anu-sub">
+        <div class="anu-sub-title">Propios (recursos internos)</div>
+        <div class="note-box" style="margin-bottom:10px;font-size:11.5px;">Sin IVA en total. El IVA se aplica solo sobre la porción materiales.</div>
+        <div class="anu-block">
+          <div class="anu-block-label">Proporción del total que es propios</div>
+          <div style="font-size:12px;color:var(--muted);padding:6px 10px;background:#f8fafc;border-radius:6px;border:1px solid var(--line);" id="am-prop-pct-display">20% (complemento del contratado)</div>
+        </div>
+        <div class="g2" style="margin-bottom:10px;">
+          <div class="pp-field"><label>% Materiales</label><div class="pct-wrap"><input type="number" id="am-prop-mat" value="45" min="0" max="100" oninput="ST.anu.mant.propMat=+this.value/100;recalc()"><span>%</span></div></div>
+          <div class="pp-field"><label>Índice MO <span style="font-weight:400;color:var(--muted);">(ver ref. Tab 1)</span></label><select id="am-prop-imo" onchange="ST.anu.mant.propImo=+this.value;recalc()"></select></div>
+          <div class="pp-field"><label>% Nacional (en Mat.)</label><div class="pct-wrap"><input type="number" id="am-prop-nac" value="85" min="0" max="100" oninput="ST.anu.mant.propNac=+this.value/100;recalc()"><span>%</span></div></div>
+          <div class="pp-field"><label>% Transable (en Nac.)</label><div class="pct-wrap"><input type="number" id="am-prop-tr" value="40" min="0" max="100" oninput="ST.anu.mant.propTr=+this.value/100;recalc()"><span>%</span></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="anu-result">
+      <div class="ar-label">Costo Social Anual Mantención</div>
+      <div class="ar-val" id="va-cs-mant2">$ 0</div>
+    </div>
+  </div>
+
+</div><!-- /panel-anu -->
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     TAB 5: CONSOLIDADO
+════════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-con">
+
+  <div class="sum-box" id="sum-box"></div>
+
+  <div class="card">
+    <div class="card-title">Resumen Precios de Mercado vs. Precios Sociales</div>
+    <div style="overflow-x:auto;">
+      <table class="con-tbl" id="con-tbl">
+        <thead><tr>
+          <th>Asignación</th>
+          <th>PM ($)</th>
+          <th>CS ($)</th>
+          <th>Factor CS/PM</th>
+          <th>Diferencia ($)</th>
+        </tr></thead>
+        <tbody id="con-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Nota Técnica</div>
+    <div style="font-size:12.5px;color:var(--muted);line-height:1.7;">
+      <p>Los precios sociales se obtienen ajustando los precios de mercado para eliminar distorsiones como IVA, aranceles, factores de corrección de mano de obra y divisas.</p>
+      <p style="margin-top:6px;">Parámetros aplicados: FCSD = <strong id="nt-fcsd">—</strong> · t = <strong id="nt-t">—</strong> · IVA = <strong id="nt-iva">—</strong> · f<sub>MOC</sub> = <strong id="nt-fmoc">—</strong> · f<sub>MOSC</sub> = <strong id="nt-fmosc">—</strong> · f<sub>MONC</sub> = <strong id="nt-fmonc">—</strong></p>
+      <p style="margin-top:6px;">Metodología: PCPS SNI 2026. Iniciativa: <strong id="nt-nombre">—</strong> · Código BIP: <strong id="nt-codigo">—</strong></p>
+    </div>
+  </div>
+
+</div><!-- /panel-con -->
+
+</main>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+// COMBOS MO — 16 combinaciones [MONC, MOSC, MOC]
+// ══════════════════════════════════════════════════════════════
+const COMBOS_MO = [
+  [0,    0,    1.00], // 1
+  [0,    0.25, 0.75], // 2
+  [0,    0.50, 0.50], // 3
+  [0,    0.75, 0.25], // 4
+  [0,    1.00, 0   ], // 5
+  [0.25, 0,    0.75], // 6
+  [0.25, 0.25, 0.50], // 7
+  [0.25, 0.50, 0.25], // 8
+  [0.25, 0.75, 0   ], // 9
+  [0.50, 0,    0.50], // 10
+  [0.50, 0.25, 0.25], // 11
+  [0.50, 0.50, 0   ], // 12
+  [0.75, 0,    0.25], // 13
+  [0.75, 0.25, 0   ], // 14
+  [1.00, 0,    0   ], // 15
+  [0.33, 0.33, 0.34], // 16
+];
+
+function moLabel(i) {
+  const [nc, sc, c] = COMBOS_MO[i];
+  const parts = [];
+  if(nc) parts.push(Math.round(nc*100)+'%NC');
+  if(sc) parts.push(Math.round(sc*100)+'%SC');
+  if(c)  parts.push(Math.round(c*100)+'%C');
+  return (i+1) + '. ' + parts.join(' · ');
+}
+
+// ══════════════════════════════════════════════════════════════
+// ESTADO GLOBAL
+// ══════════════════════════════════════════════════════════════
+const ST = {
+  params: { fcsd:1.00, t:0.0071, iva:0.19, fMOC:0.97, fMOSC:0.95, fMONC:0.91 },
+  init: { nombre:'', codigo:'', anio:2026 },
+  mer: { oocc:0, equi:0, equip:0, terr:0, cont:0, vehi:0, oper:0, mant:0 },
+  inv: {
+    oocc:  { mat:0.55, nac:0.85, tr:0.40, imo:9 },
+    equi:  { mat:0.70, nac:0.75, tr:0.60, imo:2 },
+    equip: { mat:0.75, nac:0.70, tr:0.55, imo:0 },
+  },
+  consul: [
+    { desc:'', monto:0, iva:true },
+    { desc:'', monto:0, iva:true },
+    { desc:'', monto:0, iva:true },
+    { desc:'', monto:0, iva:true },
+    { desc:'', monto:0, iva:true },
+  ],
+  anu: {
+    oper: { contPct:1.00, contMat:0.35, contNac:0.85, contTr:0.35, contImo:9,
+            propMat:0.20, propNac:0.90, propTr:0.30, propImo:9 },
+    mant: { contPct:0.80, contMat:0.50, contNac:0.85, contTr:0.40, contImo:9,
+            propMat:0.45, propNac:0.85, propTr:0.40, propImo:9 },
+  },
+};
+
+// ══════════════════════════════════════════════════════════════
+// MOTOR PCPS
+// ══════════════════════════════════════════════════════════════
+function csM(M, nac, tr, p) {
+  const adj = p.fcsd / (1 + p.t);
+  return M * nac * tr * adj + M * nac * (1 - tr) + M * (1 - nac) * adj;
+}
+
+function csMO(L, imo, p) {
+  const [nc, sc, c] = COMBOS_MO[imo];
+  return L * (nc * p.fMONC + sc * p.fMOSC + c * p.fMOC);
+}
+
+function csGenerico(monto, o, p) {
+  const neto = monto / (1 + p.iva);
+  const M = o.mat * neto;
+  const L = (1 - o.mat) * neto;
+  return csM(M, o.nac, o.tr, p) + csMO(L, o.imo, p);
+}
+
+function csVehiculos(monto, p) {
+  return monto / (1 + p.iva) / (1 + p.t) * p.fcsd;
+}
+
+function csConsultoria(monto, incluyeIVA, p) {
+  return incluyeIVA ? (monto / (1 + p.iva)) * p.fMOC : monto * p.fMOC;
+}
+
+function csContratado(montoTotal, pct, o, p) {
+  const montoC = pct * montoTotal;
+  const neto = montoC / (1 + p.iva);
+  const M = o.mat * neto;
+  const L = (1 - o.mat) * neto;
+  return csM(M, o.nac, o.tr, p) + csMO(L, o.imo, p);
+}
+
+function csPropios(montoTotal, pct, o, p) {
+  const montoP = pct * montoTotal;
+  // IVA solo sobre materiales
+  const M = o.mat * montoP / (1 + p.iva);
+  const L = (1 - o.mat) * montoP;
+  return csM(M, o.nac, o.tr, p) + csMO(L, o.imo, p);
+}
+
+// ══════════════════════════════════════════════════════════════
+// RECÁLCULO
+// ══════════════════════════════════════════════════════════════
+const RES = {};
+
+function recalc() {
+  const p = ST.params;
+  const m = ST.mer;
+
+  // OOCC
+  RES.oocc = m.oocc > 0 ? csGenerico(m.oocc, ST.inv.oocc, p) : 0;
+  RES.f_oocc = m.oocc > 0 ? RES.oocc / m.oocc : null;
+
+  // Equipos
+  RES.equi = m.equi > 0 ? csGenerico(m.equi, ST.inv.equi, p) : 0;
+  RES.f_equi = m.equi > 0 ? RES.equi / m.equi : null;
+
+  // Equipamiento
+  RES.equip = m.equip > 0 ? csGenerico(m.equip, ST.inv.equip, p) : 0;
+  RES.f_equip = m.equip > 0 ? RES.equip / m.equip : null;
+
+  // Terreno (sin corrección)
+  RES.terr = m.terr;
+  RES.f_terr = 1;
+
+  // Plan Contingencia (ratio OOCC)
+  if(m.cont > 0 && m.oocc > 0 && RES.oocc > 0) {
+    RES.cont = m.cont * (RES.oocc / m.oocc);
+    RES.f_cont = RES.oocc / m.oocc;
+  } else if(m.cont > 0) {
+    RES.cont = m.cont;
+    RES.f_cont = 1;
+  } else {
+    RES.cont = 0; RES.f_cont = null;
+  }
+
+  // Vehículos
+  RES.vehi = m.vehi > 0 ? csVehiculos(m.vehi, p) : 0;
+  RES.f_vehi = m.vehi > 0 ? RES.vehi / m.vehi : null;
+
+  // Consultorías
+  RES.consulLines = ST.consul.map(cl => csConsultoria(cl.monto, cl.iva, p));
+  RES.pmConsul = ST.consul.reduce((s, cl) => s + cl.monto, 0);
+  RES.consul = RES.consulLines.reduce((s, v) => s + v, 0);
+  RES.f_consul = RES.pmConsul > 0 ? RES.consul / RES.pmConsul : null;
+
+  // Operación
+  const oa = ST.anu.oper;
+  const propPctOper = Math.max(0, 1 - oa.contPct);
+  RES.csOper = csContratado(m.oper, oa.contPct, {mat:oa.contMat, nac:oa.contNac, tr:oa.contTr, imo:oa.contImo}, p)
+             + csPropios(m.oper, propPctOper, {mat:oa.propMat, nac:oa.propNac, tr:oa.propTr, imo:oa.propImo}, p);
+  RES.f_oper = m.oper > 0 ? RES.csOper / m.oper : null;
+
+  // Mantención
+  const ma = ST.anu.mant;
+  const propPctMant = Math.max(0, 1 - ma.contPct);
+  RES.csMant = csContratado(m.mant, ma.contPct, {mat:ma.contMat, nac:ma.contNac, tr:ma.contTr, imo:ma.contImo}, p)
+             + csPropios(m.mant, propPctMant, {mat:ma.propMat, nac:ma.propNac, tr:ma.propTr, imo:ma.propImo}, p);
+  RES.f_mant = m.mant > 0 ? RES.csMant / m.mant : null;
+
+  // Totales inversión
+  RES.pmInv = m.oocc + m.equi + m.equip + m.terr + m.cont + m.vehi + RES.pmConsul;
+  RES.csInv = RES.oocc + RES.equi + RES.equip + RES.terr + RES.cont + RES.vehi + RES.consul;
+  RES.pmAnu = m.oper + m.mant;
+  RES.csAnu = RES.csOper + RES.csMant;
+
+  renderResults();
+}
+
+// ══════════════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════════════
+function $ (id) { return document.getElementById(id); }
+function fmt(n) { return Math.round(n).toLocaleString('es-CL'); }
+function fmtPM(n) { return '$ ' + fmt(n); }
+function fmtFactor(f) {
+  if(f === null) return '—';
+  const pct = (f * 100).toFixed(1) + '%';
+  const cls = f < 0.999 ? 'bf-lo' : (f > 1.001 ? 'bf-hi' : 'bf-eq');
+  return `<span class="badge-factor ${cls}">${pct}</span>`;
+}
+
+function renderResults() {
+  const m = ST.mer;
+
+  // Tab 2 displays
+  $('m-consul-sum').textContent = fmtPM(RES.pmConsul);
+  $('m-total-inv').textContent = fmtPM(RES.pmInv);
+  $('m-total-anu').textContent = fmtPM(RES.pmAnu);
+
+  // Tab 3 — correction cards
+  const cards = [
+    ['oocc', m.oocc, RES.oocc, RES.f_oocc],
+    ['equi', m.equi, RES.equi, RES.f_equi],
+    ['equip', m.equip, RES.equip, RES.f_equip],
+    ['terr', m.terr, RES.terr, RES.f_terr],
+    ['cont', m.cont, RES.cont, RES.f_cont],
+    ['vehi', m.vehi, RES.vehi, RES.f_vehi],
+    ['consul', RES.pmConsul, RES.consul, RES.f_consul],
+  ];
+  cards.forEach(([key, pm, cs, f]) => {
+    const ep = $('v-pm-'+key); if(ep) ep.textContent = fmtPM(pm);
+    const ec = $('v-cs-'+key); if(ec) ec.innerHTML = 'CS: ' + fmtPM(cs);
+    const ef = $('v-f-'+key); if(ef) ef.innerHTML = fmtFactor(f);
+  });
+
+  // Consultorías lines
+  renderConsulLines();
+
+  // Tab 4 — anuales
+  $('va-pm-oper').textContent = fmtPM(m.oper);
+  $('va-cs-oper').textContent  = 'CS: ' + fmtPM(RES.csOper);
+  $('va-cs-oper2').textContent = fmtPM(RES.csOper);
+  $('va-pm-mant').textContent = fmtPM(m.mant);
+  $('va-cs-mant').textContent  = 'CS: ' + fmtPM(RES.csMant);
+  $('va-cs-mant2').textContent = fmtPM(RES.csMant);
+
+  const propPctOper = Math.max(0, 1 - ST.anu.oper.contPct);
+  const propPctMant = Math.max(0, 1 - ST.anu.mant.contPct);
+  $('ao-prop-pct-display').textContent = Math.round(propPctOper*100) + '% (complemento del contratado)';
+  $('am-prop-pct-display').textContent = Math.round(propPctMant*100) + '% (complemento del contratado)';
+
+  // Tab 5 — consolidado
+  renderConsolidado();
+}
+
+function renderConsulLines() {
+  const tbody = $('consul-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = ST.consul.map((cl, i) => `
+    <tr>
+      <td><input type="text" placeholder="Descripción línea ${i+1}" value="${cl.desc}"
+          oninput="ST.consul[${i}].desc=this.value"></td>
+      <td><input type="number" value="${cl.monto}" min="0"
+          oninput="ST.consul[${i}].monto=+this.value;recalc()"></td>
+      <td style="text-align:center;">
+        <label class="ck-wrap" style="justify-content:center;">
+          <input type="checkbox" ${cl.iva?'checked':''} onchange="ST.consul[${i}].iva=this.checked;recalc()"> Sí
+        </label>
+      </td>
+      <td style="text-align:right;font-weight:600;color:var(--green);">${fmtPM(RES.consulLines[i]||0)}</td>
+    </tr>`).join('');
+  $('consul-cs-total').textContent = fmtPM(RES.consul);
+}
+
+function renderConsolidado() {
+  const m = ST.mer;
+  const rows = [
+    { label:'— INVERSIÓN', subhead: true },
+    { label:'Obras Civiles (OOCC)',    pm: m.oocc,        cs: RES.oocc,    f: RES.f_oocc  },
+    { label:'Equipos',                 pm: m.equi,        cs: RES.equi,    f: RES.f_equi  },
+    { label:'Equipamiento',            pm: m.equip,       cs: RES.equip,   f: RES.f_equip },
+    { label:'Terreno',                 pm: m.terr,        cs: RES.terr,    f: RES.f_terr  },
+    { label:'Plan de Contingencia',    pm: m.cont,        cs: RES.cont,    f: RES.f_cont  },
+    { label:'Vehículos',               pm: m.vehi,        cs: RES.vehi,    f: RES.f_vehi  },
+    { label:'Consultorías',            pm: RES.pmConsul,  cs: RES.consul,  f: RES.f_consul},
+    { label:'TOTAL INVERSIÓN', total:true, pm: RES.pmInv, cs: RES.csInv, f: RES.pmInv>0 ? RES.csInv/RES.pmInv : null },
+    { label:'— ANUALES', subhead: true },
+    { label:'Operación',               pm: m.oper,        cs: RES.csOper,  f: RES.f_oper  },
+    { label:'Mantención',              pm: m.mant,        cs: RES.csMant,  f: RES.f_mant  },
+    { label:'TOTAL ANUAL', total:true, pm: RES.pmAnu, cs: RES.csAnu, f: RES.pmAnu>0 ? RES.csAnu/RES.pmAnu : null },
+  ];
+
+  const tbody = $('con-tbody');
+  if(!tbody) return;
+  tbody.innerHTML = rows.map(r => {
+    if(r.subhead) return `<tr class="sub"><td colspan="5" style="text-align:left;">${r.label}</td></tr>`;
+    if(r.total) {
+      const diff = r.cs - r.pm;
+      return `<tr class="tot">
+        <td>${r.label}</td>
+        <td>${fmtPM(r.pm)}</td>
+        <td style="color:var(--green);">${fmtPM(r.cs)}</td>
+        <td>${fmtFactor(r.f)}</td>
+        <td class="${diff<0?'cs-dn':'cs-up'}">${diff<0?'-':'+'} $ ${fmt(Math.abs(diff))}</td>
+      </tr>`;
+    }
+    if(r.pm === 0) return `<tr class="zero"><td>${r.label}</td><td>$ 0</td><td>—</td><td>—</td><td>—</td></tr>`;
+    const diff = r.cs - r.pm;
+    return `<tr>
+      <td>${r.label}</td>
+      <td>${fmtPM(r.pm)}</td>
+      <td style="color:var(--green);">${fmtPM(r.cs)}</td>
+      <td>${fmtFactor(r.f)}</td>
+      <td class="${diff<0?'cs-dn':'cs-up'}">${diff<0?'-':'+'} $ ${fmt(Math.abs(diff))}</td>
+    </tr>`;
+  }).join('');
+
+  // Summary boxes
+  const fInv = RES.pmInv > 0 ? (RES.csInv / RES.pmInv * 100).toFixed(1) + '%' : '—';
+  const fAnu = RES.pmAnu > 0 ? (RES.csAnu / RES.pmAnu * 100).toFixed(1) + '%' : '—';
+  $('sum-box').innerHTML = `
+    <div class="sb-item blue">
+      <div class="sb-label">Total Inversión PM</div>
+      <div class="sb-val">${fmtPM(RES.pmInv)}</div>
+      <div class="sb-sub">Precio de Mercado</div>
+    </div>
+    <div class="sb-item green">
+      <div class="sb-label">Total Inversión CS</div>
+      <div class="sb-val">${fmtPM(RES.csInv)}</div>
+      <div class="sb-sub">Factor: ${fInv}</div>
+    </div>
+    <div class="sb-item">
+      <div class="sb-label">Total Anual CS</div>
+      <div class="sb-val">${fmtPM(RES.csAnu)}</div>
+      <div class="sb-sub">Factor: ${fAnu}</div>
+    </div>`;
+
+  // Nota técnica params
+  const nt = id => $(id);
+  if(nt('nt-fcsd')) {
+    const p = ST.params;
+    $('nt-fcsd').textContent = p.fcsd.toFixed(4);
+    $('nt-t').textContent = p.t.toFixed(4);
+    $('nt-iva').textContent = (p.iva*100).toFixed(0) + '%';
+    $('nt-fmoc').textContent = p.fMOC.toFixed(2);
+    $('nt-fmosc').textContent = p.fMOSC.toFixed(2);
+    $('nt-fmonc').textContent = p.fMONC.toFixed(2);
+    $('nt-nombre').textContent = ST.init.nombre || '—';
+    $('nt-codigo').textContent = ST.init.codigo || '—';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// INICIALIZACIÓN
+// ══════════════════════════════════════════════════════════════
+function buildMoSelects() {
+  const opts = COMBOS_MO.map((_, i) => `<option value="${i}">${moLabel(i)}</option>`).join('');
+  ['c-oocc-imo','c-equi-imo','c-equip-imo',
+   'ao-cont-imo','ao-prop-imo','am-cont-imo','am-prop-imo'].forEach(id => {
+    const el = $(id); if(el) el.innerHTML = opts;
+  });
+  // Set initial values
+  $('c-oocc-imo').value  = ST.inv.oocc.imo;
+  $('c-equi-imo').value  = ST.inv.equi.imo;
+  $('c-equip-imo').value = ST.inv.equip.imo;
+  $('ao-cont-imo').value = ST.anu.oper.contImo;
+  $('ao-prop-imo').value = ST.anu.oper.propImo;
+  $('am-cont-imo').value = ST.anu.mant.contImo;
+  $('am-prop-imo').value = ST.anu.mant.propImo;
+}
+
+function buildMoLegend() {
+  const el = $('mo-legend');
+  if(!el) return;
+  el.innerHTML = COMBOS_MO.map((combo, i) => {
+    const [nc, sc, c] = combo;
+    const bars = `
+      <div style="display:flex;gap:2px;height:6px;border-radius:3px;overflow:hidden;margin-top:4px;">
+        <div style="width:${nc*100}%;background:#ef4444;"></div>
+        <div style="width:${sc*100}%;background:#f59e0b;"></div>
+        <div style="width:${c*100}%;background:#3b82f6;"></div>
+      </div>`;
+    return `<div style="background:#f8fafc;border:1px solid var(--line);border-radius:7px;padding:8px 10px;">
+      <div style="font-weight:700;font-size:11.5px;color:var(--navy);">${moLabel(i)}</div>
+      ${bars}
+      <div style="font-size:10px;color:var(--muted);margin-top:3px;">
+        <span style="color:#ef4444;">■</span>NC <span style="color:#f59e0b;">■</span>SC <span style="color:#3b82f6;">■</span>C
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function resetParams() {
+  ST.params = { fcsd:1.00, t:0.0071, iva:0.19, fMOC:0.97, fMOSC:0.95, fMONC:0.91 };
+  $('p-fcsd').value  = 1.0000;
+  $('p-t').value     = 0.0071;
+  $('p-iva').value   = 0.19;
+  $('p-fmoc').value  = 0.97;
+  $('p-fmosc').value = 0.95;
+  $('p-fmonc').value = 0.91;
+  recalc();
+}
+
+function showTab(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  $('panel-'+id).classList.add('active');
+  $('ntab-'+id).classList.add('active');
+}
+
+// Inicializar
+buildMoSelects();
+buildMoLegend();
+renderConsulLines();
+recalc();
+</script>
+</body>
+</html>

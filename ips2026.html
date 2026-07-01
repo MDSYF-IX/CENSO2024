@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Asistente de Precios Sociales IPS 2026 — SNI</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0fdf4;color:#1e293b;min-height:100vh;}
+.topbar{background:linear-gradient(120deg,#065f46 0%,#059669 100%);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px;}
+.topbar-icon{width:40px;height:40px;background:rgba(255,255,255,.18);border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.topbar h1{font-size:16px;font-weight:700;line-height:1.2;}
+.topbar p{font-size:11.5px;opacity:.85;margin-top:2px;}
+.back{margin-left:auto;color:#a7f3d0;font-size:11.5px;text-decoration:none;white-space:nowrap;}
+.back:hover{color:#fff;}
+.tabs{display:flex;overflow-x:auto;background:#1e293b;padding:0 12px;}
+.tab-btn{background:none;border:none;color:#94a3b8;padding:11px 14px;font-size:12px;cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:.15s;font-weight:500;flex-shrink:0;}
+.tab-btn.active{color:#34d399;border-bottom-color:#34d399;}
+.tab-btn:hover:not(.active){color:#e2e8f0;}
+.tab-content{display:none;padding:18px 20px;max-width:980px;margin:0 auto;}
+.tab-content.active{display:block;}
+.card{background:#fff;border-radius:10px;border:1px solid #d1fae5;padding:18px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.card-title{font-size:13.5px;font-weight:700;color:#064e3b;margin-bottom:12px;}
+.info-box{background:#ecfdf5;border-left:4px solid #059669;padding:10px 14px;border-radius:0 6px 6px 0;font-size:12px;line-height:1.65;color:#064e3b;margin-bottom:14px;}
+.info-box.blue{background:#eff6ff;border-color:#3b82f6;color:#1e3a5f;}
+.info-box.purple{background:#faf5ff;border-color:#7c3aed;color:#4c1d95;}
+.info-box.yellow{background:#fffbeb;border-color:#d97706;color:#78350f;}
+/* REFERENCE TABLE */
+.ref-table{width:100%;border-collapse:collapse;font-size:12px;}
+.ref-table th{background:#064e3b;color:#fff;padding:7px 10px;text-align:left;font-weight:600;}
+.ref-table td{padding:6px 10px;border-bottom:1px solid #e2e8f0;}
+.ref-table tr:nth-child(even) td{background:#f8fafc;}
+.ref-table .sec-row td{background:#065f46;color:#a7f3d0;font-weight:700;font-size:11px;padding:5px 10px;letter-spacing:.03em;}
+/* NAV GRID */
+.nav-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;}
+.nav-card{background:#fff;border:2px solid #d1fae5;border-radius:10px;padding:16px 12px;cursor:pointer;transition:.2s;text-align:center;user-select:none;}
+.nav-card:hover{background:#ecfdf5;border-color:#059669;transform:translateY(-2px);box-shadow:0 4px 12px rgba(5,150,105,.15);}
+.nc-num{font-size:26px;font-weight:800;color:#059669;}
+.nc-title{font-size:12.5px;font-weight:700;color:#065f46;line-height:1.3;margin-top:3px;}
+.nc-sub{font-size:10.5px;color:#6b7280;margin-top:4px;}
+/* CIUO */
+.ciuo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;}
+.ciuo-card{border:2px solid #e2e8f0;border-radius:8px;padding:12px;}
+.ciuo-card h4{font-size:12px;font-weight:700;margin-bottom:6px;}
+.factor-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:13px;font-weight:800;margin-bottom:6px;}
+.ciuo-card ul{padding-left:14px;font-size:11px;line-height:1.8;color:#374151;}
+.ciuo-card.moc{border-color:#a7f3d0;background:#f0fdf4;}
+.ciuo-card.moc h4{color:#065f46;}
+.ciuo-card.moc .factor-badge{background:#d1fae5;color:#064e3b;}
+.ciuo-card.mosc{border-color:#bfdbfe;background:#eff6ff;}
+.ciuo-card.mosc h4{color:#1e40af;}
+.ciuo-card.mosc .factor-badge{background:#dbeafe;color:#1e3a5f;}
+.ciuo-card.monc{border-color:#fde68a;background:#fffbeb;}
+.ciuo-card.monc h4{color:#92400e;}
+.ciuo-card.monc .factor-badge{background:#fef3c7;color:#78350f;}
+/* MO TABLE */
+.mo-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:10px;}
+.mo-table th{background:#064e3b;color:#fff;padding:8px 8px;font-weight:600;font-size:11.5px;white-space:nowrap;}
+.mo-table td{padding:5px 5px;border-bottom:1px solid #e2e8f0;vertical-align:middle;}
+.mo-table input,.mo-table select{width:100%;padding:5px 7px;border:1.5px solid #d1d5db;border-radius:5px;font-size:12px;background:#fff;}
+.mo-table input:focus,.mo-table select:focus{border-color:#059669;outline:none;box-shadow:0 0 0 2px rgba(5,150,105,.12);}
+.mo-badge{display:inline-block;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:700;}
+.badge-moc{background:#d1fae5;color:#065f46;}
+.badge-mosc{background:#dbeafe;color:#1e40af;}
+.badge-monc{background:#fef3c7;color:#92400e;}
+/* OV TABLE */
+.ov-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;}
+.ov-table th{background:#1e3a5f;color:#fff;padding:7px 8px;font-weight:600;font-size:11px;white-space:nowrap;}
+.ov-table td{padding:5px 5px;border-bottom:1px solid #e2e8f0;vertical-align:middle;}
+.ov-table input,.ov-table select{width:100%;padding:5px 6px;border:1.5px solid #d1d5db;border-radius:5px;font-size:11.5px;background:#fff;}
+.ov-table input:focus,.ov-table select:focus{border-color:#3b82f6;outline:none;}
+/* AMB TABLE */
+.amb-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:10px;}
+.amb-table th{background:#4c1d95;color:#fff;padding:7px 8px;font-weight:600;font-size:11px;white-space:nowrap;}
+.amb-table td{padding:5px 5px;border-bottom:1px solid #e2e8f0;vertical-align:middle;}
+.amb-table input,.amb-table select{width:100%;padding:5px 6px;border:1.5px solid #d1d5db;border-radius:5px;font-size:11.5px;background:#fff;}
+.amb-table input:focus,.amb-table select:focus{border-color:#7c3aed;outline:none;}
+/* RESULT BOXES */
+.result-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;}
+.rb{background:linear-gradient(135deg,#064e3b,#059669);color:#fff;border-radius:10px;padding:16px 18px;flex:1;min-width:140px;}
+.rb .rb-l{font-size:11px;opacity:.8;margin-bottom:4px;}
+.rb .rb-v{font-size:20px;font-weight:800;letter-spacing:-.3px;}
+.rb .rb-u{font-size:10px;opacity:.65;margin-top:2px;}
+.rb.blue{background:linear-gradient(135deg,#1e3a5f,#2563eb);}
+.rb.purple{background:linear-gradient(135deg,#4c1d95,#7c3aed);}
+.rb.red{background:linear-gradient(135deg,#7f1d1d,#dc2626);}
+.rb.navy{background:linear-gradient(135deg,#0f172a,#1e40af);}
+/* VVE */
+.vve-hero{background:linear-gradient(135deg,#1e3a5f,#1d4ed8);color:#fff;border-radius:10px;padding:22px 24px;text-align:center;margin-bottom:16px;}
+.vve-big{font-size:28px;font-weight:800;letter-spacing:-.5px;}
+.vve-sub{font-size:11.5px;opacity:.8;margin-top:5px;}
+.mode-btns{display:flex;gap:8px;margin-bottom:14px;}
+.mode-btn{flex:1;padding:9px 10px;border:2px solid #bfdbfe;border-radius:7px;background:#fff;color:#1e40af;font-weight:600;font-size:12px;cursor:pointer;transition:.15s;}
+.mode-btn.active{background:#1d4ed8;color:#fff;border-color:#1d4ed8;}
+.mode-content{display:none;}
+.mode-content.active{display:block;}
+/* FORM */
+.form-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+.form-group{display:flex;flex-direction:column;gap:4px;flex:1;min-width:140px;}
+.form-group label{font-size:11.5px;font-weight:600;color:#374151;}
+.form-group input,.form-group select{padding:8px 10px;border:1.5px solid #d1d5db;border-radius:6px;font-size:13px;background:#fff;width:100%;}
+.form-group input:focus,.form-group select:focus{border-color:#059669;outline:none;box-shadow:0 0 0 3px rgba(5,150,105,.1);}
+.form-group .hint{font-size:10.5px;color:#6b7280;margin-top:2px;}
+/* VST REF TABLE */
+.vst-ref-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:14px;}
+.vst-ref-table th{background:#064e3b;color:#fff;padding:7px 10px;font-weight:600;}
+.vst-ref-table td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
+.vst-ref-table tr.sel td{background:#d1fae5;}
+.vst-ref-table tr:hover td{background:#ecfdf5;cursor:pointer;}
+/* BUTTONS */
+.btn-add{background:#059669;color:#fff;border:none;padding:8px 14px;border-radius:6px;font-size:12px;font-weight:700;cursor:pointer;}
+.btn-add:hover{opacity:.9;}
+.btn-del{background:#fee2e2;color:#dc2626;border:none;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:700;cursor:pointer;}
+.btn-del:hover{background:#fecaca;}
+/* UNIT TOGGLE */
+.unit-toggle{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
+.unit-toggle span{font-size:11.5px;font-weight:600;color:#6b7280;}
+.unit-btn{padding:5px 14px;border:1.5px solid #d1d5db;border-radius:6px;background:#fff;font-size:12px;font-weight:700;cursor:pointer;color:#6b7280;transition:.15s;}
+.unit-btn.active{border-color:#059669;background:#ecfdf5;color:#065f46;}
+.tfoot-row td{background:#ecfdf5;font-weight:700;color:#064e3b;border-top:2px solid #a7f3d0;}
+.tfoot-row-ov td{background:#eff6ff;font-weight:700;color:#1e3a5f;border-top:2px solid #bfdbfe;}
+.tfoot-row-amb td{background:#faf5ff;font-weight:700;color:#4c1d95;border-top:2px solid #c4b5fd;}
+.center{text-align:center;}
+.right{text-align:right;}
+.muted{color:#9ca3af;font-size:11px;}
+@media(max-width:640px){
+  .ciuo-grid{grid-template-columns:1fr;}
+  .nav-grid{grid-template-columns:1fr 1fr;}
+  .form-row{flex-direction:column;}
+  .result-row{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-icon">
+    <svg width="22" height="22" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+  </div>
+  <div>
+    <h1>Asistente de Precios Sociales IPS 2026</h1>
+    <p>Factores y calculadoras para evaluación social de proyectos — SNI 2026</p>
+  </div>
+  <a href="index.html" class="back">← Inicio</a>
+</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('inicio')">🏠 Resumen IPS</button>
+  <button class="tab-btn" onclick="showTab('mo')">👷 Mano de Obra</button>
+  <button class="tab-btn" onclick="showTab('vst')">⏱ Valor del Tiempo</button>
+  <button class="tab-btn" onclick="showTab('vve')">❤️ Vida Estadística</button>
+  <button class="tab-btn" onclick="showTab('opveh')">🚗 Op. Vehicular</button>
+  <button class="tab-btn" onclick="showTab('amb')">🌿 Ambientales</button>
+</div>
+
+<!-- ═══ TAB 1: INICIO ═══ -->
+<div id="tab-inicio" class="tab-content active">
+  <div class="card">
+    <div class="card-title">📋 Tabla de Referencia — Precios Sociales IPS 2026</div>
+    <div class="info-box">
+      Los <strong>Precios Sociales</strong> representan el costo o beneficio real para la sociedad, corrigiendo las distorsiones del mercado (impuestos, subsidios, desempleo, externalidades). Todos los valores corresponden al <strong>Informe de Precios Sociales (IPS) 2026</strong> del Ministerio de Desarrollo Social y Familia. TSD vigente: <strong>5,5% anual</strong>.
+    </div>
+    <table class="ref-table">
+      <thead><tr><th>Factor / Precio Social</th><th>Valor IPS 2026</th><th>Unidad</th></tr></thead>
+      <tbody>
+        <tr class="sec-row"><td colspan="3">⚙ PARÁMETROS GENERALES</td></tr>
+        <tr><td>Tasa Social de Descuento (TSD)</td><td><strong>5,5%</strong></td><td>Anual</td></tr>
+        <tr><td>Factor Corrección Social Divisa (FCSD)</td><td>1,00</td><td>—</td></tr>
+        <tr><td>IVA vigente</td><td>19%</td><td>—</td></tr>
+        <tr><td>Derecho ad valorem combustibles</td><td>0,71%</td><td>—</td></tr>
+        <tr class="sec-row"><td colspan="3">👷 CORRECCIÓN SOCIAL DE LA MANO DE OBRA (FCSMO)</td></tr>
+        <tr><td>Mano de Obra Calificada (MOC) — CIUO grupos 1–3</td><td><strong>0,97</strong></td><td>Factor</td></tr>
+        <tr><td>Mano de Obra Semi-Calificada (MOSC) — CIUO grupos 4–7</td><td><strong>0,95</strong></td><td>Factor</td></tr>
+        <tr><td>Mano de Obra No Calificada (MONC) — CIUO grupos 8–9</td><td><strong>0,91</strong></td><td>Factor</td></tr>
+        <tr class="sec-row"><td colspan="3">⏱ VALOR SOCIAL DEL TIEMPO DE VIAJE (VST)</td></tr>
+        <tr><td>Urbano — Tiempo de viaje en vehículo</td><td>3.338</td><td>CLP / hora·persona</td></tr>
+        <tr><td>Urbano — Espera / Caminata (×2 del viaje)</td><td>6.676</td><td>CLP / hora·persona</td></tr>
+        <tr><td>Interurbano Terrestre</td><td>10.047</td><td>CLP / hora·persona</td></tr>
+        <tr><td>Aéreo</td><td>16.983</td><td>CLP / hora·persona</td></tr>
+        <tr><td>Deportivo / Recreacional</td><td>2.792</td><td>CLP / hora·persona</td></tr>
+        <tr><td>Carga (costo logístico)</td><td>12.954</td><td>CLP / hora·tonelada</td></tr>
+        <tr class="sec-row"><td colspan="3">❤️ VALOR DE UNA VIDA ESTADÍSTICA (VVE)</td></tr>
+        <tr><td>VVE — equivalente a 60.000 UF al 31‑dic‑2025</td><td><strong>2.383.677.600</strong></td><td>CLP / vida</td></tr>
+        <tr class="sec-row"><td colspan="3">🚗 OPERACIÓN VEHICULAR — COMBUSTIBLES (CLP/L)</td></tr>
+        <tr><td>Automóvil</td><td>760</td><td>CLP / litro</td></tr>
+        <tr><td>Camioneta</td><td>787</td><td>CLP / litro</td></tr>
+        <tr><td>Camión 2 ejes</td><td>805</td><td>CLP / litro</td></tr>
+        <tr><td>Camión +2 ejes / Bus</td><td>805</td><td>CLP / litro</td></tr>
+        <tr class="sec-row"><td colspan="3">🚗 OPERACIÓN VEHICULAR — NEUMÁTICOS (CLP/Unidad)</td></tr>
+        <tr><td>Automóvil</td><td>87.543</td><td>CLP / unidad</td></tr>
+        <tr><td>Camioneta</td><td>198.250</td><td>CLP / unidad</td></tr>
+        <tr><td>Camión 2 ejes</td><td>243.542</td><td>CLP / unidad</td></tr>
+        <tr><td>Camión +2 ejes / Bus</td><td>364.116</td><td>CLP / unidad</td></tr>
+        <tr class="sec-row"><td colspan="3">🚗 OPERACIÓN VEHICULAR — LUBRICANTES (CLP/L)</td></tr>
+        <tr><td>Auto / Camioneta</td><td>8.740</td><td>CLP / litro</td></tr>
+        <tr><td>Bus / Camión</td><td>5.176</td><td>CLP / litro</td></tr>
+        <tr class="sec-row"><td colspan="3">🚗 OPERACIÓN VEHICULAR — VEHÍCULOS NUEVOS (CLP/vehículo)</td></tr>
+        <tr><td>Automóvil</td><td>11.360.008</td><td>CLP / vehículo</td></tr>
+        <tr><td>Camioneta</td><td>25.926.643</td><td>CLP / vehículo</td></tr>
+        <tr><td>Camión 2 ejes</td><td>59.596.934</td><td>CLP / vehículo</td></tr>
+        <tr><td>Camión +2 ejes</td><td>93.245.530</td><td>CLP / vehículo</td></tr>
+        <tr><td>Bus urbano diésel</td><td>117.549.248</td><td>CLP / vehículo</td></tr>
+        <tr><td>Bus urbano eléctrico</td><td>225.362.700</td><td>CLP / vehículo</td></tr>
+        <tr><td>Bus interurbano</td><td>236.844.841</td><td>CLP / vehículo</td></tr>
+        <tr class="sec-row"><td colspan="3">🚗 OPERACIÓN VEHICULAR — MANTENIMIENTO</td></tr>
+        <tr><td>Costo de mantenimiento vehicular</td><td>6.931</td><td>CLP / hora</td></tr>
+        <tr class="sec-row"><td colspan="3">🌿 PRECIOS SOCIALES AMBIENTALES</td></tr>
+        <tr><td>Precio Social del Carbono (PSC) — CO₂ equivalente</td><td>71.801</td><td>CLP / t CO₂eq</td></tr>
+        <tr><td>Potencial calentamiento global CH₄ (GWP100)</td><td>28</td><td>t CO₂eq / t CH₄</td></tr>
+        <tr><td>Potencial calentamiento global N₂O (GWP100)</td><td>265</td><td>t CO₂eq / t N₂O</td></tr>
+        <tr><td>Energía eléctrica — Baja tensión</td><td>124,8</td><td>CLP / kWh</td></tr>
+        <tr><td>Energía eléctrica — Alta tensión</td><td>119,8</td><td>CLP / kWh</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <div class="card-title">¿Qué precio social necesitas calcular?</div>
+    <div class="nav-grid">
+      <div class="nav-card" onclick="showTab('mo')">
+        <div class="nc-num">1</div>
+        <div class="nc-title">Corrección Social<br>Mano de Obra</div>
+        <div class="nc-sub">FCSMO × Salario Bruto</div>
+      </div>
+      <div class="nav-card" onclick="showTab('vst')">
+        <div class="nc-num">2</div>
+        <div class="nc-title">Valor Social<br>del Tiempo</div>
+        <div class="nc-sub">VST × usuarios × horas</div>
+      </div>
+      <div class="nav-card" onclick="showTab('vve')">
+        <div class="nc-num">3</div>
+        <div class="nc-title">Valor de una<br>Vida Estadística</div>
+        <div class="nc-sub">VVE = 2.383.677.600 CLP</div>
+      </div>
+      <div class="nav-card" onclick="showTab('opveh')">
+        <div class="nc-num">4</div>
+        <div class="nc-title">Operación<br>Vehicular</div>
+        <div class="nc-sub">Combustible, neumáticos...</div>
+      </div>
+      <div class="nav-card" onclick="showTab('amb')">
+        <div class="nc-num">5</div>
+        <div class="nc-title">Precios Sociales<br>Ambientales</div>
+        <div class="nc-sub">CO₂, CH₄, N₂O, Energía</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ TAB 2: MANO DE OBRA ═══ -->
+<div id="tab-mo" class="tab-content">
+  <div class="card">
+    <div class="card-title">👷 Corrección Social de la Mano de Obra</div>
+    <div class="info-box">
+      El <strong>Precio Social de la Mano de Obra</strong> corrige el salario bruto de mercado con el <strong>Factor de Corrección Social (FCSMO)</strong>, que refleja el costo de oportunidad real del trabajo según el mercado laboral. El tipo de MO depende del nivel de calificación según la clasificación CIUO-08.
+    </div>
+    <div class="info-box yellow">
+      <strong>Fórmula:</strong>&nbsp; Precio Social MO (M$) = Salario Bruto (M$) × FCSMO
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">¿Qué tipo aplica? — Clasificación internacional de ocupaciones CIUO-08</div>
+    <div class="ciuo-grid">
+      <div class="ciuo-card moc">
+        <h4>👔 Mano de Obra Calificada (MOC)</h4>
+        <div class="factor-badge">FCSMO = 0,97</div>
+        <ul>
+          <li>Grupo 1: Directivos y gerentes</li>
+          <li>Grupo 2: Profesionales</li>
+          <li>Grupo 3: Técnicos y prof. nivel medio</li>
+        </ul>
+      </div>
+      <div class="ciuo-card mosc">
+        <h4>🛒 Mano de Obra Semi-Calificada (MOSC)</h4>
+        <div class="factor-badge">FCSMO = 0,95</div>
+        <ul>
+          <li>Grupo 4: Apoyo administrativo</li>
+          <li>Grupo 5: Servicios y ventas</li>
+          <li>Grupo 6: Agricultores calificados</li>
+          <li>Grupo 7: Oficiales y operarios</li>
+        </ul>
+      </div>
+      <div class="ciuo-card monc">
+        <h4>⚙️ Mano de Obra No Calificada (MONC)</h4>
+        <div class="factor-badge">FCSMO = 0,91</div>
+        <ul>
+          <li>Grupo 8: Operadores de maquinaria</li>
+          <li>Grupo 9: Ocupaciones elementales<br>(peones, limpieza, carga...)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Calculadora — Precio Social Mano de Obra</div>
+    <div class="unit-toggle">
+      <span>Unidad de ingreso:</span>
+      <button id="mo-btn-m" class="unit-btn active" onclick="setMOUnit('M$')">M$ — Miles de pesos</button>
+      <button id="mo-btn-c" class="unit-btn" onclick="setMOUnit('$')">$ — Pesos</button>
+    </div>
+    <div style="overflow-x:auto;">
+      <table class="mo-table">
+        <thead>
+          <tr>
+            <th style="width:32px;" class="center">#</th>
+            <th>Descripción / Cargo</th>
+            <th style="width:145px;" id="mo-th-bruto">Salario Bruto (M$)</th>
+            <th style="width:170px;">Calificación</th>
+            <th style="width:72px;" class="center">FCSMO</th>
+            <th style="width:130px;" class="right" id="mo-th-ps">Precio Social (M$)</th>
+            <th style="width:34px;"></th>
+          </tr>
+        </thead>
+        <tbody id="mo-tbody"></tbody>
+        <tfoot>
+          <tr class="tfoot-row">
+            <td colspan="2" style="padding:6px 8px;">TOTAL</td>
+            <td class="right" id="mo-tot-b" style="padding:6px 8px;">—</td>
+            <td></td>
+            <td></td>
+            <td class="right" id="mo-tot-p" style="padding:6px 8px;">—</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <button class="btn-add" onclick="addMORow()">+ Agregar fila</button>
+    <div class="result-row" id="mo-results"></div>
+  </div>
+</div>
+
+<!-- ═══ TAB 3: VALOR DEL TIEMPO ═══ -->
+<div id="tab-vst" class="tab-content">
+  <div class="card">
+    <div class="card-title">⏱ Valor Social del Tiempo de Viaje (VST)</div>
+    <div class="info-box blue">
+      El <strong>VST</strong> cuantifica el beneficio social del tiempo ahorrado en desplazamientos, expresado en <strong>CLP por hora·persona</strong>. Se aplica a proyectos de transporte, conectividad vial, infraestructura urbana y similares.
+    </div>
+    <div class="info-box yellow">
+      <strong>Fórmula:</strong>&nbsp; Beneficio Anual (CLP) = N° usuarios × Horas ahorradas/viaje × Días/año × VST unitario
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Paso 1 — Selecciona el tipo de viaje</div>
+    <table class="vst-ref-table">
+      <thead><tr><th>Tipo de viaje / desplazamiento</th><th style="text-align:right;width:200px;">VST (CLP/hora·persona)</th><th style="width:130px;text-align:center;">Acción</th></tr></thead>
+      <tbody id="vst-tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Paso 2 — Ingresa los datos del proyecto</div>
+    <div class="info-box blue" id="vst-sel-info">Selecciona un tipo de viaje en la tabla de arriba para comenzar.</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label id="vst-lbl-u">N° de usuarios beneficiados por día</label>
+        <input type="text" id="vst-usuarios" value="" placeholder="0"
+          onfocus="this.value=this.value.replace(/\./g,'')"
+          onblur="if(this.value.trim())this.value=fmtN(parseNum(this.value))"
+          oninput="calcVST()">
+        <span class="hint">Personas que ahorran tiempo (o toneladas en carga)</span>
+      </div>
+      <div class="form-group">
+        <label>Horas ahorradas por viaje</label>
+        <input type="text" id="vst-horas" value="" placeholder="0,0"
+          oninput="calcVST()">
+        <span class="hint">Usar coma como decimal (ej: 0,5 = 30 min; 1,5 = 1h 30min)</span>
+      </div>
+      <div class="form-group">
+        <label>Días al año con ahorro</label>
+        <input type="text" id="vst-dias" value="" placeholder="0"
+          onfocus="this.value=this.value.replace(/\./g,'')"
+          onblur="if(this.value.trim())this.value=fmtN(parseNum(this.value))"
+          oninput="calcVST()">
+        <span class="hint">Ej: 250 días hábiles, 365 días calendario</span>
+      </div>
+    </div>
+    <div class="result-row" id="vst-results"></div>
+  </div>
+</div>
+
+<!-- ═══ TAB 4: VIDA ESTADÍSTICA ═══ -->
+<div id="tab-vve" class="tab-content">
+  <div class="card">
+    <div class="card-title">❤️ Valor de una Vida Estadística (VVE)</div>
+    <div class="info-box blue">
+      El <strong>VVE</strong> cuantifica el beneficio social de reducir el riesgo de muerte. Corresponde a <strong>60.000 UF</strong> al 31-dic-2025. Se usa en proyectos de salud, seguridad vial, saneamiento y prevención de accidentes.
+    </div>
+  </div>
+
+  <div class="vve-hero">
+    <div style="font-size:11.5px;opacity:.75;margin-bottom:6px;">VVE IPS 2026 — 60.000 UF al 31-dic-2025</div>
+    <div class="vve-big">$ 2.383.677.600 CLP / vida</div>
+    <div class="vve-sub">equivalente a M$ 2.383.677,6 por vida estadística</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Calculadora VVE — Selecciona el modo</div>
+    <div class="mode-btns">
+      <button class="mode-btn active" id="vve-btn-vidas" onclick="setVVEMode('vidas')">
+        🏥 Modo 1 — Vidas salvadas directas
+      </button>
+      <button class="mode-btn" id="vve-btn-riesgo" onclick="setVVEMode('riesgo')">
+        📊 Modo 2 — Reducción de riesgo × Población
+      </button>
+    </div>
+
+    <div class="mode-content active" id="vve-vidas">
+      <div class="info-box" style="margin-bottom:12px;">
+        Para proyectos donde se estima directamente el <strong>número de muertes evitadas</strong> (ej: programa de salud, semáforos en puntos críticos).<br>
+        <strong>Fórmula:</strong> Beneficio = N° Vidas × 2.383.677.600 CLP
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>N° de vidas salvadas estimadas (al año)</label>
+          <input type="text" id="vve-nvidas" value="" placeholder="0,0" oninput="calcVVE()">
+          <span class="hint">Puede ser decimal (ej: 0,5 = media vida por año en promedio)</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mode-content" id="vve-riesgo">
+      <div class="info-box" style="margin-bottom:12px;">
+        Para proyectos que <strong>reducen la probabilidad de muerte</strong> en una población (ej: mejoras viales, agua potable rural).<br>
+        <strong>Fórmula:</strong> Vidas equivalentes = (ΔR / 1.000.000) × Población &nbsp;→&nbsp; Beneficio = Vidas × VVE
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Reducción de riesgo (ΔR) en partes por millón</label>
+          <input type="text" id="vve-dr" value="" placeholder="0,0" oninput="calcVVE()">
+          <span class="hint">Ej: 5 significa 5 muertes menos por millón de personas al año</span>
+        </div>
+        <div class="form-group">
+          <label>Población beneficiada (personas)</label>
+          <input type="text" id="vve-pob" value="" placeholder="0"
+            onfocus="this.value=this.value.replace(/\./g,'')"
+            onblur="if(this.value.trim())this.value=fmtN(parseNum(this.value))"
+            oninput="calcVVE()">
+          <span class="hint">N° de personas expuestas al riesgo que reduce el proyecto</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-row" id="vve-results"></div>
+  </div>
+</div>
+
+<!-- ═══ TAB 5: OPERACIÓN VEHICULAR ═══ -->
+<div id="tab-opveh" class="tab-content">
+  <div class="card">
+    <div class="card-title">🚗 Costos de Operación Vehicular</div>
+    <div class="info-box blue">
+      Los <strong>costos de operación vehicular</strong> cuantifican el valor social del uso de vehículos: combustible, neumáticos, lubricantes, depreciación y mantenimiento. Se usan para evaluar proyectos viales, logística y transporte, midiendo el ahorro (beneficio) o aumento (costo) en estos rubros.
+    </div>
+    <div class="info-box yellow">
+      <strong>Fórmula:</strong>&nbsp; Costo Total (M$) = Σ (Cantidad × PS Unitario CLP) ÷ 1.000
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Calculadora — Operación Vehicular</div>
+    <div style="overflow-x:auto;">
+      <table class="ov-table">
+        <thead>
+          <tr>
+            <th style="width:28px;" class="center">#</th>
+            <th style="min-width:140px;">Insumo</th>
+            <th style="min-width:160px;">Tipo de vehículo</th>
+            <th style="min-width:100px;">Cantidad</th>
+            <th style="min-width:48px;" class="center">Unidad</th>
+            <th style="min-width:130px;" class="right">PS Unitario (CLP)</th>
+            <th style="min-width:120px;" class="right">Total (CLP)</th>
+            <th style="min-width:100px;" class="right">Total (M$)</th>
+            <th style="width:32px;"></th>
+          </tr>
+        </thead>
+        <tbody id="ov-tbody"></tbody>
+        <tfoot>
+          <tr class="tfoot-row-ov">
+            <td colspan="6" style="padding:6px 8px;">TOTAL</td>
+            <td class="right" id="ov-tot-clp" style="padding:6px 8px;">—</td>
+            <td class="right" id="ov-tot-m" style="padding:6px 8px;">—</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <button class="btn-add" style="background:#1d4ed8;" onclick="addOVRow()">+ Agregar insumo</button>
+    <div class="result-row" id="ov-results"></div>
+  </div>
+</div>
+
+<!-- ═══ TAB 6: AMBIENTALES ═══ -->
+<div id="tab-amb" class="tab-content">
+  <div class="card">
+    <div class="card-title">🌿 Precios Sociales Ambientales</div>
+    <div class="info-box purple">
+      Los <strong>precios sociales ambientales</strong> monetizan externalidades de gases de efecto invernadero (GEI) y de energía eléctrica. Para CH₄ y N₂O, se convierten a CO₂ equivalente mediante factores GWP100 y se multiplica por el <strong>Precio Social del Carbono (PSC = 71.801 CLP/t CO₂eq)</strong>.
+    </div>
+    <div class="info-box yellow">
+      <strong>Fórmulas:</strong><br>
+      CO₂: Costo = t CO₂ × 71.801 CLP/t<br>
+      CH₄: Costo = t CH₄ × 28 × 71.801 = t CH₄ × 2.010.428 CLP/t<br>
+      N₂O: Costo = t N₂O × 265 × 71.801 = t N₂O × 19.027.265 CLP/t<br>
+      Energía: Beneficio = kWh × PS energía (CLP/kWh)
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Calculadora — Precios Sociales Ambientales</div>
+    <div style="overflow-x:auto;">
+      <table class="amb-table">
+        <thead>
+          <tr>
+            <th style="width:28px;" class="center">#</th>
+            <th style="min-width:200px;">Tipo de emisión / energía</th>
+            <th style="min-width:110px;">Cantidad</th>
+            <th style="min-width:56px;" class="center">Unidad</th>
+            <th style="min-width:60px;" class="center">GWP</th>
+            <th style="min-width:140px;" class="right">PS Unitario (CLP)</th>
+            <th style="min-width:120px;" class="right">Total (CLP)</th>
+            <th style="min-width:100px;" class="right">Total (M$)</th>
+            <th style="width:32px;"></th>
+          </tr>
+        </thead>
+        <tbody id="amb-tbody"></tbody>
+        <tfoot>
+          <tr class="tfoot-row-amb">
+            <td colspan="6" style="padding:6px 8px;">TOTAL</td>
+            <td class="right" id="amb-tot-clp" style="padding:6px 8px;">—</td>
+            <td class="right" id="amb-tot-m" style="padding:6px 8px;">—</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+    <button class="btn-add" style="background:#7c3aed;" onclick="addAMBRow()">+ Agregar emisión / energía</button>
+    <div class="result-row" id="amb-results"></div>
+  </div>
+</div>
+
+<script>
+// ── IPS 2026 DATA ──
+const IPS = {
+  fcsmo: { MOC:0.97, MOSC:0.95, MONC:0.91 },
+  vst: [
+    { id:'urb_viaje',  label:'Urbano — Tiempo de viaje en vehículo', valor:3338 },
+    { id:'urb_espera', label:'Urbano — Espera / Caminata (×2 del viaje)', valor:6676 },
+    { id:'inter_terr', label:'Interurbano Terrestre', valor:10047 },
+    { id:'aereo',      label:'Aéreo', valor:16983 },
+    { id:'deporte',    label:'Deportivo / Recreacional', valor:2792 },
+    { id:'carga',      label:'Carga (costo logístico)', valor:12954 },
+  ],
+  vve: 2383677600,
+  combustibles: [
+    { id:'auto',      label:'Automóvil', valor:760 },
+    { id:'camioneta', label:'Camioneta', valor:787 },
+    { id:'c2e',       label:'Camión 2 ejes', valor:805 },
+    { id:'cmas2e',    label:'Camión +2 ejes / Bus', valor:805 },
+  ],
+  neumaticos: [
+    { id:'auto',      label:'Automóvil', valor:87543 },
+    { id:'camioneta', label:'Camioneta', valor:198250 },
+    { id:'c2e',       label:'Camión 2 ejes', valor:243542 },
+    { id:'cmas2e',    label:'Camión +2 ejes / Bus', valor:364116 },
+  ],
+  lubricantes: [
+    { id:'auto_cam', label:'Auto / Camioneta', valor:8740 },
+    { id:'bus_cam',  label:'Bus / Camión', valor:5176 },
+  ],
+  vehiculos: [
+    { id:'auto',      label:'Automóvil', valor:11360008 },
+    { id:'camioneta', label:'Camioneta', valor:25926643 },
+    { id:'c2e',       label:'Camión 2 ejes', valor:59596934 },
+    { id:'cmas2e',    label:'Camión +2 ejes', valor:93245530 },
+    { id:'bus_ud',    label:'Bus urbano diésel', valor:117549248 },
+    { id:'bus_ue',    label:'Bus urbano eléctrico', valor:225362700 },
+    { id:'bus_inter', label:'Bus interurbano', valor:236844841 },
+  ],
+  mantenimiento: 6931,
+  psc: 71801,
+  ch4_gwp: 28,
+  n2o_gwp: 265,
+  energia: [
+    { id:'baja', label:'Baja tensión', valor:124.8 },
+    { id:'alta', label:'Alta tensión', valor:119.8 },
+  ],
+};
+
+// ── STATE ──
+let MO_ROWS  = [{ desc:'', monto:0, tipo:'MOC' }];
+let MO_UNIT  = 'M$'; // 'M$' | '$' — almacenamiento interno siempre en M$
+let OV_ROWS  = [{ insumo:'combustible', subtipo:'auto', cantidad:0 }];
+let AMB_ROWS = [{ tipo:'co2', cantidad:0 }];
+let VVE_MODE = 'vidas';
+let VST_SEL  = null;
+
+// ── FORMATTERS ──
+const NF0 = new Intl.NumberFormat('es-CL', {maximumFractionDigits:0});
+const NF2 = new Intl.NumberFormat('es-CL', {minimumFractionDigits:2, maximumFractionDigits:2});
+const NF3 = new Intl.NumberFormat('es-CL', {minimumFractionDigits:0, maximumFractionDigits:3});
+function parseNum(v){ return parseFloat((v+'').replace(/\./g,'').replace(',','.')) || 0; }
+function fmtN(n){ return NF0.format(+n||0); }
+function fmtD(n){ return NF2.format(+n||0); }
+
+// ── TABS ──
+function showTab(id) {
+  const ids = ['inicio','mo','vst','vve','opveh','amb'];
+  document.querySelectorAll('.tab-btn').forEach((b,i) => b.classList.toggle('active', ids[i]===id));
+  document.querySelectorAll('.tab-content').forEach(d => d.classList.remove('active'));
+  const el = document.getElementById('tab-'+id);
+  if(el) el.classList.add('active');
+}
+
+// ── MO ──
+function addMORow()  { MO_ROWS.push({desc:'',monto:0,tipo:'MOC'}); renderMO(); }
+function delMORow(i) { MO_ROWS.splice(i,1); if(!MO_ROWS.length) MO_ROWS.push({desc:'',monto:0,tipo:'MOC'}); renderMO(); }
+
+function setMOUnit(unit) {
+  MO_UNIT = unit;
+  document.getElementById('mo-btn-m')?.classList.toggle('active', unit==='M$');
+  document.getElementById('mo-btn-c')?.classList.toggle('active', unit==='$');
+  const lbl = unit === 'M$' ? 'M$' : '$';
+  const th1 = document.getElementById('mo-th-bruto');
+  const th2 = document.getElementById('mo-th-ps');
+  if(th1) th1.textContent = `Salario Bruto (${lbl})`;
+  if(th2) th2.textContent = `Precio Social (${lbl})`;
+  renderMO();
+}
+
+// Helpers dependientes de la unidad seleccionada.
+// Internamente todo se guarda en M$; solo la presentación cambia.
+function moDisp(monto_m) {
+  return MO_UNIT === 'M$' ? fmtD(monto_m) : fmtN(Math.round(monto_m * 1000));
+}
+function moDispVal(monto_m) {
+  return MO_UNIT === 'M$' ? (monto_m ? fmtD(monto_m) : '') : (monto_m ? fmtN(Math.round(monto_m * 1000)) : '');
+}
+function moParse(rawStr) {
+  // rawStr ya viene sin separadores de miles (limpiado en onfocus)
+  const v = parseNum(rawStr);
+  return MO_UNIT === 'M$' ? v : v / 1000;
+}
+
+function calcMO() {
+  let totB=0, totP=0;
+  MO_ROWS.forEach((r,i) => {
+    const f = IPS.fcsmo[r.tipo]||1;
+    const ps = r.monto * f;
+    totB += r.monto; totP += ps;
+    const ef = document.getElementById('mo-f-'+i);
+    const ep = document.getElementById('mo-p-'+i);
+    if(ef) { ef.textContent = f.toFixed(2).replace('.',','); ef.className='mo-badge badge-'+r.tipo.toLowerCase(); }
+    if(ep) ep.textContent = moDisp(ps);
+  });
+  const unit = MO_UNIT;
+  const eb = document.getElementById('mo-tot-b');
+  const ep = document.getElementById('mo-tot-p');
+  if(eb) eb.textContent = moDisp(totB) + ' ' + unit;
+  if(ep) ep.textContent = moDisp(totP) + ' ' + unit;
+  const res = document.getElementById('mo-results');
+  if(!res) return;
+  if(!totB && !totP){ res.innerHTML=''; return; }
+  const corr = totB - totP;
+  res.innerHTML = `
+    <div class="rb"><div class="rb-l">Total Salario Bruto (PM)</div><div class="rb-v">${moDisp(totB)}</div><div class="rb-u">${unit} — Precio de Mercado</div></div>
+    <div class="rb blue"><div class="rb-l">Total Precio Social MO</div><div class="rb-v">${moDisp(totP)}</div><div class="rb-u">${unit} — Precio Social</div></div>
+    <div class="rb red"><div class="rb-l">Corrección Social (PM − PS)</div><div class="rb-v">${moDisp(corr)}</div><div class="rb-u">${unit} — diferencia PM vs PS</div></div>`;
+}
+
+function renderMO() {
+  const tb = document.getElementById('mo-tbody');
+  if(!tb) return;
+  tb.innerHTML = MO_ROWS.map((r,i) => {
+    const f = IPS.fcsmo[r.tipo]||1;
+    const ps = r.monto * f;
+    const ph = MO_UNIT === 'M$' ? '0,00' : '0';
+    return `<tr>
+      <td class="center muted">${i+1}</td>
+      <td><input type="text" value="${r.desc.replace(/"/g,'&quot;')}" placeholder="Ej: Profesionales, Peones..."
+        oninput="MO_ROWS[${i}].desc=this.value"></td>
+      <td><input type="text" value="${moDispVal(r.monto)}" placeholder="${ph}" style="text-align:right;"
+        onfocus="this.value=this.value.replace(/\\./g,'').replace(',','.')"
+        onblur="if(this.value.trim())this.value=moDispVal(moParse(this.value))"
+        oninput="MO_ROWS[${i}].monto=moParse(this.value);calcMO()"></td>
+      <td><select onchange="MO_ROWS[${i}].tipo=this.value;calcMO()">
+        <option value="MOC"  ${r.tipo==='MOC' ?'selected':''}>MOC — Calificada</option>
+        <option value="MOSC" ${r.tipo==='MOSC'?'selected':''}>MOSC — Semi-calificada</option>
+        <option value="MONC" ${r.tipo==='MONC'?'selected':''}>MONC — No calificada</option>
+      </select></td>
+      <td class="center"><span id="mo-f-${i}" class="mo-badge badge-${r.tipo.toLowerCase()}">${f.toFixed(2).replace('.',',')}</span></td>
+      <td class="right"><span id="mo-p-${i}">${moDisp(ps)}</span></td>
+      <td><button class="btn-del" onclick="delMORow(${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+  calcMO();
+}
+
+// ── VST ──
+function renderVSTRef() {
+  const tb = document.getElementById('vst-tbody');
+  if(!tb) return;
+  tb.innerHTML = IPS.vst.map((v,i) => `
+    <tr id="vst-row-${i}" class="${VST_SEL===i?'sel':''}" onclick="selectVST(${i})">
+      <td>${v.label}</td>
+      <td style="text-align:right;font-weight:700;">${fmtN(v.valor)}</td>
+      <td style="text-align:center;">
+        <button onclick="event.stopPropagation();selectVST(${i})"
+          style="background:${VST_SEL===i?'#047857':'#059669'};color:#fff;border:none;padding:5px 12px;border-radius:5px;font-size:11.5px;font-weight:700;cursor:pointer;">
+          ${VST_SEL===i?'✓ Seleccionado':'Usar →'}
+        </button>
+      </td>
+    </tr>`).join('');
+}
+
+function selectVST(i) {
+  VST_SEL = i;
+  renderVSTRef();
+  const v = IPS.vst[i];
+  document.getElementById('vst-sel-info').innerHTML =
+    `<strong>Tipo seleccionado:</strong> ${v.label} &nbsp;·&nbsp; <strong>VST = ${fmtN(v.valor)} CLP/hora·persona</strong>`;
+  calcVST();
+}
+
+function calcVST() {
+  const usuarios = parseNum(document.getElementById('vst-usuarios')?.value);
+  const horas    = parseNum(document.getElementById('vst-horas')?.value);
+  const dias     = parseNum(document.getElementById('vst-dias')?.value);
+  const res = document.getElementById('vst-results');
+  if(!res) return;
+  if(VST_SEL===null||(!usuarios&&!horas&&!dias)){ res.innerHTML=''; return; }
+  const vst = IPS.vst[VST_SEL].valor;
+  const hAnual = usuarios * horas * dias;
+  const totalCLP = hAnual * vst;
+  res.innerHTML = `
+    <div class="rb blue"><div class="rb-l">Horas·persona al año</div><div class="rb-v">${NF3.format(hAnual)}</div><div class="rb-u">h·persona/año</div></div>
+    <div class="rb"><div class="rb-l">Beneficio VST Anual</div><div class="rb-v">${fmtN(Math.round(totalCLP))}</div><div class="rb-u">CLP / año</div></div>
+    <div class="rb purple"><div class="rb-l">Beneficio VST en M$</div><div class="rb-v">${fmtD(totalCLP/1000)}</div><div class="rb-u">M$ / año — ingresar en flujos anuales</div></div>`;
+}
+
+// ── VVE ──
+function setVVEMode(mode) {
+  VVE_MODE = mode;
+  ['vidas','riesgo'].forEach(m => {
+    document.getElementById('vve-btn-'+m).classList.toggle('active', m===mode);
+    document.getElementById('vve-'+m).classList.toggle('active', m===mode);
+  });
+  calcVVE();
+}
+
+function calcVVE() {
+  const res = document.getElementById('vve-results');
+  if(!res) return;
+  let vidas=0;
+  if(VVE_MODE==='vidas') {
+    vidas = parseNum(document.getElementById('vve-nvidas')?.value);
+  } else {
+    const dr  = parseNum(document.getElementById('vve-dr')?.value);
+    const pob = parseNum(document.getElementById('vve-pob')?.value);
+    vidas = (dr/1000000)*pob;
+  }
+  const totalCLP = vidas * IPS.vve;
+  if(!totalCLP){ res.innerHTML=''; return; }
+  res.innerHTML = `
+    <div class="rb navy"><div class="rb-l">Vidas estadísticas equivalentes</div><div class="rb-v">${NF3.format(vidas)}</div><div class="rb-u">vidas / año</div></div>
+    <div class="rb"><div class="rb-l">Beneficio VVE Anual</div><div class="rb-v">${fmtN(Math.round(totalCLP))}</div><div class="rb-u">CLP / año</div></div>
+    <div class="rb purple"><div class="rb-l">Beneficio VVE en M$</div><div class="rb-v">${fmtD(totalCLP/1000)}</div><div class="rb-u">M$ / año — ingresar en flujos anuales</div></div>`;
+}
+
+// ── OPERACIÓN VEHICULAR ──
+function getOVList(insumo) {
+  return {combustible:IPS.combustibles,neumaticos:IPS.neumaticos,lubricantes:IPS.lubricantes,vehiculo:IPS.vehiculos}[insumo]||null;
+}
+function getOVUnitario(r) {
+  if(r.insumo==='mantenimiento') return IPS.mantenimiento;
+  const list=getOVList(r.insumo);
+  if(!list) return 0;
+  return (list.find(x=>x.id===r.subtipo)||list[0]).valor;
+}
+function getOVUnidad(insumo) {
+  return {combustible:'L',neumaticos:'unid',lubricantes:'L',vehiculo:'veh',mantenimiento:'h'}[insumo]||'';
+}
+
+function addOVRow()  { OV_ROWS.push({insumo:'combustible',subtipo:'auto',cantidad:0}); renderOV(); }
+function delOVRow(i) { OV_ROWS.splice(i,1); if(!OV_ROWS.length) OV_ROWS.push({insumo:'combustible',subtipo:'auto',cantidad:0}); renderOV(); }
+function onOVInsumo(i,val) {
+  OV_ROWS[i].insumo=val;
+  const list=getOVList(val);
+  OV_ROWS[i].subtipo=list?list[0].id:'';
+  renderOV();
+}
+
+function calcOV() {
+  let tot=0;
+  OV_ROWS.forEach((r,i) => {
+    const u=getOVUnitario(r), t=r.cantidad*u;
+    tot+=t;
+    const eu=document.getElementById('ov-u-'+i), et=document.getElementById('ov-t-'+i), em=document.getElementById('ov-m-'+i);
+    if(eu) eu.textContent=fmtN(u);
+    if(et) et.textContent=fmtN(Math.round(t));
+    if(em) em.textContent=fmtD(t/1000);
+  });
+  const etc=document.getElementById('ov-tot-clp'), etm=document.getElementById('ov-tot-m');
+  if(etc) etc.textContent=fmtN(Math.round(tot));
+  if(etm) etm.textContent=fmtD(tot/1000)+' M$';
+  const res=document.getElementById('ov-results');
+  if(!res||!tot){if(res)res.innerHTML='';return;}
+  res.innerHTML=`
+    <div class="rb blue"><div class="rb-l">Total Operación Vehicular</div><div class="rb-v">${fmtN(Math.round(tot))}</div><div class="rb-u">CLP</div></div>
+    <div class="rb"><div class="rb-l">Total en M$</div><div class="rb-v">${fmtD(tot/1000)}</div><div class="rb-u">M$ — ingresar en flujos anuales</div></div>`;
+}
+
+function renderOV() {
+  const tb=document.getElementById('ov-tbody'); if(!tb)return;
+  tb.innerHTML=OV_ROWS.map((r,i)=>{
+    const u=getOVUnitario(r), t=r.cantidad*u, unidad=getOVUnidad(r.insumo);
+    const list=getOVList(r.insumo);
+    const subCell = r.insumo==='mantenimiento'
+      ? `<td class="center muted" style="font-size:11px;">—</td>`
+      : `<td><select onchange="OV_ROWS[${i}].subtipo=this.value;calcOV()">
+          ${(list||[]).map(x=>`<option value="${x.id}" ${x.id===r.subtipo?'selected':''}>${x.label}</option>`).join('')}
+        </select></td>`;
+    return `<tr>
+      <td class="center muted">${i+1}</td>
+      <td><select onchange="onOVInsumo(${i},this.value)">
+        <option value="combustible"   ${r.insumo==='combustible'  ?'selected':''}>Combustible</option>
+        <option value="neumaticos"    ${r.insumo==='neumaticos'   ?'selected':''}>Neumáticos</option>
+        <option value="lubricantes"   ${r.insumo==='lubricantes'  ?'selected':''}>Lubricantes</option>
+        <option value="vehiculo"      ${r.insumo==='vehiculo'     ?'selected':''}>Vehículo nuevo</option>
+        <option value="mantenimiento" ${r.insumo==='mantenimiento'?'selected':''}>Mantenimiento</option>
+      </select></td>
+      ${subCell}
+      <td><input type="text" value="${r.cantidad?fmtN(r.cantidad):''}" placeholder="0" style="text-align:right;"
+        onfocus="this.value=this.value.replace(/\\./g,'')"
+        onblur="if(this.value.trim())this.value=fmtN(parseNum(this.value))"
+        oninput="OV_ROWS[${i}].cantidad=parseNum(this.value);calcOV()"></td>
+      <td class="center muted">${unidad}</td>
+      <td class="right"><span id="ov-u-${i}">${fmtN(u)}</span></td>
+      <td class="right"><span id="ov-t-${i}">${fmtN(Math.round(t))}</span></td>
+      <td class="right"><span id="ov-m-${i}">${fmtD(t/1000)}</span></td>
+      <td><button class="btn-del" onclick="delOVRow(${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── AMBIENTALES ──
+function getAMBUnitario(tipo) {
+  if(tipo==='co2') return IPS.psc;
+  if(tipo==='ch4') return IPS.ch4_gwp*IPS.psc;
+  if(tipo==='n2o') return IPS.n2o_gwp*IPS.psc;
+  if(tipo==='ebaja') return IPS.energia[0].valor;
+  if(tipo==='ealta') return IPS.energia[1].valor;
+  return 0;
+}
+function getAMBUnidad(tipo) {
+  return (tipo==='ebaja'||tipo==='ealta')?'kWh':'t';
+}
+function getAMBGWP(tipo) {
+  return {co2:'1',ch4:'28',n2o:'265',ebaja:'—',ealta:'—'}[tipo]||'—';
+}
+
+function addAMBRow()  { AMB_ROWS.push({tipo:'co2',cantidad:0}); renderAMB(); }
+function delAMBRow(i) { AMB_ROWS.splice(i,1); if(!AMB_ROWS.length) AMB_ROWS.push({tipo:'co2',cantidad:0}); renderAMB(); }
+function onAMBTipo(i,val) { AMB_ROWS[i].tipo=val; renderAMB(); }
+
+function calcAMB() {
+  let tot=0;
+  AMB_ROWS.forEach((r,i)=>{
+    const u=getAMBUnitario(r.tipo), t=r.cantidad*u;
+    tot+=t;
+    const eu=document.getElementById('amb-u-'+i), et=document.getElementById('amb-t-'+i), em=document.getElementById('amb-m-'+i);
+    if(eu) eu.textContent=fmtN(Math.round(u));
+    if(et) et.textContent=fmtN(Math.round(t));
+    if(em) em.textContent=fmtD(t/1000);
+  });
+  const etc=document.getElementById('amb-tot-clp'), etm=document.getElementById('amb-tot-m');
+  if(etc) etc.textContent=fmtN(Math.round(tot));
+  if(etm) etm.textContent=fmtD(tot/1000)+' M$';
+  const res=document.getElementById('amb-results');
+  if(!res||!tot){if(res)res.innerHTML='';return;}
+  res.innerHTML=`
+    <div class="rb" style="background:linear-gradient(135deg,#14532d,#16a34a);"><div class="rb-l">Total Precio Social Ambiental</div><div class="rb-v">${fmtN(Math.round(tot))}</div><div class="rb-u">CLP</div></div>
+    <div class="rb purple"><div class="rb-l">Total en M$</div><div class="rb-v">${fmtD(tot/1000)}</div><div class="rb-u">M$ — ingresar en flujos anuales</div></div>`;
+}
+
+function renderAMB() {
+  const tb=document.getElementById('amb-tbody'); if(!tb)return;
+  tb.innerHTML=AMB_ROWS.map((r,i)=>{
+    const u=getAMBUnitario(r.tipo), t=r.cantidad*u;
+    const unidad=getAMBUnidad(r.tipo), gwp=getAMBGWP(r.tipo);
+    return `<tr>
+      <td class="center muted">${i+1}</td>
+      <td><select onchange="onAMBTipo(${i},this.value)">
+        <option value="co2"   ${r.tipo==='co2'  ?'selected':''}>CO₂ — Dióxido de carbono</option>
+        <option value="ch4"   ${r.tipo==='ch4'  ?'selected':''}>CH₄ — Metano (GWP = 28)</option>
+        <option value="n2o"   ${r.tipo==='n2o'  ?'selected':''}>N₂O — Óxido nitroso (GWP = 265)</option>
+        <option value="ebaja" ${r.tipo==='ebaja'?'selected':''}>Energía eléctrica — Baja tensión</option>
+        <option value="ealta" ${r.tipo==='ealta'?'selected':''}>Energía eléctrica — Alta tensión</option>
+      </select></td>
+      <td><input type="text" value="${r.cantidad?fmtN(r.cantidad):''}" placeholder="0" style="text-align:right;"
+        onfocus="this.value=this.value.replace(/\\./g,'')"
+        onblur="if(this.value.trim())this.value=fmtN(parseNum(this.value))"
+        oninput="AMB_ROWS[${i}].cantidad=parseNum(this.value);calcAMB()"></td>
+      <td class="center muted">${unidad}</td>
+      <td class="center" style="font-weight:700;color:#7c3aed;">${gwp}</td>
+      <td class="right" style="font-size:11.5px;"><span id="amb-u-${i}">${fmtN(Math.round(u))}</span></td>
+      <td class="right"><span id="amb-t-${i}">${fmtN(Math.round(t))}</span></td>
+      <td class="right"><span id="amb-m-${i}">${fmtD(t/1000)}</span></td>
+      <td><button class="btn-del" onclick="delAMBRow(${i})">✕</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── INIT ──
+renderMO();
+renderVSTRef();
+renderOV();
+renderAMB();
+</script>
+</body>
+</html>

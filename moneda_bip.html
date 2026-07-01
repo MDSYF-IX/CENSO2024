@@ -11,6 +11,7 @@
   /* Header BIP */
   .bip-header{background:linear-gradient(135deg,var(--navy-d) 0%,var(--navy) 40%,var(--navy-m) 70%,var(--navy-l) 100%);position:relative;overflow:visible;}
   .bip-logo{height:170px;width:auto;flex-shrink:0;align-self:flex-start;}
+  .bip-logo-link{display:contents;}
   .bip-poly{position:absolute;inset:0;z-index:0;overflow:hidden;}
   .bip-inner{position:relative;z-index:1;padding:10px 26px 10px;max-width:1400px;margin:0 auto;display:flex;align-items:center;gap:18px;}
   .bip-stripe{width:7px;flex-shrink:0;margin-top:2px;display:flex;flex-direction:column;height:66px;}
@@ -90,7 +91,7 @@
 
 <div class="bip-header">
   <div class="bip-inner">
-    <img src="Head Pat-A.png" class="bip-logo" alt="PAT-A">
+    <a href="index.html" class="bip-logo-link" title="Volver al inicio"><img src="Head Pat-A.png" class="bip-logo" alt="PAT-A"></a>
     <div>
       <a href="index.html" class="back-bip">← Herramientas de Formulación</a>
       <div class="eyebrow-bip">Araucanía · Sistema Nacional de Inversiones</div>
@@ -103,6 +104,7 @@
   <div class="bip-nav-inner">
     <button class="nav-tab active" id="nav-ind" onclick="switchTab('ind')">Conversión individual</button>
     <button class="nav-tab" id="nav-mas" onclick="switchTab('mas')">Conversión masiva</button>
+    <button class="nav-tab" id="nav-con" onclick="switchTab('con')">Conversión de Contratos</button>
     <button class="nav-tab" id="nav-idx" onclick="switchTab('idx')">Índices BIP</button>
     <span class="nav-pill">Último Ingreso Moneda Presupuesto año 2027</span>
   </div>
@@ -114,60 +116,99 @@
   <div class="panel active" id="panel-ind">
     <div class="card">
       <div class="card-title">Convertir un monto entre años</div>
-      <div style="display:grid;grid-template-columns:1fr 36px 1fr;gap:14px;align-items:end;">
-        <div>
-          <label class="sub">Año origen</label>
-          <select id="i-a1"></select>
+
+      <!-- Fila 1: Años -->
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+        <label class="sub" style="display:inline;margin:0;white-space:nowrap;">Año origen</label>
+        <select id="i-a1" style="width:78px;padding-left:6px;padding-right:2px;"></select>
+        <button class="swap-btn" id="i-swap" title="Intercambiar" style="flex-shrink:0;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>
+        </button>
+        <label class="sub" style="display:inline;margin:0;white-space:nowrap;">Año destino</label>
+        <select id="i-a2" style="width:78px;padding-left:6px;padding-right:2px;"></select>
+      </div>
+
+      <!-- Fila 2: Monto y Decimales -->
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:14px;">
+        <div style="display:flex;align-items:center;gap:8px;flex:3;min-width:0;">
+          <label class="sub" style="display:inline;margin:0;white-space:nowrap;">Monto a Convertir</label>
+          <input type="text" id="i-monto" placeholder="Ej: 50.000.000" inputmode="numeric" style="flex:1;min-width:0;">
         </div>
-        <div style="padding-bottom:2px;">
-          <button class="swap-btn" id="i-swap" title="Intercambiar">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 10l5-5 5 5M7 14l5 5 5-5"/></svg>
-          </button>
-        </div>
-        <div>
-          <label class="sub">Año destino</label>
-          <select id="i-a2"></select>
+        <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+          <label class="sub" style="display:inline;margin:0;white-space:nowrap;">Nro. de Decimales</label>
+          <input type="number" id="i-dec" value="0" min="0" max="99" style="width:46px;padding:9px 6px;text-align:center;">
         </div>
       </div>
 
-      <div style="margin-top:13px;display:grid;grid-template-columns:1fr 90px;gap:12px;align-items:end;">
-        <div><label class="sub">Monto (pesos)</label><input type="text" id="i-monto" placeholder="Ej: 50.000.000" inputmode="numeric"></div>
-        <div><label class="sub">Decimales</label><input type="number" id="i-dec" value="0" min="0" max="4"></div>
-      </div>
-
-      <div style="margin-top:14px;display:flex;gap:10px;">
+      <!-- Botones -->
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
         <button class="btn-bip" id="i-calc">Convertir</button>
+        <button class="btn-bip" id="i-add" style="background:#15803d;">Agregar a tabla</button>
         <button class="btn-sec" id="i-clear">Limpiar</button>
       </div>
 
       <div class="err" id="i-err"></div>
+      <div class="err" id="i-add-err"></div>
 
-      <div class="result-box" id="i-res">
-        <div class="rb-grid">
-          <div><div class="rb-label" id="i-l1">Monto original</div><div class="rb-value" id="i-orig">—</div></div>
-          <div><div class="rb-label" id="i-l2">Monto convertido</div><div class="rb-value blue" id="i-conv">—</div></div>
+      <!-- Panel 3 columnas: Fórmula | Cálculo | Valor Convertido -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border:1.5px solid #b8d0f7;border-radius:10px;overflow:hidden;background:linear-gradient(135deg,#eef4ff 0%,#dce8ff 100%);margin-top:4px;">
+
+        <!-- Columna 1: Fórmula -->
+        <div style="padding:16px 18px;border-right:1px solid #b8d0f7;">
+          <div style="font-size:14px;font-weight:700;color:var(--navy);border-bottom:2px solid var(--blue-bip);padding-bottom:7px;margin-bottom:12px;">Fórmula</div>
+          <div style="font-family:Georgia,serif;font-size:12px;color:var(--ink);line-height:2.4;">
+            <span style="color:var(--blue-bip);font-weight:700;">Factor</span> =
+            <span style="display:inline-block;text-align:center;vertical-align:middle;margin:0 3px;">
+              <span style="display:block;border-bottom:1.5px solid var(--ink);padding:0 4px;font-size:10px;">Valor dic. año destino</span>
+              <span style="display:block;padding:0 4px;font-size:10px;">Valor dic. año origen</span>
+            </span>
+            <br>
+            <span style="color:var(--blue-bip);font-weight:700;">Monto conv.</span> = Monto × Factor
+          </div>
         </div>
-        <div class="rb-meta" id="i-meta"></div>
+
+        <!-- Columna 2: Cálculo -->
+        <div style="padding:16px 18px;border-right:1px solid #b8d0f7;">
+          <div style="font-size:14px;font-weight:700;color:var(--navy);border-bottom:2px solid var(--blue-bip);padding-bottom:7px;margin-bottom:12px;">Cálculo</div>
+          <div style="font-size:11px;line-height:1.9;color:var(--ink);" id="ej-box">
+            <span style="color:#94a3b8;font-style:italic;">Realiza una conversión para ver el cálculo aquí.</span>
+          </div>
+        </div>
+
+        <!-- Columna 3: Valor Convertido -->
+        <div style="padding:16px 18px;">
+          <div style="font-size:14px;font-weight:700;color:var(--navy);border-bottom:2px solid var(--blue-bip);padding-bottom:7px;margin-bottom:12px;">Valor Convertido</div>
+          <div id="i-res-inner">
+            <span style="color:#94a3b8;font-style:italic;font-size:11px;">Ingresa un monto y presiona Convertir.</span>
+          </div>
+        </div>
+
       </div>
 
-      <p class="note">Los valores corresponden al índice de precios de diciembre de cada año. Fuente: datos oficiales Moneda Presupuesto BIP.</p>
+      <p class="note" style="margin-top:10px;">Los valores corresponden al índice de precios de diciembre de cada año. Fuente: datos oficiales Moneda Presupuesto BIP.</p>
 
-      <!-- Cálculo detallado del indicador -->
-      <div style="background:#f0f5ff;border:1.5px solid #c7d9f7;border-radius:8px;padding:14px 18px;margin-top:16px;">
-        <div style="font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;">Cálculo del indicador</div>
-        <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;">
-          <div style="font-size:13px;color:var(--ink);font-family:Georgia,serif;line-height:2.2;">
-            <span style="color:var(--blue-bip);font-weight:700;">Factor</span> =
-            <span style="display:inline-block;text-align:center;vertical-align:middle;margin:0 4px;">
-              <span style="display:block;border-bottom:1.5px solid var(--ink);padding:0 6px;font-size:12px;">Valor dic. año destino</span>
-              <span style="display:block;padding:0 6px;font-size:12px;">Valor dic. año origen</span>
-            </span>
-            &nbsp;
-            <span style="color:var(--blue-bip);font-weight:700;">Monto convertido</span> = Monto × Factor
-          </div>
-          <div style="font-size:12px;color:var(--muted);max-width:340px;line-height:1.8;border-left:3px solid #c7d9f7;padding-left:14px;" id="ej-box">
-            <span style="color:#94a3b8;font-style:italic;">Realiza una conversión para ver el cálculo detallado aquí.</span>
-          </div>
+      <!-- Tabla acumulada de conversiones -->
+      <div id="ind-table-section" style="display:none;margin-top:18px;padding-top:16px;border-top:2px solid var(--line);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+          <div style="font-size:12px;font-weight:700;color:var(--navy);">Conversiones agregadas · <span id="ind-count">0</span> ítem(s)</div>
+          <button class="btn-sec" id="ind-export" style="font-size:12px;display:flex;align-items:center;gap:6px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/></svg>
+            Exportar CSV
+          </button>
+        </div>
+        <div class="res-wrap" style="display:block;">
+          <table class="res-tbl">
+            <thead><tr>
+              <th>Descripción</th>
+              <th style="text-align:right;">Año origen</th>
+              <th style="text-align:right;">Monto original</th>
+              <th style="text-align:right;">Monto convertido</th>
+              <th style="text-align:right;">Variación</th>
+              <th style="text-align:right;">Factor</th>
+              <th style="width:28px;"></th>
+            </tr></thead>
+            <tbody id="ind-tbody"></tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -185,31 +226,135 @@
         <div><label class="sub">Decimales</label><input type="number" id="m-dec" value="0" min="0" max="4" style="width:76px;"></div>
       </div>
 
-      <!-- ZONA PEGAR DESDE EXCEL -->
+      <!-- FORMATOS RECONOCIDOS -->
+      <details style="margin-bottom:14px;" open>
+        <summary style="cursor:pointer;font-size:12px;font-weight:700;color:var(--navy);padding:8px 12px;background:#f1f5f9;border:1.5px solid var(--line);border-radius:8px;list-style:none;display:flex;align-items:center;gap:7px;user-select:none;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          FORMATOS RECONOCIDOS
+          <span style="font-size:10.5px;font-weight:400;color:var(--muted);margin-left:4px;">haz clic en una tarjeta para seleccionar formato</span>
+        </summary>
+        <div style="border:1.5px solid var(--line);border-top:none;border-radius:0 0 8px 8px;padding:14px;background:#fff;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;">
+
+          <!-- Formato 1: BIP -->
+          <div id="fmt-bip" onclick="setFormato('bip')" style="background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:7px;padding:10px;cursor:pointer;transition:border .12s,box-shadow .12s;user-select:none;">
+            <div style="font-weight:700;color:#1d4ed8;margin-bottom:5px;font-size:12px;">&#128309; BIP &mdash; &ldquo;Resumen Gastos por Año&rdquo;</div>
+            <div style="color:#1e40af;font-size:10.5px;margin-bottom:7px;line-height:1.4;">Copia la tabla completa desde la ficha BIP (Ctrl+C sobre la tabla)</div>
+            <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:9.5px;min-width:240px;">
+              <thead>
+                <tr>
+                  <td style="background:#1d4ed8;color:#fff;padding:3px 6px;border:1px solid #1d4ed8;font-weight:700;white-space:nowrap;">Col 1<br>AÑO &#10003;</td>
+                  <td style="background:#1d4ed8;color:#fff;padding:3px 6px;border:1px solid #1d4ed8;font-weight:700;white-space:nowrap;">Col 2<br>DESCRIPCI&Oacute;N &#10003;</td>
+                  <td style="background:#94a3b8;color:#fff;padding:3px 6px;border:1px solid #94a3b8;white-space:nowrap;">Col 3<br><em>RUT / Empresa</em></td>
+                  <td style="background:#1d4ed8;color:#fff;padding:3px 6px;border:1px solid #1d4ed8;font-weight:700;white-space:nowrap;">Col 4<br>MONTO &#10003;</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background:#fff;">
+                  <td style="padding:3px 6px;border:1px solid #bfdbfe;font-family:monospace;">2022</td>
+                  <td style="padding:3px 6px;border:1px solid #bfdbfe;">Obras b&aacute;sicas</td>
+                  <td style="padding:3px 6px;border:1px solid #e2e8f0;color:#94a3b8;">12.345.678-9</td>
+                  <td style="padding:3px 6px;border:1px solid #bfdbfe;font-family:monospace;">$ 8.500.000</td>
+                </tr>
+                <tr style="background:#f8fafc;">
+                  <td style="padding:3px 6px;border:1px solid #bfdbfe;font-family:monospace;">2023</td>
+                  <td style="padding:3px 6px;border:1px solid #bfdbfe;">Consultora</td>
+                  <td style="padding:3px 6px;border:1px solid #e2e8f0;color:#94a3b8;">98.765.432-1</td>
+                  <td style="padding:3px 6px;border:1px solid #bfdbfe;font-family:monospace;">$ 22.000.000</td>
+                </tr>
+              </tbody>
+            </table>
+            </div>
+            <div style="margin-top:7px;padding:4px 8px;background:#dbeafe;border-radius:4px;font-size:10px;color:#1e40af;line-height:1.5;">
+              Configurar selectores: AÑO=<strong>1</strong> &middot; MONTO=<strong>4</strong> &middot; DESC=<strong>2</strong><br>
+              <span style="color:#3b82f6;">El &ldquo;$&rdquo; y los puntos de miles se limpian autom&aacute;ticamente.</span>
+            </div>
+          </div>
+
+          <!-- Formato 2: Excel -->
+          <div id="fmt-excel" onclick="setFormato('excel')" style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:7px;padding:10px;cursor:pointer;transition:border .12s,box-shadow .12s;user-select:none;">
+            <div style="font-weight:700;color:#15803d;margin-bottom:5px;font-size:12px;">&#128994; Desde Excel</div>
+            <div style="color:#166534;font-size:10.5px;margin-bottom:7px;line-height:1.4;">Selecciona y copia cualquier rango de tu planilla Excel</div>
+            <div style="overflow-x:auto;">
+            <table style="width:100%;border-collapse:collapse;font-size:9.5px;min-width:200px;">
+              <thead>
+                <tr>
+                  <td style="background:#15803d;color:#fff;padding:3px 6px;border:1px solid #15803d;font-weight:700;white-space:nowrap;">Col X<br>AÑO &#10003;</td>
+                  <td style="background:#15803d;color:#fff;padding:3px 6px;border:1px solid #15803d;font-weight:700;white-space:nowrap;">Col X<br>DESCRIPCI&Oacute;N &#10003;</td>
+                  <td style="background:#64748b;color:#fff;padding:3px 6px;border:1px solid #64748b;white-space:nowrap;">Col X<br><em>otras</em></td>
+                  <td style="background:#15803d;color:#fff;padding:3px 6px;border:1px solid #15803d;font-weight:700;white-space:nowrap;">Col X<br>MONTO &#10003;</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="background:#fff;">
+                  <td style="padding:3px 6px;border:1px solid #bbf7d0;font-family:monospace;">2024</td>
+                  <td style="padding:3px 6px;border:1px solid #bbf7d0;">&Iacute;tem A</td>
+                  <td style="padding:3px 6px;border:1px solid #e2e8f0;color:#94a3b8;">&hellip;</td>
+                  <td style="padding:3px 6px;border:1px solid #bbf7d0;font-family:monospace;">45.000.000</td>
+                </tr>
+                <tr style="background:#f8fafc;">
+                  <td style="padding:3px 6px;border:1px solid #bbf7d0;font-family:monospace;">2023</td>
+                  <td style="padding:3px 6px;border:1px solid #bbf7d0;">&Iacute;tem B</td>
+                  <td style="padding:3px 6px;border:1px solid #e2e8f0;color:#94a3b8;">&hellip;</td>
+                  <td style="padding:3px 6px;border:1px solid #bbf7d0;font-family:monospace;">8.500.000</td>
+                </tr>
+              </tbody>
+            </table>
+            </div>
+            <div style="margin-top:7px;padding:4px 8px;background:#dcfce7;border-radius:4px;font-size:10px;color:#166534;line-height:1.5;">
+              Ajusta los <strong>selectores de columna</strong> seg&uacute;n d&oacute;nde est&aacute;n tus datos.<br>
+              <span style="color:#16a34a;">Separador: tabulaciones (Excel) o punto y coma (CSV).</span>
+            </div>
+          </div>
+
+          <!-- Formato 3: Manual -->
+          <div id="fmt-manual" onclick="setFormato('manual')" style="background:#faf5ff;border:1.5px solid #e9d5ff;border-radius:7px;padding:10px;cursor:pointer;transition:border .12s,box-shadow .12s;user-select:none;">
+            <div style="font-weight:700;color:#7c3aed;margin-bottom:5px;font-size:12px;">&#128995; Ingreso Manual</div>
+            <div style="color:#6d28d9;font-size:10.5px;margin-bottom:7px;line-height:1.4;">Escribe directamente: AÑO espacio MONTO (sin tabulaciones)</div>
+            <div style="background:#fff;border:1px solid #e9d5ff;border-radius:5px;padding:8px 10px;font-family:'Courier New',monospace;font-size:10.5px;color:#1e293b;line-height:2;">
+              <span style="background:#dbeafe;color:#1d4ed8;padding:1px 4px;border-radius:3px;font-weight:700;">AÑO</span>
+              <span style="background:#dcfce7;color:#15803d;padding:1px 4px;border-radius:3px;font-weight:700;">MONTO</span>
+              <span style="color:#94a3b8;">[descripci&oacute;n]</span><br>
+              <span style="color:#475569;">2024 8500000 Obras viales</span><br>
+              <span style="color:#475569;">2023 45000000 Consultora</span><br>
+              <span style="color:#475569;">2025 12000000</span>
+            </div>
+            <div style="margin-top:7px;padding:4px 8px;background:#ede9fe;border-radius:4px;font-size:10px;color:#6d28d9;line-height:1.5;">
+              AÑO = n&uacute;mero de 4 d&iacute;gitos detectado auto &middot;<br>
+              MONTO = n&uacute;mero mayor de la l&iacute;nea &middot;<br>
+              DESCRIPCI&Oacute;N = resto del texto (opcional)
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- ZONA IMPORTAR DATOS -->
       <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:8px;padding:14px 16px;margin-bottom:16px;">
-        <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:8px;display:flex;align-items:center;gap:7px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#92400e" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-          PEGAR DESDE EXCEL — Copia dos columnas: Año y Monto
-        </div>
-        <div style="font-size:12px;color:#78350f;margin-bottom:10px;line-height:1.5;">
-          Copia una tabla desde Excel o desde una página web (Ctrl+C) y pégala aquí. Luego indica qué columna contiene el <strong>año</strong>, el <strong>monto</strong> y (opcional) la <strong>descripción</strong>.
-        </div>
-        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+
+        <div id="col-selectors" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
           <div>
             <label class="sub" style="color:#92400e;">Columna del AÑO</label>
-            <input type="number" id="col-anio" value="1" min="1" max="10" style="width:60px;padding:5px 8px;font-size:13px;border:1.5px solid #fde68a;border-radius:6px;">
+            <input type="number" id="col-anio" value="1" min="1" max="20" style="width:60px;padding:5px 8px;font-size:13px;border:1.5px solid #fde68a;border-radius:6px;">
           </div>
           <div>
             <label class="sub" style="color:#92400e;">Columna del MONTO</label>
-            <input type="number" id="col-monto" value="4" min="1" max="10" style="width:60px;padding:5px 8px;font-size:13px;border:1.5px solid #fde68a;border-radius:6px;">
+            <input type="number" id="col-monto" value="4" min="1" max="20" style="width:60px;padding:5px 8px;font-size:13px;border:1.5px solid #fde68a;border-radius:6px;">
           </div>
           <div>
             <label class="sub" style="color:#92400e;">Columna DESCRIPCIÓN <span style="font-weight:400;">(opcional)</span></label>
-            <input type="number" id="col-desc" value="2" min="0" max="10" style="width:60px;padding:5px 8px;font-size:13px;border:1.5px solid #fde68a;border-radius:6px;" placeholder="0=ninguna">
+            <input type="number" id="col-desc" value="2" min="0" max="20" style="width:60px;padding:5px 8px;font-size:13px;border:1.5px solid #fde68a;border-radius:6px;" placeholder="0=ninguna">
           </div>
         </div>
+
+        <div id="manual-hint" style="display:none;background:#ede9fe;border:1px solid #e9d5ff;border-radius:6px;padding:9px 12px;margin-bottom:10px;font-size:11.5px;color:#6d28d9;line-height:1.8;">
+          Escribe una fila por línea con el formato: <strong>AÑO MONTO [descripción]</strong><br>
+          Col 1 = AÑO (4 dígitos) &nbsp;·&nbsp; Col 2 = MONTO (número mayor) &nbsp;·&nbsp; Col 3 = DESCRIPCIÓN (resto del texto, opcional)<br>
+          Ejemplo: <code style="background:#fff;padding:1px 5px;border-radius:3px;font-family:monospace;">2024 8500000 Obras viales</code>
+        </div>
+
         <div style="display:flex;gap:10px;align-items:flex-start;">
-          <textarea id="paste-area" rows="5" placeholder="Pega aquí el contenido copiado desde Excel&#10;Ej:&#10;2014&#9;8500000&#10;2016&#9;22000000&#10;2015&#9;45000000"
+          <textarea id="paste-area" rows="5" placeholder="Pega aquí el contenido copiado desde BIP&#10;Ej:&#10;2014&#9;Obras básicas&#9;12.345.678-9&#9;$ 8.500.000&#10;2016&#9;Consultora&#9;98.765.432-1&#9;$ 22.000.000"
             style="flex:1;padding:9px 12px;font-size:13px;border:1.5px solid #fde68a;border-radius:7px;font-family:'Courier New',monospace;resize:vertical;background:#fff;outline:none;color:var(--ink);line-height:1.6;"></textarea>
           <div style="display:flex;flex-direction:column;gap:8px;">
             <button class="btn-bip" id="paste-import" style="white-space:nowrap;">
@@ -219,9 +364,6 @@
               Limpiar
             </button>
           </div>
-        </div>
-        <div style="font-size:11px;color:#92400e;margin-top:8px;opacity:.8;">
-          💡 También puedes tener una tercera columna opcional con la descripción de cada ítem.
         </div>
         <div class="err" id="paste-err" style="margin-top:8px;"></div>
       </div>
@@ -246,6 +388,7 @@
 
       <div class="err" id="m-err"></div>
 
+      <div id="mas-titulo" style="display:none;font-size:15px;font-weight:700;color:var(--navy);padding:6px 2px 8px;"></div>
       <div class="res-wrap" id="res-wrap">
         <table class="res-tbl">
           <thead><tr><th>Descripción</th><th>Año origen</th><th>Monto original</th><th>Monto convertido</th><th>Variación</th><th>Factor</th></tr></thead>
@@ -262,7 +405,148 @@
     </div>
   </div>
 
-  <!-- PANEL ÍNDICES BIP -->
+  <!-- CONTRATOS -->
+  <div class="panel" id="panel-con">
+    <div class="card">
+      <div class="card-title">Conversión de montos contratados</div>
+      <p style="font-size:13px;color:var(--muted);margin:0 0 14px;">Importa montos contratados desde Excel con fecha de inicio en formato DD/MM/AAAA y exprésalos en pesos del año destino.</p>
+
+      <div class="dest-bar">
+        <span class="dlabel">Convertir todo a →</span>
+        <div class="field"><label class="sub">Año destino</label><select id="c-a2"></select></div>
+        <div><label class="sub">Decimales</label><input type="number" id="c-dec" value="0" min="0" max="4" style="width:76px;"></div>
+      </div>
+
+      <!-- ZONA HISTORIAL DE CONTRATOS BIP -->
+      <div style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:8px;padding:14px 16px;margin-bottom:16px;">
+
+        <div style="font-size:12px;font-weight:700;color:#92400e;margin-bottom:10px;display:flex;align-items:center;gap:7px;">
+          &#128203; PEGAR TABLA &ldquo;HISTORIAL DE CONTRATOS&rdquo; DEL BIP
+        </div>
+
+        <!-- Mini-tabla visual BIP -->
+        <div style="overflow-x:auto;margin-bottom:12px;">
+          <table style="border-collapse:collapse;font-size:9.5px;white-space:nowrap;">
+            <thead><tr>
+              <td style="background:#1d4ed8;color:#fff;padding:4px 7px;border:1px solid #1d4ed8;font-weight:700;text-align:center;">Col 1<br>Etapa &#10003;</td>
+              <td style="background:#94a3b8;color:#fff;padding:4px 7px;border:1px solid #94a3b8;text-align:center;">Col 2<br><em>Contratista</em></td>
+              <td style="background:#1d4ed8;color:#fff;padding:4px 7px;border:1px solid #1d4ed8;font-weight:700;text-align:center;">Col 3<br>Fecha Inicio &#10003;</td>
+              <td style="background:#94a3b8;color:#fff;padding:4px 7px;border:1px solid #94a3b8;text-align:center;">Col 4<br><em>Fecha T&eacute;rm.</em></td>
+              <td style="background:#1d4ed8;color:#fff;padding:4px 7px;border:1px solid #1d4ed8;font-weight:700;text-align:center;">Col 5<br>Mto. Contratado &#10003;</td>
+              <td style="background:#64748b;color:#fff;padding:4px 7px;border:1px solid #64748b;text-align:center;">Col 6<br><em>Mto. Gastado</em></td>
+              <td style="background:#1d4ed8;color:#fff;padding:4px 7px;border:1px solid #1d4ed8;font-weight:700;text-align:center;">Col 7<br>Asignaci&oacute;n &#10003;</td>
+            </tr></thead>
+            <tbody>
+              <tr style="background:#fff;">
+                <td style="padding:3px 7px;border:1px solid #bfdbfe;">DISE&Ntilde;O</td>
+                <td style="padding:3px 7px;border:1px solid #e2e8f0;color:#94a3b8;">CITRA LTDA.</td>
+                <td style="padding:3px 7px;border:1px solid #bfdbfe;font-family:monospace;">09/05/2017</td>
+                <td style="padding:3px 7px;border:1px solid #e2e8f0;color:#94a3b8;font-family:monospace;">07/02/2023</td>
+                <td style="padding:3px 7px;border:1px solid #bfdbfe;font-family:monospace;">460.679</td>
+                <td style="padding:3px 7px;border:1px solid #e2e8f0;color:#94a3b8;font-family:monospace;">460.679</td>
+                <td style="padding:3px 7px;border:1px solid #bfdbfe;">CONSULTOR&Iacute;AS</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="font-size:10.5px;color:#1e40af;background:#eff6ff;border-radius:5px;padding:5px 10px;margin-bottom:10px;">
+          &#9432;&nbsp; Montos ya en M$ &middot; A&ntilde;o = &uacute;ltimos 4 d&iacute;gitos de la fecha (col 3, DD/MM/AAAA) &middot; Usa col 6 si quieres Mto. Gastado en lugar del Contratado
+        </div>
+
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;">
+          <div>
+            <label class="sub" style="color:#92400e;">Col. ETAPA CONTRATADA</label>
+            <input type="number" id="c-col-etapa" value="1" min="1" max="20" style="width:60px;padding:5px 8px;font-size:13px;border:1.5px solid #fde68a;border-radius:6px;">
+          </div>
+          <div>
+            <label class="sub" style="color:#92400e;">Col. A&Ntilde;O INICIO <span style="font-weight:400;">(fecha DD/MM/AAAA)</span></label>
+            <input type="number" id="c-col-anio" value="3" min="1" max="20" style="width:60px;padding:5px 8px;font-size:13px;border:1.5px solid #fde68a;border-radius:6px;">
+          </div>
+          <div>
+            <label class="sub" style="color:#92400e;">Col. MONTO</label>
+            <input type="number" id="c-col-monto" value="5" min="1" max="20" style="width:60px;padding:5px 8px;font-size:13px;border:1.5px solid #fde68a;border-radius:6px;">
+          </div>
+          <div>
+            <label class="sub" style="color:#92400e;">Col. ASIGNACI&Oacute;N</label>
+            <input type="number" id="c-col-asig" value="7" min="1" max="20" style="width:60px;padding:5px 8px;font-size:13px;border:1.5px solid #fde68a;border-radius:6px;">
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start;">
+          <textarea id="c-paste-area" rows="5" placeholder="Pega aquí el contenido copiado desde la tabla BIP (Ctrl+V)"
+            style="flex:1;padding:9px 12px;font-size:13px;border:1.5px solid #fde68a;border-radius:7px;font-family:'Courier New',monospace;resize:vertical;background:#fff;outline:none;color:var(--ink);line-height:1.6;"></textarea>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+            <button class="btn-bip" id="c-paste-import" style="white-space:nowrap;">&#8595; Importar filas</button>
+            <button class="btn-sec" id="c-paste-clear" style="white-space:nowrap;font-size:12px;">Limpiar</button>
+          </div>
+        </div>
+        <div class="err" id="c-paste-err" style="margin-top:8px;"></div>
+      </div>
+
+      <table class="masa-tbl">
+        <thead><tr>
+          <th style="width:22%;">Etapa</th>
+          <th style="width:22%;">Asignación</th>
+          <th style="width:14%;">Año Inicio</th>
+          <th style="width:30%;">Monto ($)</th>
+          <th style="width:7%;"></th>
+        </tr></thead>
+        <tbody id="con-body"></tbody>
+      </table>
+
+      <button class="add-row-btn" id="con-add">+ Agregar ítem manualmente</button>
+
+      <div class="masa-actions">
+        <button class="btn-bip" id="con-calc">Calcular todo</button>
+        <button class="btn-sec" id="con-clear">Limpiar tabla</button>
+        <span style="font-size:12px;color:var(--muted);" id="con-count"></span>
+      </div>
+
+      <div class="err" id="c-err"></div>
+
+      <div id="con-titulo" style="display:none;font-size:15px;font-weight:700;color:var(--navy);padding:6px 2px 8px;"></div>
+
+      <div class="res-wrap" id="con-res-wrap">
+        <table class="res-tbl">
+          <thead><tr>
+            <th>Etapa</th>
+            <th>Asignación</th>
+            <th style="text-align:right;">Año Inicio</th>
+            <th style="text-align:right;">Monto original</th>
+            <th style="text-align:right;">Monto convertido</th>
+            <th style="text-align:right;">Variación</th>
+            <th style="text-align:right;">Factor</th>
+          </tr></thead>
+          <tbody id="con-res-body"></tbody>
+        </table>
+      </div>
+
+      <div class="export-bar" id="con-export-bar" style="display:none;">
+        <button class="btn-sec" id="con-export" style="display:flex;align-items:center;gap:7px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>
+          Exportar CSV
+        </button>
+      </div>
+
+      <!-- TABLA RESUMEN POR ETAPA + ASIGNACIÓN -->
+      <div id="con-sum-wrap" style="display:none;margin-top:20px;padding-top:16px;border-top:2px solid var(--line);">
+        <div style="font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;">Resumen por Etapa y Asignación</div>
+        <div class="res-wrap" style="display:block;">
+          <table class="res-tbl">
+            <thead><tr>
+              <th>Etapa</th>
+              <th>Asignación</th>
+              <th style="text-align:right;">Monto original</th>
+              <th style="text-align:right;">Monto convertido</th>
+            </tr></thead>
+            <tbody id="con-sum-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- PANEL ÍNDICES BIP -->
   <div class="panel" id="panel-idx">
     <div class="card">
       <div class="card-title">Índices de Moneda BIP — Valores diciembre por año</div>
@@ -358,59 +642,175 @@ function bindMiles(id){
   });
 }
 function switchTab(tab){
-  ["ind","mas"].forEach(t=>{
+  ["ind","mas","con","idx"].forEach(t=>{
     document.getElementById("panel-"+t).classList.toggle("active",t===tab);
     document.getElementById("nav-"+t).classList.toggle("active",t===tab);
   });
 }
 
 // === INDIVIDUAL ===
+let _iLastRes = null; // {monto, a1, a2, dec, resultado, factor}
+let _indRows = [];
+let _indRowId = 0;
+
+const _RES_PLACEHOLDER = '<span style="color:#94a3b8;font-style:italic;font-size:11px;">Ingresa un monto y presiona Convertir.</span>';
+const _EJ_PLACEHOLDER  = '<span style="color:#94a3b8;font-style:italic;">Realiza una conversión para ver el cálculo aquí.</span>';
+
 function iCalc(){
-  const err=document.getElementById("i-err"),res=document.getElementById("i-res");
+  const err=document.getElementById("i-err");
   err.classList.remove("show");
+  document.getElementById("i-add-err").classList.remove("show");
   const a1=+document.getElementById("i-a1").value;
   const a2=+document.getElementById("i-a2").value;
   const monto=parseNum(document.getElementById("i-monto").value);
   const dec=+document.getElementById("i-dec").value||0;
-  if(isNaN(monto)||monto<=0){err.textContent="Ingresa un monto válido.";err.classList.add("show");res.classList.remove("show");return;}
+  const resEl=document.getElementById("i-res-inner");
+  if(isNaN(monto)||monto<=0){err.textContent="Ingresa un monto válido.";err.classList.add("show");resEl.innerHTML=_RES_PLACEHOLDER;_iLastRes=null;return;}
   const cv=convertir(monto,a1,a2);
-  if(!cv){err.textContent="Sin datos para ese año.";err.classList.add("show");res.classList.remove("show");return;}
+  if(!cv){err.textContent="Sin datos para ese año.";err.classList.add("show");resEl.innerHTML=_RES_PLACEHOLDER;_iLastRes=null;return;}
+  _iLastRes={monto,a1,a2,dec,resultado:cv.resultado,factor:cv.factor};
   const vp=(cv.factor-1)*100,vs=vp>=0?"pos":"neg";
-  document.getElementById("i-l1").textContent="Monto en pesos de "+a1;
-  document.getElementById("i-l2").textContent="Valor en pesos de "+a2;
-  document.getElementById("i-orig").textContent="$"+fmt(monto,dec);
-  document.getElementById("i-conv").textContent="$"+fmt(cv.resultado,dec);
-  document.getElementById("i-meta").innerHTML=
-    "Factor de corrección: <strong>"+fmt(cv.factor,6)+"</strong>"+
-    "&nbsp;·&nbsp;Variación: <span class='badge "+vs+"'>"+(vp>=0?"+":"")+fmt(vp,1)+"%</span>"+
-    "<br>Diferencia: <strong>$"+fmt(cv.resultado-monto,dec)+"</strong>";
-  res.classList.add("show");
-  // Actualizar cálculo detallado en la sección de fórmula
-  const vDest=IPC_BIP[a2], vOrig=IPC_BIP[a1];
-  const ejBox=document.getElementById("ej-box");
-  if(ejBox){
-    ejBox.innerHTML=
-      "Convertir <strong>$"+fmt(monto,dec)+"</strong> de <strong>"+a1+"</strong> → <strong>"+a2+"</strong><br>"+
-      "<span style='color:var(--muted)'>Valor dic."+a1+" = "+fmt(vOrig,6)+"</span><br>"+
-      "<span style='color:var(--muted)'>Valor dic."+a2+" = "+fmt(vDest,6)+"</span><br>"+
-      "Factor = "+fmt(vDest,6)+" / "+fmt(vOrig,6)+" = <strong style='color:var(--blue-bip)'>"+fmt(cv.factor,6)+"</strong><br>"+
-      "$"+fmt(monto,dec)+" × "+fmt(cv.factor,6)+" = <strong style='color:var(--navy);font-size:14px;'>$"+fmt(cv.resultado,dec)+"</strong>";
+  const difColor=cv.resultado-monto>=0?"#15803d":"#b91c1c";
+  resEl.innerHTML=
+    `<div style="display:flex;align-items:flex-end;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+      <div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Monto en pesos de ${a1}</div>
+        <div style="font-size:21px;font-weight:800;color:var(--ink);">$${fmt(monto,dec)}</div>
+      </div>
+      <div style="font-size:18px;color:var(--muted);padding-bottom:3px;">→</div>
+      <div>
+        <div style="font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;">Valor en pesos de ${a2}</div>
+        <div style="font-size:21px;font-weight:800;color:var(--blue-bip);">$${fmt(cv.resultado,dec)}</div>
+      </div>
+    </div>
+    <div style="font-size:11px;color:var(--muted);padding-top:8px;border-top:1px solid #b8d0f7;">
+      Diferencia: <strong style="color:${difColor};">$${fmt(cv.resultado-monto,dec)}</strong>
+      &nbsp;·&nbsp; Variación: <span class="badge ${vs}">${(vp>=0?"+":"")+fmt(vp,1)}%</span>
+    </div>`;
+  const vDest=IPC_BIP[a2],vOrig=IPC_BIP[a1];
+  document.getElementById("ej-box").innerHTML=
+    "Convertir <strong>$"+fmt(monto,dec)+"</strong> de <strong>"+a1+"</strong> → <strong>"+a2+"</strong><br>"+
+    "<span style='color:var(--muted)'>Valor dic."+a1+" = "+fmt(vOrig,6)+"</span><br>"+
+    "<span style='color:var(--muted)'>Valor dic."+a2+" = "+fmt(vDest,6)+"</span><br>"+
+    "Factor = "+fmt(vDest,6)+" / "+fmt(vOrig,6)+" = <strong style='color:var(--blue-bip)'>"+fmt(cv.factor,6)+"</strong><br>"+
+    "$"+fmt(monto,dec)+" × "+fmt(cv.factor,6)+" = <strong style='color:var(--navy);'>$"+fmt(cv.resultado,dec)+"</strong>";
+}
+
+function iAddToTable(){
+  const addErr=document.getElementById("i-add-err");
+  addErr.style.background="";addErr.style.color="";addErr.style.border="";
+  addErr.classList.remove("show");
+  if(!_iLastRes){
+    addErr.textContent="Realiza una conversión antes de agregar a la tabla.";
+    addErr.classList.add("show");
+    return;
+  }
+  const {monto,a1,a2,dec,resultado,factor}=_iLastRes;
+  _indRowId++;
+  _indRows.push({id:_indRowId,desc:a1+" → "+a2,a1,a2,monto,resultado,factor,dec});
+  indRenderTable();
+  addErr.style.background="#dcfce7";addErr.style.color="#15803d";addErr.style.border="1px solid #86efac";
+  addErr.textContent="✓ Agregado a la tabla ("+_indRows.length+" ítem"+(+_indRows.length!==1?"s":"")+").";
+  addErr.classList.add("show");
+  setTimeout(()=>addErr.classList.remove("show"),2200);
+}
+
+function indRenderTable(){
+  const tbody=document.getElementById("ind-tbody");
+  const section=document.getElementById("ind-table-section");
+  document.getElementById("ind-count").textContent=_indRows.length;
+  if(!_indRows.length){section.style.display="none";return;}
+  section.style.display="";
+  tbody.innerHTML=_indRows.map(r=>{
+    const vp=(r.factor-1)*100,vc=vp>=0?"up":"dn";
+    return`<tr>
+      <td>${r.desc}</td>
+      <td style="text-align:right;">${r.a1}</td>
+      <td style="text-align:right;">$${fmt(r.monto,r.dec)}</td>
+      <td style="text-align:right;" class="blue">$${fmt(r.resultado,r.dec)}</td>
+      <td style="text-align:right;" class="${vc}">${(vp>=0?"+":"")+fmt(vp,1)}%</td>
+      <td style="text-align:right;">${fmt(r.factor,6)}</td>
+      <td style="text-align:center;padding:0;"><button onclick="indRemoveRow(${r.id})" style="background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:16px;padding:2px 8px;" title="Eliminar">×</button></td>
+    </tr>`;
+  }).join("");
+  if(_indRows.length>1){
+    const totO=_indRows.reduce((s,r)=>s+r.monto,0);
+    const totC=_indRows.reduce((s,r)=>s+r.resultado,0);
+    const d=_indRows[_indRows.length-1].dec;
+    tbody.innerHTML+=`<tr class="tot">
+      <td colspan="2"><strong>TOTAL (${_indRows.length} ítems)</strong></td>
+      <td style="text-align:right;"><strong>$${fmt(totO,d)}</strong></td>
+      <td style="text-align:right;" class="blue"><strong>$${fmt(totC,d)}</strong></td>
+      <td colspan="3"></td>
+    </tr>`;
   }
 }
+
+function indRemoveRow(id){
+  _indRows=_indRows.filter(r=>r.id!==id);
+  indRenderTable();
+}
+
 document.getElementById("i-calc").addEventListener("click",iCalc);
+document.getElementById("i-add").addEventListener("click",iAddToTable);
 document.getElementById("i-clear").addEventListener("click",()=>{
   document.getElementById("i-monto").value="";
-  document.getElementById("i-res").classList.remove("show");
   document.getElementById("i-err").classList.remove("show");
+  document.getElementById("i-add-err").classList.remove("show");
+  document.getElementById("ej-box").innerHTML=_EJ_PLACEHOLDER;
+  document.getElementById("i-res-inner").innerHTML=_RES_PLACEHOLDER;
+  _iLastRes=null;
+  _indRows=[];
+  indRenderTable();
 });
 document.getElementById("i-swap").addEventListener("click",()=>{
   const a1=document.getElementById("i-a1"),a2=document.getElementById("i-a2");
   [a1.value,a2.value]=[a2.value,a1.value];
-  if(document.getElementById("i-res").classList.contains("show"))iCalc();
+  if(_iLastRes)iCalc();
+});
+document.getElementById("ind-export").addEventListener("click",()=>{
+  if(!_indRows.length)return;
+  const rows=[["Descripción","Año origen","Monto original ($)","Monto convertido ($)","Variación (%)","Factor"]];
+  _indRows.forEach(r=>{rows.push([r.desc,r.a1,r.monto,+r.resultado.toFixed(r.dec),+((r.factor-1)*100).toFixed(2),+r.factor.toFixed(6)]);});
+  const csv=rows.map(r=>r.map(c=>`"${c}"`).join(",")).join("\n");
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8;"}));
+  a.download="MonedaBIP_individual.csv";a.click();
 });
 bindMiles("i-monto");
 
 // === PEGAR DESDE EXCEL / WEB ===
+const PASTE_PLACEHOLDERS = {
+  bip:    "Pega aqu\u00ed el contenido copiado desde BIP\nEj:\n2014\tObras b\u00e1sicas\t12.345.678-9\t$ 8.500.000\n2016\tConsultora\t98.765.432-1\t$ 22.000.000",
+  excel:  "Pega aqu\u00ed el contenido copiado desde Excel\nEj:\n2014\tObras\t8500000\n2016\tConsultora\t22000000",
+  manual: "Escribe una fila por l\u00ednea: A\u00d1O MONTO descripci\u00f3n\nEj:\n2024 8500000 Obras viales\n2023 22000000 Consultora"
+};
+const FMT_DEF = {bip:"1.5px solid #bfdbfe", excel:"1.5px solid #bbf7d0", manual:"1.5px solid #e9d5ff"};
+const FMT_ACT = {bip:"2.5px solid #1d4ed8", excel:"2.5px solid #15803d", manual:"2.5px solid #7c3aed"};
+const FMT_SHA = {bip:"0 0 0 3px rgba(29,78,216,.15)", excel:"0 0 0 3px rgba(21,128,61,.15)", manual:"0 0 0 3px rgba(124,58,237,.15)"};
+function setFormato(val){
+  ["bip","excel","manual"].forEach(f=>{
+    const c=document.getElementById("fmt-"+f); if(!c) return;
+    c.style.border     = f===val ? FMT_ACT[f] : FMT_DEF[f];
+    c.style.boxShadow  = f===val ? FMT_SHA[f] : "";
+  });
+  const selDiv=document.getElementById("col-selectors");
+  const hint=document.getElementById("manual-hint");
+  const ta=document.getElementById("paste-area");
+  if(val==="bip"){
+    document.getElementById("col-anio").value  = 1;
+    document.getElementById("col-monto").value = 4;
+    document.getElementById("col-desc").value  = 2;
+    selDiv.style.display="flex"; hint.style.display="none";
+  } else if(val==="excel"){
+    document.getElementById("col-anio").value  = 1;
+    document.getElementById("col-monto").value = 3;
+    document.getElementById("col-desc").value  = 2;
+    selDiv.style.display="flex"; hint.style.display="none";
+  } else if(val==="manual"){
+    selDiv.style.display="none"; hint.style.display="block";
+  }
+  if(ta) ta.placeholder=PASTE_PLACEHOLDERS[val]||"";
+}
 function parsePaste(){
   const err = document.getElementById("paste-err");
   err.classList.remove("show");
@@ -427,17 +827,37 @@ function parsePaste(){
   let importadas = 0, omitidas = 0;
 
   for(const linea of lineas){
-    const cols = linea.split(/\t/).map(c => c.trim().replace(/["""\u201c\u201d]/g,""));
+    let anioStr, montoStr, descStr = "";
 
-    // Mínimo de columnas necesarias
-    const maxCol = Math.max(colAnio, colMonto, colDesc);
-    if(cols.length <= maxCol){ omitidas++; continue; }
+    const hasTabs = linea.includes('	');
+    const hasSemi = !hasTabs && linea.includes(';');
 
-    const anioStr  = cols[colAnio]  || "";
-    const montoStr = cols[colMonto] || "";
-    const descStr  = colDesc >= 0 ? (cols[colDesc] || "") : "";
+    if(hasTabs || hasSemi){
+      // Separador estructurado (Excel o CSV): usar selectores de columna
+      const cols = linea.split(hasTabs ? /	/ : /;/).map(c => c.trim().replace(/["""\u201c\u201d]/g,""));
+      const maxCol = Math.max(colAnio, colMonto, colDesc < 0 ? 0 : colDesc);
+      if(cols.length <= maxCol){ omitidas++; continue; }
+      anioStr  = cols[colAnio]  || "";
+      montoStr = cols[colMonto] || "";
+      descStr  = colDesc >= 0 ? (cols[colDesc] || "") : "";
+    } else {
+      // Entrada manual separada por espacios: detección inteligente
+      const tokens = linea.split(/\s+/).filter(t => t.trim());
+      // Año: primer token de exactamente 4 dígitos
+      const yIdx = tokens.findIndex(t => /^\d{4}$/.test(t));
+      if(yIdx === -1){ omitidas++; continue; }
+      // Monto: último token numérico distinto del año (acepta puntos de miles y coma decimal)
+      let aIdx = -1;
+      for(let i = tokens.length - 1; i >= 0; i--){
+        if(i !== yIdx && /^[\d.]+([,]\d+)?$/.test(tokens[i])){ aIdx = i; break; }
+      }
+      if(aIdx === -1){ omitidas++; continue; }
+      anioStr  = tokens[yIdx];
+      montoStr = tokens[aIdx];
+      descStr  = tokens.filter((_,i) => i !== yIdx && i !== aIdx).join(' ');
+    }
 
-    // Validar año: debe ser 4 dígitos entre 1920 y 2099
+    // Validar año: 4 dígitos entre 1920 y 2099
     if(!/^\d{4}$/.test(anioStr.trim())){ omitidas++; continue; }
     const anio = parseInt(anioStr);
     if(anio < 1920 || anio > 2099){ omitidas++; continue; }
@@ -447,10 +867,7 @@ function parsePaste(){
     const monto = parseFloat(montoLimpio);
     if(isNaN(monto) || monto <= 0){ omitidas++; continue; }
 
-    if(!IPC_BIP[anio]){
-      omitidas++;
-      continue;
-    }
+    if(!IPC_BIP[anio]){ omitidas++; continue; }
 
     const montoFmt = Math.round(monto).toLocaleString("es-CL");
     addRow(descStr, anio, montoFmt);
@@ -458,7 +875,7 @@ function parsePaste(){
   }
 
   if(importadas === 0){
-    err.textContent = `No se encontraron filas válidas. Revisa los números de columna — Año: col ${colAnio+1}, Monto: col ${colMonto+1}.`;
+    err.textContent = `No se encontraron filas válidas. Para Excel/CSV revisa los números de columna. Para entrada manual usa: AÑO MONTO (ej: 2024 50000000).`;
     err.classList.add("show"); return;
   }
 
@@ -528,6 +945,9 @@ function masaCalc(){
   trT.innerHTML=`<td colspan="2" style="font-weight:700;">TOTAL (${masaRes.length} ítems) → ${a2}</td><td>$${fmt(tO,dec)}</td><td>$${fmt(tC,dec)}</td><td class="${vcs}">${(vtot>=0?"+":"")+fmt(vtot,1)}%</td>`;
   tbody.appendChild(trT);
   wrap.classList.add("show");document.getElementById("export-bar").style.display="flex";
+  const _masTit=document.getElementById("mas-titulo");
+  _masTit.textContent=`Montos Convertidos a Moneda ${a2}`;
+  _masTit.style.display="";
 }
 document.getElementById("masa-add").addEventListener("click",()=>addRow());
 document.getElementById("masa-calc").addEventListener("click",masaCalc);
@@ -536,18 +956,193 @@ document.getElementById("masa-clear").addEventListener("click",()=>{
   document.getElementById("res-wrap").classList.remove("show");
   document.getElementById("m-err").classList.remove("show");
   document.getElementById("export-bar").style.display="none";
+  document.getElementById("mas-titulo").style.display="none";
   masaRes=[];updCount();
 });
 document.getElementById("masa-export").addEventListener("click",()=>{
   if(!masaRes.length)return;
   const a2=+document.getElementById("m-a2").value,dec=+document.getElementById("m-dec").value||0;
-  const rows=[["Descripción","Año origen","Monto original ($)","Monto convertido ($)","Variación (%)"]];
+  const _titulo=`Montos Convertidos a Moneda ${a2}`;
+  const rows=[[_titulo],["Descripción","Año origen","Monto original ($)","Monto convertido ($)","Variación (%)"]];
   let tO=0,tC=0;
   masaRes.forEach(r=>{rows.push([r.desc,r.anio,r.monto,+(r.resultado.toFixed(dec)),+((r.factor-1)*100).toFixed(2)]);tO+=r.monto;tC+=r.resultado;});
   rows.push(["TOTAL","→ "+a2,tO,+(tC.toFixed(dec)),+((tC/tO-1)*100).toFixed(2)]);
   const csv=rows.map(r=>r.map(c=>`"${c}"`).join(",")).join("\n");
   const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"}));
   a.download=`MonedaBIP_${a2}.csv`;a.click();
+});
+
+
+// === PEGAR DESDE EXCEL — CONTRATOS ===
+function conParsePaste(){
+  const err=document.getElementById("c-paste-err");
+  err.classList.remove("show"); err.style.background=""; err.style.color=""; err.style.border="";
+  const raw=document.getElementById("c-paste-area").value.trim();
+  if(!raw){ err.textContent="Pega contenido aquí primero."; err.classList.add("show"); return; }
+
+  const colEtapa=parseInt(document.getElementById("c-col-etapa").value||1)-1;
+  const colAnio =parseInt(document.getElementById("c-col-anio").value ||3)-1;
+  const colMonto=parseInt(document.getElementById("c-col-monto").value||5)-1;
+  const colAsig =parseInt(document.getElementById("c-col-asig").value ||7)-1;
+
+  const lineas=raw.split(/\r?\n/).filter(l=>l.trim());
+  let importadas=0,omitidas=0;
+
+  for(const linea of lineas){
+    const hasTabs=linea.includes('\t');
+    const hasSemi=!hasTabs&&linea.includes(';');
+    if(!hasTabs&&!hasSemi){ omitidas++; continue; }
+
+    const cols=linea.split(hasTabs?/\t/:/;/).map(c=>c.trim().replace(/[\u201c\u201d"]/g,""));
+    const maxCol=Math.max(colEtapa,colAnio,colMonto,colAsig);
+    if(cols.length<=maxCol){ omitidas++; continue; }
+
+    const etapaStr=cols[colEtapa]||"";
+    const fechaStr=cols[colAnio] ||"";
+    const montoStr=cols[colMonto]||"";
+    const asigStr =cols[colAsig] ||"";
+
+    // Extraer año de fecha DD/MM/AAAA — últimos 4 dígitos
+    const anioMatch=fechaStr.replace(/\s/g,"").match(/(\d{4})$/);
+    if(!anioMatch){ omitidas++; continue; }
+    const anio=parseInt(anioMatch[1]);
+    if(anio<1920||anio>2099){ omitidas++; continue; }
+
+    const montoLimpio=montoStr.replace(/\./g,"").replace(",",".");
+    const monto=parseFloat(montoLimpio);
+    if(isNaN(monto)||monto<=0){ omitidas++; continue; }
+    if(!IPC_BIP[anio]){ omitidas++; continue; }
+
+    addConRow(etapaStr,asigStr,anio,Math.round(monto).toLocaleString("es-CL"));
+    importadas++;
+  }
+
+  if(importadas===0){
+    err.textContent=`No se encontraron filas válidas. Revisa los números de columna.`;
+    err.classList.add("show"); return;
+  }
+  let msg=`✓ ${importadas} fila${importadas!==1?"s":""} importada${importadas!==1?"s":""}`;
+  if(omitidas>0) msg+=` · ${omitidas} omitida${omitidas!==1?"s":""}`;
+  err.style.background="#dcfce7"; err.style.color="#15803d";
+  err.textContent=msg; err.classList.add("show");
+  document.getElementById("c-paste-area").value="";
+}
+
+// === CONTRATOS ===
+let conRowId=0,conRes=[];
+function addConRow(etapa,asig,anio,monto){
+  etapa=etapa||""; asig=asig||""; anio=anio||2010; monto=monto||"";
+  const id="c"+conRowId++;
+  const tr=document.createElement("tr"); tr.id=id;
+  const aOpts=Object.keys(IPC_BIP).map(Number).sort((a,b)=>a-b)
+    .map(a=>`<option value="${a}"${a==anio?" selected":""}>${a}</option>`).join("");
+  tr.innerHTML=`<td><input type="text" class="ce" placeholder="Etapa" value="${etapa}"></td>
+    <td><input type="text" class="ca" placeholder="Asignación" value="${asig}"></td>
+    <td><select class="cy">${aOpts}</select></td>
+    <td><input type="text" class="cv" placeholder="0" inputmode="numeric" value="${monto}"></td>
+    <td><button class="del-row">×</button></td>`;
+  tr.querySelector(".del-row").addEventListener("click",()=>{tr.remove();conUpdCount();});
+  tr.querySelector(".cv").addEventListener("input",function(){let v=this.value.replace(/[^\d]/g,"");if(v)this.value=parseInt(v).toLocaleString("es-CL");});
+  document.getElementById("con-body").appendChild(tr);
+  conUpdCount();
+}
+function conUpdCount(){
+  const n=document.getElementById("con-body").querySelectorAll("tr").length;
+  document.getElementById("con-count").textContent=n?n+" ítem"+(n!==1?"s":""):"";
+}
+
+function conCalc(){
+  const err=document.getElementById("c-err"),wrap=document.getElementById("con-res-wrap");
+  err.classList.remove("show"); wrap.classList.remove("show");
+  document.getElementById("con-export-bar").style.display="none";
+  const tit=document.getElementById("con-titulo"); tit.style.display="none";
+  const a2=+document.getElementById("c-a2").value;
+  const dec=+document.getElementById("c-dec").value||0;
+  const filas=document.querySelectorAll("#con-body tr");
+  if(!filas.length){err.textContent="Agrega al menos un ítem.";err.classList.add("show");return;}
+  conRes=[];let tO=0,tC=0;
+  for(const tr of filas){
+    const etapa=tr.querySelector(".ce").value||"(sin etapa)";
+    const asig=tr.querySelector(".ca").value||"";
+    const anio=+tr.querySelector(".cy").value;
+    const monto=parseNum(tr.querySelector(".cv").value);
+    if(isNaN(monto)||monto<=0){err.textContent=`"${etapa}": monto inválido.`;err.classList.add("show");conRes=[];return;}
+    const cv=convertir(monto,anio,a2);
+    if(!cv){err.textContent=`"${etapa}": sin datos para ${anio}.`;err.classList.add("show");conRes=[];return;}
+    tO+=monto;tC+=cv.resultado;
+    conRes.push({etapa,asig,anio,monto,resultado:cv.resultado,factor:cv.factor});
+  }
+  const tbody=document.getElementById("con-res-body"); tbody.innerHTML="";
+  conRes.forEach(r=>{
+    const vp=(r.factor-1)*100,vc=vp>=0?"up":"dn";
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${r.etapa}</td><td>${r.asig}</td><td style="text-align:right;">${r.anio}</td><td style="text-align:right;">$${fmt(r.monto,dec)}</td><td style="text-align:right;" class="blue">$${fmt(r.resultado,dec)}</td><td style="text-align:right;" class="${vc}">${(vp>=0?"+":"")+fmt(vp,1)}%</td><td style="text-align:right;color:var(--muted);font-size:12px;">${fmt(r.factor,6)}</td>`;
+    tbody.appendChild(tr);
+  });
+  const vtot=tO>0?(tC/tO-1)*100:0,vcs=vtot>=0?"up":"dn";
+  const trT=document.createElement("tr"); trT.className="tot";
+  trT.innerHTML=`<td colspan="3" style="font-weight:700;">TOTAL (${conRes.length} ítems) → ${a2}</td><td style="text-align:right;">$${fmt(tO,dec)}</td><td style="text-align:right;">$${fmt(tC,dec)}</td><td style="text-align:right;" class="${vcs}">${(vtot>=0?"+":"")+fmt(vtot,1)}%</td><td></td>`;
+  tbody.appendChild(trT);
+  tit.textContent=`Montos Contratados convertidos a Moneda ${a2}`;
+  tit.style.display="";
+  wrap.classList.add("show");
+  document.getElementById("con-export-bar").style.display="flex";
+
+  // Tabla resumen: agrupar por etapa + asignación
+  const sumMap=new Map();
+  conRes.forEach(r=>{
+    const key=r.etapa+"\x00"+r.asig;
+    if(!sumMap.has(key)) sumMap.set(key,{etapa:r.etapa,asig:r.asig,monto:0,resultado:0});
+    const s=sumMap.get(key); s.monto+=r.monto; s.resultado+=r.resultado;
+  });
+  const sumBody=document.getElementById("con-sum-body"); sumBody.innerHTML="";
+  let sTotO=0,sTotC=0;
+  sumMap.forEach(s=>{
+    sTotO+=s.monto; sTotC+=s.resultado;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${s.etapa}</td><td>${s.asig}</td><td style="text-align:right;">$${fmt(s.monto,dec)}</td><td style="text-align:right;" class="blue">$${fmt(s.resultado,dec)}</td>`;
+    sumBody.appendChild(tr);
+  });
+  if(sumMap.size>0){
+    const trT=document.createElement("tr"); trT.className="tot";
+    trT.innerHTML=`<td colspan="2" style="font-weight:700;">TOTAL (${sumMap.size} grupo${sumMap.size!==1?"s":""})</td><td style="text-align:right;">$${fmt(sTotO,dec)}</td><td style="text-align:right;" class="blue">$${fmt(sTotC,dec)}</td>`;
+    sumBody.appendChild(trT);
+  }
+  document.getElementById("con-sum-wrap").style.display="";
+}
+
+document.getElementById("c-paste-import").addEventListener("click",conParsePaste);
+document.getElementById("c-paste-clear").addEventListener("click",()=>{
+  document.getElementById("c-paste-area").value="";
+  const err=document.getElementById("c-paste-err");
+  err.classList.remove("show"); err.style.background=""; err.style.color=""; err.style.border="";
+});
+document.getElementById("c-paste-area").addEventListener("paste",()=>{ setTimeout(conParsePaste,80); });
+document.getElementById("con-add").addEventListener("click",()=>addConRow());
+document.getElementById("con-calc").addEventListener("click",conCalc);
+document.getElementById("con-clear").addEventListener("click",()=>{
+  document.getElementById("con-body").innerHTML="";
+  document.getElementById("con-res-wrap").classList.remove("show");
+  document.getElementById("c-err").classList.remove("show");
+  document.getElementById("con-export-bar").style.display="none";
+  document.getElementById("con-titulo").style.display="none";
+  document.getElementById("con-sum-wrap").style.display="none";
+  conRes=[]; conUpdCount();
+});
+document.getElementById("con-export").addEventListener("click",()=>{
+  if(!conRes.length)return;
+  const a2=+document.getElementById("c-a2").value, dec=+document.getElementById("c-dec").value||0;
+  const titulo=`Montos Contratados convertidos a Moneda ${a2}`;
+  const rows=[[titulo],["Etapa","Asignación","Año Inicio","Monto original ($)","Monto convertido ($)","Variación (%)","Factor"]];
+  let tO=0,tC=0;
+  conRes.forEach(r=>{
+    rows.push([r.etapa,r.asig,r.anio,r.monto,+(r.resultado.toFixed(dec)),+((r.factor-1)*100).toFixed(2),+r.factor.toFixed(6)]);
+    tO+=r.monto; tC+=r.resultado;
+  });
+  rows.push(["TOTAL","","→ "+a2,tO,+(tC.toFixed(dec)),+((tC/tO-1)*100).toFixed(2),""]);
+  const csv=rows.map(r=>r.map(c=>`"${c}"`).join(",")).join("\n");
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"}));
+  a.download=`Contratos_${a2}.csv`; a.click();
 });
 
 // Init
@@ -664,7 +1259,7 @@ function idxRenderTabla(){
     if(tbl) tbl.classList.add("idx-admin-active");
   }
   // Recargar selects de año en todos los paneles
-  ["i-a1","i-a2","m-a2"].forEach(id => {
+  ["i-a1","i-a2","m-a2","c-a2"].forEach(id => {
     const sel = document.getElementById(id);
     if(!sel) return;
     const cur = sel.value;
@@ -720,7 +1315,7 @@ document.getElementById("idx-valor").addEventListener("keydown",e=>{ if(e.key===
 // Incluir idx en switchTab
 const _switchTabOrig = switchTab;
 switchTab = function(tab){
-  ["ind","mas","idx"].forEach(t=>{
+  ["ind","mas","con","idx"].forEach(t=>{
     const panel = document.getElementById("panel-"+t);
     const nav = document.getElementById("nav-"+t);
     if(panel) panel.classList.toggle("active", t===tab);
@@ -735,9 +1330,11 @@ setTimeout(()=>{ }, 100);
 const _hoy = new Date().getFullYear();
 const _a1def = IPC_BIP[_hoy - 1] ? _hoy - 1 : IPC_MAX_YEAR - 1;
 const _a2def = IPC_BIP[_hoy - 2] ? _hoy - 2 : IPC_MAX_YEAR - 2;
+setFormato("bip");
 fillAnios("i-a1", _a1def);
 fillAnios("i-a2", _a2def);
 fillAnios("m-a2", IPC_MAX_YEAR - 1);
+fillAnios("c-a2", IPC_MAX_YEAR - 1);
 </script>
 </body>
 </html>
